@@ -412,10 +412,10 @@ function EditorContent() {
                                         onChange={e => setContent({ ...content, [srv]: { ...content[srv], subtitle: e.target.value } })}
                                         className="w-full bg-black/40 border border-white/10 rounded p-2 text-xs outline-none" />
 
-                                    <input type="text" placeholder="Link URL"
+                                    <input type="text" placeholder="Link URL (start with https://)"
                                         value={content[srv]?.link || ''}
                                         onChange={e => setContent({ ...content, [srv]: { ...content[srv], link: e.target.value } })}
-                                        className="w-full bg-black/40 border border-white/10 rounded p-2 text-xs outline-none" />
+                                        className="w-full bg-black/40 border border-white/10 rounded p-2 text-xs outline-none text-neon-blue" />
                                 </div>
                             ))}
                         </div>

@@ -48,6 +48,18 @@ export default function CreateCardPage() {
                 ]
             };
 
+            // CHECK UNIQUE SLUG
+            const slugToCheck = form.slug.toLowerCase().replace(/\s+/g, '-');
+            const { data: existing } = await supabase
+                .from('cards')
+                .select('id')
+                .eq('slug', slugToCheck)
+                .maybeSingle();
+
+            if (existing) {
+                throw new Error(`The ID "${slugToCheck}" is already taken. Please choose another.`);
+            }
+
             const { data, error } = await supabase
                 .from('cards')
                 .insert([
