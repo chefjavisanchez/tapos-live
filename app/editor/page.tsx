@@ -5,6 +5,9 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { Loader2, Save, Phone, Globe, Image, User, Upload, CreditCard } from 'lucide-react';
 
+// Force dynamic rendering to avoid static build errors
+export const dynamic = 'force-dynamic';
+
 export default function Editor() {
     return (
         <Suspense fallback={<div className="h-screen flex items-center justify-center text-white bg-black">INITIALIZING ENGINE...</div>}>
@@ -14,6 +17,7 @@ export default function Editor() {
 }
 
 function EditorContent() {
+    // ... logic ...
     const searchParams = useSearchParams();
     const cardId = searchParams.get('id');
     const router = useRouter();
