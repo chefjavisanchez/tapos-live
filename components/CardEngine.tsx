@@ -554,37 +554,65 @@ export default function CardEngine({ data, slug }: CardEngineProps) {
                                     ))}
                                 </div>
                             </div>
-                            <div className="px-4">
-                                {['srv1', 'srv2', 'srv3', 'srv4'].map((key, idx) => {
-                                    const srv = data[key] || {};
-                                    const title = srv.title || (idx === 0 ? "Visit Website" : idx === 1 ? "My Offerings" : idx === 2 ? "WhatsApp" : "More Info");
-                                    const subtitle = srv.subtitle || (idx === 0 ? "Verify Domain" : idx === 1 ? "View Services" : idx === 2 ? "Chat Business" : "Details");
-                                    const link = srv.link && srv.link !== '#' ? srv.link : null;
+                            {/* DYNAMIC SERVICE BUTTONS */}
+                            {[1, 2, 3, 4].map((srv) => {
+                                const btnData = data.content?.[srv as keyof typeof data.content] as any;
+                                const defaultLabels = { 1: 'Visit Website', 2: 'My Offerings', 3: 'WhatsApp', 4: 'More Info' };
+                                const defaultIcons = { 1: 'ph-globe', 2: 'ph-briefcase', 3: 'ph-whatsapp-logo', 4: 'ph-info' };
+                                const isWhatsApp = srv === 3; // Special check for button 3
 
-                                    // DEFAULTS
-                                    const defaultIcon = idx === 0 ? "ph-globe" : idx === 1 ? "ph-briefcase" : idx === 2 ? "ph-whatsapp-logo" : "ph-info";
-                                    const icon = getSmartIcon(title + " " + subtitle, defaultIcon);
+                                return (
+                                    <a
+                                        key={srv}
+                                        href={btnData?.link || '#'}
+                                        target="_blank"
+                                        onClick={(e) => {
+                                            if (!btnData?.link || btnData.link === '#') {
+                                                e.preventDefault();
+                                            }
+                                        }}
+                                        className={`service-btn glass-panel ${(!btnData?.link || btnData.link === '#') ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                    >
+                                        <div className="icon-box" style={{
+                                            background: isWhatsApp ? 'rgba(37, 211, 102, 0.1)' : undefined,
+                                            borderColor: isWhatsApp ? 'rgba(37, 211, 102, 0.3)' : undefined
+                                        }}>
+                                            <i className={`ph-fill ${isWhatsApp ? 'ph-whatsapp-logo' : (btnData?.icon || defaultIcons[srv as keyof typeof defaultIcons])}`} style={{
+                                                color: isWhatsApp ? '#25D366' : undefined
+                                            }}></i>
+                                        </div>
+                                        <div className="text-content">
+                                            <h3>{btnData?.title || defaultLabels[srv as keyof typeof defaultLabels]}</h3>
+                                            <p>{btnData?.subtitle || 'Tap to view'}</p>
+                                        </div>
+                                        <div className="arrow-box">
+                                            <i className="ph-bold ph-arrow-right"></i>
+                                        </div>
+                                    </a>
+                                );
+                            })}
 
-                                    // COLORS: 1=White, 2=Accent(Blue), 3=WhatsApp(Green), 4=White
-                                    const color = idx === 1 ? "var(--accent)" : idx === 2 ? "#25D366" : "#fff";
-
-                                    return (
-                                        <a key={key}
-                                            href={link || '#'}
-                                            target={link ? "_blank" : undefined}
-                                            onClick={(e) => { if (!link) e.preventDefault(); }}
-                                            className="srv-btn"
-                                            style={{ cursor: link ? 'pointer' : 'default', opacity: link ? 1 : 0.8 }}
-                                        >
-                                            <i className={`ph ${icon} btn-icon`} style={{ color: color }}></i>
-                                            <div className="btn-txt">
-                                                <h3>{title}</h3>
-                                                <p>{subtitle}</p>
-                                            </div>
-                                        </a>
-                                    )
-                                })}
-                            </div>
+                            {/* PERMANENT REFERRAL BUTTON (BUTTON 5) */}
+                            <a
+                                href={`https://tapos360.com/create?ref=${slug}`}
+                                target="_blank"
+                                className="service-btn glass-panel"
+                                style={{
+                                    border: '1px dashed rgba(0, 243, 255, 0.3)',
+                                    background: 'rgba(0, 243, 255, 0.03)'
+                                }}
+                            >
+                                <div className="icon-box" style={{ background: 'rgba(0, 243, 255, 0.1)', borderColor: 'rgba(0, 243, 255, 0.3)' }}>
+                                    <i className="ph-fill ph-crown" style={{ color: '#00F3FF' }}></i>
+                                </div>
+                                <div className="text-content">
+                                    <h3 style={{ color: '#00F3FF' }}>Get Your Own</h3>
+                                    <p>Create a card like this</p>
+                                </div>
+                                <div className="arrow-box">
+                                    <i className="ph-bold ph-plus" style={{ color: '#00F3FF' }}></i>
+                                </div>
+                            </a>
                         </div>
 
                         {/* VIEW 3: VIDEO */}
