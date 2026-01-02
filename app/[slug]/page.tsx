@@ -38,7 +38,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
             description: `View the professional profile of ${fullName}.`,
             images: [
                 {
-                    url: profileImage || 'https://tapos.com/default-cover.jpg',
+                    url: '/opengraph-image.png',
                     width: 1200,
                     height: 630,
                 },
@@ -92,9 +92,9 @@ export default async function Page({ params }: Props) {
             <div className="min-h-screen bg-black flex flex-col items-center justify-center p-6 text-center font-mono text-white relative overflow-hidden">
                 <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1635322966219-b75ed372eb01?q=80&w=1000')] bg-cover opacity-20 blur-sm animate-pulse"></div>
 
-                <div className="z-10 bg-black/80 backdrop-blur-xl p-8 rounded-2xl border border-white/10 shadow-2xl max-w-md w-full">
-                    <div className="w-20 h-20 bg-yellow-500/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-yellow-500/30 animate-bounce">
-                        <i className="ph-fill ph-lock-key text-yellow-500 text-3xl"></i>
+                <div className="z-10 bg-black/80 backdrop-blur-xl p-8 rounded-2xl border border-[#00F3FF]/30 shadow-2xl max-w-md w-full">
+                    <div className="w-20 h-20 bg-[#00F3FF]/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-[#00F3FF]/30 animate-bounce">
+                        <i className="ph-fill ph-lock-key text-[#00F3FF] text-3xl"></i>
                     </div>
 
                     <h1 className="text-2xl font-bold uppercase tracking-widest mb-2 text-white">Profile Locked</h1>
@@ -102,7 +102,7 @@ export default async function Page({ params }: Props) {
                         This digital identity ({card.content.fullName}) has been created but not yet activated.
                     </p>
 
-                    <a href={`https://buy.stripe.com/6oU00i6UOa2YcVzaiH3gk00?client_reference_id=${card.id}`} className="block w-full bg-gradient-to-r from-yellow-600 to-yellow-500 hover:from-yellow-500 hover:to-yellow-400 text-black font-bold py-4 rounded-xl transition transform hover:scale-105 shadow-lg shadow-yellow-500/20 mb-4">
+                    <a href={`https://buy.stripe.com/6oU00i6UOa2YcVzaiH3gk00?client_reference_id=${card.id}`} className="block w-full bg-[#00F3FF] hover:bg-white text-black font-bold py-4 rounded-xl transition transform hover:scale-105 shadow-lg shadow-[#00F3FF]/20 mb-4">
                         ACTIVATE CARD • $99
                     </a>
 
