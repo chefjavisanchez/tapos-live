@@ -114,15 +114,13 @@ function EditorContent() {
         // Refresh the iframe preview by reloading it with a cache-busting timestamp AND view persistence
         const iframe = document.getElementById('preview-frame') as HTMLIFrameElement;
         if (iframe && card?.slug) {
-            const baseUrl = iframe.src.split('?')[0];
-
             // Map Editor Tabs to Preview Views
             let view = 'v-home';
             if (activeTab === 'links' || activeTab === 'services') view = 'v-grid'; // Links & Deck -> Grid
             if (activeTab === 'visuals') view = 'v-star';
             if (activeTab === 'shipping') view = 'v-qr';
 
-            iframe.src = `${baseUrl}?t=${Date.now()}&view=${view}`;
+            iframe.src = `/preview?id=${cardId}&t=${Date.now()}&view=${view}`;
         }
 
         setSaving(false);
@@ -496,7 +494,7 @@ function EditorContent() {
                 <div className="relative w-[375px] h-[750px] border-[10px] border-[#222] rounded-[40px] overflow-hidden shadow-2xl bg-black transition-all hover:scale-[1.02]">
                     <iframe
                         id="preview-frame"
-                        src={`/${card.slug}`}
+                        src={`/preview?id=${cardId}`}
                         className="w-full h-full"
                         style={{ border: 'none' }}
                     />
