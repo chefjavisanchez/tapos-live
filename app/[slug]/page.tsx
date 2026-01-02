@@ -78,6 +78,41 @@ export default async function Page({ params }: Props) {
         );
     }
 
+    // 3. SECURITY CHECK: IS CARD ACTIVE?
+    // We allow "Preview" mode (if specifically enabled) or if Subscription is Active
+    const isActive = card.content.subscription === 'active';
+
+    // If you want to allow the OWNER to view it, we'd need session checks, 
+    // but since this is a static public page, we Lock it by default.
+    // The "Preview" route we made earlier bypasses this because it renders CardEngine directly.
+
+    if (!isActive) {
+        return (
+            <div className="min-h-screen bg-black flex flex-col items-center justify-center p-6 text-center font-mono text-white relative overflow-hidden">
+                <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1635322966219-b75ed372eb01?q=80&w=1000')] bg-cover opacity-20 blur-sm animate-pulse"></div>
+
+                <div className="z-10 bg-black/80 backdrop-blur-xl p-8 rounded-2xl border border-white/10 shadow-2xl max-w-md w-full">
+                    <div className="w-20 h-20 bg-yellow-500/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-yellow-500/30 animate-bounce">
+                        <i className="ph-fill ph-lock-key text-yellow-500 text-3xl"></i>
+                    </div>
+
+                    <h1 className="text-2xl font-bold uppercase tracking-widest mb-2 text-white">Profile Locked</h1>
+                    <p className="text-white/50 text-sm mb-8">
+                        This digital identity ({card.content.fullName}) has been created but not yet activated.
+                    </p>
+
+                    <a href="https://buy.stripe.com/6oU00i6UOa2YcVzaiH3gk00" className="block w-full bg-gradient-to-r from-yellow-600 to-yellow-500 hover:from-yellow-500 hover:to-yellow-400 text-black font-bold py-4 rounded-xl transition transform hover:scale-105 shadow-lg shadow-yellow-500/20 mb-4">
+                        ACTIVATE CARD • $99
+                    </a>
+
+                    <p className="text-[10px] text-white/30 uppercase tracking-wider">
+                        TapOS Secure Gateway
+                    </p>
+                </div>
+            </div>
+        );
+    }
+
     // Pass data to Client Component
     return <CardEngine data={card.content} slug={params.slug} />;
 }
