@@ -1,0 +1,107 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { supabase } from '@/lib/supabase';
+import { useRouter } from 'next/navigation';
+import { Settings, Lock, CreditCard, ShieldCheck } from 'lucide-react';
+
+export default function SettingsPage() {
+    const [loading, setLoading] = useState(true);
+    const [card, setCard] = useState<any>(null);
+    const router = useRouter();
+
+    useEffect(() => {
+        const checkAccess = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) {
+                router.push('/login');
+                return;
+            }
+
+            const { data } = await supabase
+                .from('cards')
+                .select('*')
+                .eq('user_id', user.id)
+                .single();
+
+            setCard(data);
+            setLoading(false);
+        };
+        checkAccess();
+    }, []);
+
+    if (loading) return <div className="min-h-screen bg-black flex items-center justify-center text-white">Loading...</div>;
+
+    // LOCKED VIEW
+    if (!card || card.content.subscription !== 'active') {
+        return (
+            <div className="min-h-screen bg-black bg-cyber-grid p-8 flex items-center justify-center">
+                <div className="max-w-md w-full glass-panel border border-yellow-500/30 p-8 rounded-2xl text-center">
+                    <div className="w-16 h-16 bg-yellow-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-yellow-500/30">
+                        <Lock className="text-yellow-500" size={32} />
+                    </div>
+                    <h2 className="text-2xl font-bold text-white mb-2">ACCESS RESTRICTED</h2>
+                    <p className="text-white/50 mb-6">Settings are reserved for Activated Members only.</p>
+                    <a href="/" className="inline-block bg-white/10 hover:bg-white/20 text-white px-6 py-3 rounded-lg font-bold transition">
+                        Return to Dashboard
+                    </a>
+                </div>
+            </div>
+        );
+    }
+
+    // ACTIVE VIEW
+    return (
+        <div className="min-h-screen bg-black bg-cyber-grid p-8 text-white flex justify-center">
+            <div className="max-w-2xl w-full">
+
+                <div className="mb-8 flex items-center gap-4">
+                    <div className="p-3 bg-neon-blue/20 rounded-xl border border-neon-blue">
+                        <Settings className="text-neon-blue" size={24} />
+                    </div>
+                    <div>
+                        <h1 className="text-3xl font-bold font-syncopate">SYSTEM SETTINGS</h1>
+                        <p className="text-white/50">Manage global configurations.</p>
+                    </div>
+                </div>
+
+                <div className="grid gap-6">
+
+                    {/* SUBSCRIPTION CARD */}
+                    <div className="glass-panel border border-white/10 rounded-2xl p-6 flex justify-between items-center">
+                        <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 bg-green-500/10 rounded-full flex items-center justify-center border border-green-500/20">
+                                <CreditCard className="text-green-400" />
+                            </div>
+                            <div>
+                                <h3 className="font-bold text-lg">Lifetime Membership</h3>
+                                <p className="text-xs text-white/50">Status: <span className="text-green-400 font-bold uppercase">Active</span></p>
+                            </div>
+                        </div>
+                        <button disabled className="px-4 py-2 bg-white/5 border border-white/10 rounded text-xs text-white/30 uppercase cursor-not-allowed">
+                            Paid on {new Date(card.created_at).toLocaleDateString()}
+                        </button>
+                    </div>
+
+                    {/* SECURITY CARD */}
+                    <div className="glass-panel border border-white/10 rounded-2xl p-6">
+                        <div className="flex items-center gap-4 mb-4">
+                            <div className="w-12 h-12 bg-blue-500/10 rounded-full flex items-center justify-center border border-blue-500/20">
+                                <ShieldCheck className="text-blue-400" />
+                            </div>
+                            <div>
+                                <h3 className="font-bold text-lg">Security & Privacy</h3>
+                                <p className="text-xs text-white/50">Your data is encrypted and secure.</p>
+                            </div>
+                        </div>
+                        <div className="text-sm text-white/60 space-y-2 pl-16">
+                            <p>• Advanced Encryption Standard (AES) Enabled</p>
+                            <p>• Public Profile: <a href={`/${card.slug}`} target="_blank" className="text-neon-blue hover:underline">tapos360.com/{card.slug}</a></p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    );
+}

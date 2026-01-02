@@ -49,10 +49,10 @@ export default function Home() {
                 </div>
 
                 <nav className="flex flex-col gap-2 flex-grow">
-                    <NavItem icon={<LayoutGrid size={20} />} label="Dashboard" active />
-                    <NavItem icon={<CreditCard size={20} />} label="My Cards" />
-                    <NavItem icon={<User size={20} />} label="Profile" />
-                    <NavItem icon={<Settings size={20} />} label="Settings" />
+                    <NavItem href="/" icon={<LayoutGrid size={20} />} label="Dashboard" active />
+                    <NavItem href="/" icon={<CreditCard size={20} />} label="My Cards" />
+                    <NavItem href="/profile" icon={<User size={20} />} label="Profile" />
+                    <NavItem href="/settings" icon={<Settings size={20} />} label="Settings" />
                 </nav>
 
                 <div className="mt-auto pt-6 border-t border-white/10">
@@ -95,10 +95,12 @@ export default function Home() {
                                     <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-gray-800 to-black border border-white/10 flex items-center justify-center">
                                         <CreditCard className="text-neon-blue" />
                                     </div>
-                                    <span className="px-3 py-1 bg-green-500/10 text-green-400 text-xs rounded-full border border-green-500/20">ONLINE</span>
+                                    <span className={`px-3 py-1 text-xs rounded-full border ${card.content.subscription === 'active' ? 'bg-green-500/10 text-green-400 border-green-500/20' : 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20'}`}>
+                                        {card.content.subscription === 'active' ? 'ACTIVE' : 'LOCKED'}
+                                    </span>
                                 </div>
                                 <h3 className="text-xl font-bold mb-1 font-rajdhani">{card.title}</h3>
-                                <p className="text-white/40 text-sm mb-6">tapos.com/{card.slug}</p>
+                                <p className="text-white/40 text-sm mb-6">tapos360.com/{card.slug}</p>
                                 <div className="flex gap-2">
                                     <a href={`/editor?id=${card.id}`} className="flex-1 py-3 bg-neon-blue/10 hover:bg-neon-blue hover:text-black border border-neon-blue/20 rounded text-center text-sm font-bold uppercase tracking-wider transition">Edit</a>
                                     <a href={`/${card.slug}`} target="_blank" className="flex-1 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded text-center text-sm font-medium transition">View</a>
@@ -106,7 +108,6 @@ export default function Home() {
                             </div>
                         ))}
 
-                        {/* ADD NEW PLACEHOLDER */}
                         {/* ADD NEW PLACEHOLDER */}
                         {cards.length === 0 && (
                             <a href="/create" className="glass-panel p-6 rounded-2xl flex flex-col items-center justify-center border-dashed border-white/20 hover:border-neon-blue hover:bg-neon-blue/5 transition cursor-pointer min-h-[220px]">
@@ -125,11 +126,11 @@ export default function Home() {
     );
 }
 
-function NavItem({ icon, label, active = false }: { icon: any, label: string, active?: boolean }) {
+function NavItem({ icon, label, active = false, href }: { icon: any, label: string, active?: boolean, href: string }) {
     return (
-        <div className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all duration-200 ${active ? 'bg-neon-blue/10 text-neon-blue border border-neon-blue/20' : 'text-white/60 hover:text-white hover:bg-white/5'}`}>
+        <a href={href} className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all duration-200 ${active ? 'bg-neon-blue/10 text-neon-blue border border-neon-blue/20' : 'text-white/60 hover:text-white hover:bg-white/5'}`}>
             {icon}
             <span className="font-medium">{label}</span>
-        </div>
+        </a>
     )
 }
