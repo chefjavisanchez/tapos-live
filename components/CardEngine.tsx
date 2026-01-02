@@ -557,15 +557,25 @@ export default function CardEngine({ data, slug }: CardEngineProps) {
                             <div className="px-4">
                                 {['srv1', 'srv2', 'srv3', 'srv4'].map((key, idx) => {
                                     const srv = data[key] || {};
-                                    const title = srv.title || (idx === 0 ? "Visit Website" : idx === 1 ? "My Services" : idx === 2 ? "Book Call" : "More Info");
-                                    const subtitle = srv.subtitle || (idx === 0 ? "Verify Domain" : idx === 1 ? "View Offerings" : idx === 2 ? "Schedule Now" : "Download Assets");
-                                    const link = srv.link || "#";
-                                    const defaultIcon = idx === 0 ? "ph-globe" : idx === 1 ? "ph-briefcase" : idx === 2 ? "ph-phone" : "ph-info";
+                                    const title = srv.title || (idx === 0 ? "Visit Website" : idx === 1 ? "My Offerings" : idx === 2 ? "WhatsApp" : "More Info");
+                                    const subtitle = srv.subtitle || (idx === 0 ? "Verify Domain" : idx === 1 ? "View Services" : idx === 2 ? "Chat Business" : "Details");
+                                    const link = srv.link && srv.link !== '#' ? srv.link : null;
+
+                                    // DEFAULTS
+                                    const defaultIcon = idx === 0 ? "ph-globe" : idx === 1 ? "ph-briefcase" : idx === 2 ? "ph-whatsapp-logo" : "ph-info";
                                     const icon = getSmartIcon(title + " " + subtitle, defaultIcon);
-                                    const color = idx === 1 ? "var(--accent)" : idx === 2 ? "var(--gold)" : "#fff";
+
+                                    // COLORS: 1=White, 2=Accent(Blue), 3=WhatsApp(Green), 4=White
+                                    const color = idx === 1 ? "var(--accent)" : idx === 2 ? "#25D366" : "#fff";
 
                                     return (
-                                        <a key={key} href={link} target="_blank" className="srv-btn">
+                                        <a key={key}
+                                            href={link || '#'}
+                                            target={link ? "_blank" : undefined}
+                                            onClick={(e) => { if (!link) e.preventDefault(); }}
+                                            className="srv-btn"
+                                            style={{ cursor: link ? 'pointer' : 'default', opacity: link ? 1 : 0.8 }}
+                                        >
                                             <i className={`ph ${icon} btn-icon`} style={{ color: color }}></i>
                                             <div className="btn-txt">
                                                 <h3>{title}</h3>
