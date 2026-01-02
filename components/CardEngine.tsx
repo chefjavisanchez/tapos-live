@@ -498,9 +498,9 @@ export default function CardEngine({ data, slug }: CardEngineProps) {
                                     // SPECIAL: FIRST CARD IS LOGO IF AVAILABLE
                                     if (idx === 0 && data.logoImage) {
                                         return (
-                                            <div key={key} className={`ad-card ${activeAd === idx ? 'show' : ''}`} style={{ background: '#000' }}>
+                                            <div key={key} className={`ad-card ${activeAd === idx ? 'show' : ''}`} style={{ background: 'transparent', boxShadow: 'none', border: 'none' }}>
                                                 <div className="notify-badge"><i className="ph-fill ph-check-circle pulse-bell"></i> VERIFIED</div>
-                                                <img src={data.logoImage} alt="Brand Logo" style={{ width: '60%', height: 'auto', objectFit: 'contain', filter: 'drop-shadow(0 0 20px rgba(255,255,255,0.2))' }} />
+                                                <img src={data.logoImage} alt="Brand Logo" style={{ width: '80%', height: 'auto', objectFit: 'contain', filter: 'drop-shadow(0 0 20px rgba(255,255,255,0.2))' }} />
                                                 <div className="ad-title" style={{ marginTop: 20 }}><span>{data.company || "OFFICIAL PARTNER"}</span></div>
                                             </div>
                                         );
@@ -713,7 +713,7 @@ END:VCARD`;
                         </nav>
                         <div className="footer-legal" style={{ opacity: 0.5, fontSize: '10px', textAlign: 'center' }}>
                             2020-2026 Tap & Go 360©<br />
-                            Powered by JS Digital Hub | Tap & GO
+                            Powered by <a href="https://jsdigitalhub.com/" target="_blank" style={{ color: 'inherit', textDecoration: 'underline' }}>JS Digital Hub</a> | <a href="https://tapygo.com/" target="_blank" style={{ color: 'inherit', textDecoration: 'underline' }}>Tap & GO</a>
                         </div>
                     </div>
 

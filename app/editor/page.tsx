@@ -161,7 +161,7 @@ function EditorContent() {
 
             // 3. Update State
             updateField(fieldName, publicUrl);
-            alert('Image uploaded successfully!');
+            // alert('Image uploaded successfully!');
 
         } catch (error: any) {
             alert('Error uploading image: ' + error.message);
@@ -260,6 +260,15 @@ function EditorContent() {
                                             <span className="text-[9px] text-white font-bold uppercase">Upload</span>
                                             <input type="file" className="hidden" accept="image/*" onChange={(e) => handleImageUpload(e, 'logoImage')} disabled={uploading} />
                                         </label>
+                                        {content.logoImage && (
+                                            <button
+                                                onClick={(e) => { e.preventDefault(); updateField('logoImage', ''); }}
+                                                className="absolute top-1 right-1 bg-red-500 text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] shadow-lg hover:scale-110 transition z-20"
+                                                title="Remove Logo"
+                                            >
+                                                ✕
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -428,8 +437,14 @@ function EditorContent() {
                                 <h3 className="text-sm font-bold text-white uppercase flex items-center gap-2">
                                     <Image size={16} /> YouTube Video ID
                                 </h3>
-                                <input type="text" value={content.youtubeId || ''} onChange={e => updateField('youtubeId', e.target.value)}
-                                    className="w-full bg-black/40 border border-white/10 rounded p-3 text-sm outline-none" placeholder="e.g. dQw4w9WgXcQ" />
+                                <input type="text" value={content.youtubeId || ''} onChange={e => {
+                                    const val = e.target.value;
+                                    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+                                    const match = val.match(regExp);
+                                    const id = (match && match[2].length === 11) ? match[2] : val;
+                                    updateField('youtubeId', id);
+                                }}
+                                    className="w-full bg-black/40 border border-white/10 rounded p-3 text-sm outline-none" placeholder="Paste YouTube Link or ID" />
                             </div>
                         </div>
                     )}
