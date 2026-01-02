@@ -52,7 +52,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function Page({ params }: Props) {
     const { data, error } = await supabase
         .from('cards')
-        .select('content')
+        // We select ID to pass to Stripe for activation
+        .select('id, content')
         .eq('slug', params.slug)
         .limit(1);
 
@@ -101,7 +102,7 @@ export default async function Page({ params }: Props) {
                         This digital identity ({card.content.fullName}) has been created but not yet activated.
                     </p>
 
-                    <a href="https://buy.stripe.com/6oU00i6UOa2YcVzaiH3gk00" className="block w-full bg-gradient-to-r from-yellow-600 to-yellow-500 hover:from-yellow-500 hover:to-yellow-400 text-black font-bold py-4 rounded-xl transition transform hover:scale-105 shadow-lg shadow-yellow-500/20 mb-4">
+                    <a href={`https://buy.stripe.com/6oU00i6UOa2YcVzaiH3gk00?client_reference_id=${card.id}`} className="block w-full bg-gradient-to-r from-yellow-600 to-yellow-500 hover:from-yellow-500 hover:to-yellow-400 text-black font-bold py-4 rounded-xl transition transform hover:scale-105 shadow-lg shadow-yellow-500/20 mb-4">
                         ACTIVATE CARD • $99
                     </a>
 

@@ -460,7 +460,7 @@ function EditorContent() {
                                     </p>
                                 </div>
                                 <a
-                                    href="https://buy.stripe.com/6oU00i6UOa2YcVzaiH3gk00"
+                                    href={`https://buy.stripe.com/6oU00i6UOa2YcVzaiH3gk00?client_reference_id=${cardId}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="block w-full bg-[#635BFF] hover:bg-[#5851E3] text-white font-bold py-3 rounded-lg transition shadow-lg shadow-[#635BFF]/30"
