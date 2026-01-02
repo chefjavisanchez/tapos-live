@@ -441,9 +441,9 @@ function EditorContent() {
                                     <CreditCard size={32} className="text-white" />
                                 </div>
                                 <div>
-                                    <h3 className="text-lg font-bold text-white">Get Your Metal Card</h3>
+                                    <h3 className="text-lg font-bold text-white">Get Your Card</h3>
                                     <p className="text-xs text-white/60 mt-2">
-                                        Use your design to print a premium matte black metal NFC card. Includes lifetime app access.
+                                        Get our premium black NFC card. Includes lifetime app access for limited time only!
                                     </p>
                                 </div>
                                 <a
@@ -452,7 +452,7 @@ function EditorContent() {
                                     rel="noopener noreferrer"
                                     className="block w-full bg-[#635BFF] hover:bg-[#5851E3] text-white font-bold py-3 rounded-lg transition shadow-lg shadow-[#635BFF]/30"
                                 >
-                                    ORDER CARD NOW • $79
+                                    ORDER CARD NOW • $99
                                 </a>
                                 <p className="text-[10px] text-white/30">Processed securely by Stripe</p>
                             </div>

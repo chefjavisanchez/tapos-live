@@ -14,11 +14,13 @@ export const dynamic = 'force-dynamic';
 
 // 1. GENERATE METADATA FOR SEO
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-    const { data: card } = await supabase
+    const { data } = await supabase
         .from('cards')
         .select('content')
         .eq('slug', params.slug)
-        .single();
+        .limit(1);
+
+    const card = data?.[0];
 
     if (!card) {
         return {
@@ -48,11 +50,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 // 2. SERVER COMPONENT PAGE
 export default async function Page({ params }: Props) {
-    const { data: card, error } = await supabase
+    const { data, error } = await supabase
         .from('cards')
         .select('content')
         .eq('slug', params.slug)
-        .single();
+        .limit(1);
+
+    const card = data?.[0];
 
     if (error || !card) {
         // DEBUGGING 404
