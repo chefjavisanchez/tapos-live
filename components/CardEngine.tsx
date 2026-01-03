@@ -8,7 +8,7 @@ import { createWorker } from 'tesseract.js';
 
 const IMPULSO_STYLES = `
   :root {
-      --gold: #D4AF37;
+      --gold: #00f3ff; /* OVERRIDE: NEON BLUE */
       --accent: #00f3ff;
       --danger: #ff0055;
       --bg-dark: #000000;
@@ -30,7 +30,7 @@ const IMPULSO_STYLES = `
       position: absolute;
       inset: 0;
       z-index: 0;
-      background: radial-gradient(circle at 50% 15%, rgba(212, 175, 55, 0.12), transparent 60%);
+      background: radial-gradient(circle at 50% 15%, rgba(0, 243, 255, 0.15), transparent 60%);
   }
 
   #tap-os-engine {
@@ -222,7 +222,7 @@ const IMPULSO_STYLES = `
       font-size: 1.6rem;
       color: var(--gold); 
       margin-top: 5px; 
-      text-shadow: 0 0 20px rgba(212, 175, 55, 0.4); 
+      text-shadow: 0 0 20px rgba(0, 243, 255, 0.4); 
   }
   
   .ad-icon-lg { font-size: 4rem; margin-bottom: 25px; opacity: 0.8; }
@@ -231,7 +231,7 @@ const IMPULSO_STYLES = `
       background: var(--gold); color: #000; text-decoration: none;
       padding: 16px 30px; border-radius: 50px;
       font-family: 'Rajdhani', sans-serif; font-weight: 800; font-size: 1rem;
-      margin-top: auto; box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+      margin-top: auto; box-shadow: 0 0 20px rgba(0, 243, 255, 0.4);
       transition: 0.2s;
   }
   .urgent-btn:active { transform: scale(0.95); }
