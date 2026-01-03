@@ -49,7 +49,7 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center p-4 relative bg-black">
+        <div className="min-h-[100dvh] flex items-center justify-center p-4 relative bg-black">
             {/* Background Image Layer */}
             <div className="absolute inset-0 z-0 bg-cover bg-center opacity-60" style={{ backgroundImage: "url('/login-bg.jpg')" }}></div>
             <div className="absolute inset-0 z-0 bg-black/60"></div> {/* Overlay for readability */}

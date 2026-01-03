@@ -94,84 +94,84 @@ export default function CreateCardPage() {
 
                 {/* Header */}
                 <div className="mb-8 border-b border-white/10 pb-6">
-                    <div className="mb-8 flex items-center gap-3">
+                    <div className="mb-4 flex flex-col md:flex-row items-center justify-center md:justify-start gap-4 md:gap-3 text-center md:text-left">
                         <div className="p-3 bg-neon-blue/20 rounded-xl border border-neon-blue text-neon-blue">
                             <Sparkles size={24} />
                         </div>
                         <h1 className="text-2xl font-bold text-white tracking-wider">CREATE DIGITAL PROFILE</h1>
                     </div>
+                </div>
 
-                    <p className="text-white/50 mb-8">
-                        Configure your public digital identity. This will be your unique URL.
-                    </p>
+                <p className="text-white/50 mb-8">
+                    Configure your public digital identity. This will be your unique URL.
+                </p>
 
-                    {error && (
-                        <div className="mb-6 p-4 bg-red-500/10 border border-red-500/50 rounded-lg text-red-500 text-sm font-bold flex items-center gap-2">
-                            <AlertTriangle size={16} />
-                            {error}
+                {error && (
+                    <div className="mb-6 p-4 bg-red-500/10 border border-red-500/50 rounded-lg text-red-500 text-sm font-bold flex items-center gap-2">
+                        <AlertTriangle size={16} />
+                        {error}
+                    </div>
+                )}
+
+                <div className="space-y-6">
+                    {/* TITLE */}
+                    <div className="space-y-2">
+                        <label className="text-xs font-bold text-neon-blue uppercase">Full Name or Business Name</label>
+                        <div className="relative">
+                            <CreditCard className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30" size={18} />
+                            <input
+                                type="text"
+                                value={form.title}
+                                onChange={(e) => setForm({ ...form, title: e.target.value })}
+                                className="w-full bg-white/5 border border-white/10 rounded-xl py-4 pl-12 pr-4 text-white focus:outline-none focus:border-neon-blue transition"
+                                placeholder="e.g. Javi Sanchez"
+                                required
+                            />
                         </div>
-                    )}
-
-                    <div className="space-y-6">
-                        {/* TITLE */}
-                        <div className="space-y-2">
-                            <label className="text-xs font-bold text-neon-blue uppercase">Full Name or Business Name</label>
-                            <div className="relative">
-                                <CreditCard className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30" size={18} />
-                                <input
-                                    type="text"
-                                    value={form.title}
-                                    onChange={(e) => setForm({ ...form, title: e.target.value })}
-                                    className="w-full bg-white/5 border border-white/10 rounded-xl py-4 pl-12 pr-4 text-white focus:outline-none focus:border-neon-blue transition"
-                                    placeholder="e.g. Javi Sanchez"
-                                    required
-                                />
-                            </div>
-                        </div>
-
-                        {/* SLUG */}
-                        <div className="space-y-2">
-                            <label className="text-xs font-bold text-neon-blue uppercase">Custom Link Handle</label>
-                            <div className="relative">
-                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 text-sm font-mono">tapos360.com/</span>
-                                <input
-                                    type="text"
-                                    value={form.slug}
-                                    onChange={(e) => setForm({ ...form, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '') })}
-                                    className="w-full bg-white/5 border border-white/10 rounded-xl py-4 pl-36 pr-4 text-white focus:outline-none focus:border-neon-blue transition font-mono"
-                                    placeholder="your-name"
-                                    required
-                                />
-                            </div>
-                        </div>
-
-                        {/* ROLE */}
-                        <div className="space-y-2">
-                            <label className="text-xs font-bold text-neon-blue uppercase">Role / Title</label>
-                            <div className="relative">
-                                <User className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30" size={18} />
-                                <input
-                                    type="text"
-                                    value={form.jobTitle} // Changed to form.jobTitle
-                                    onChange={(e) => setForm({ ...form, jobTitle: e.target.value })} // Changed to form.jobTitle
-                                    className="w-full bg-white/5 border border-white/10 rounded-xl py-4 pl-12 pr-4 text-white focus:outline-none focus:border-neon-blue transition"
-                                    placeholder="e.g. CEO & Founder"
-                                    required
-                                />
-                            </div>
-                        </div>
-
-                        <button
-                            onClick={handleCreate}
-                            disabled={loading}
-                            className="w-full bg-neon-blue hover:bg-white text-black font-bold py-5 rounded-xl mt-8 flex items-center justify-center gap-2 transition hover:scale-[1.02] shadow-[0_0_20px_rgba(0,243,255,0.3)]"
-                        >
-                            {loading ? <Loader2 className="animate-spin" /> : 'CREATE PROFILE'} <ArrowRight size={20} />
-                        </button>
                     </div>
 
-                </div> {/* Closing div for glass-panel */}
-            </div> {/* Closing div for min-h-screen */}
+                    {/* SLUG */}
+                    <div className="space-y-2">
+                        <label className="text-xs font-bold text-neon-blue uppercase">Custom Link Handle</label>
+                        <div className="relative">
+                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 text-sm font-mono">tapos360.com/</span>
+                            <input
+                                type="text"
+                                value={form.slug}
+                                onChange={(e) => setForm({ ...form, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '') })}
+                                className="w-full bg-white/5 border border-white/10 rounded-xl py-4 pl-36 pr-4 text-white focus:outline-none focus:border-neon-blue transition font-mono"
+                                placeholder="your-name"
+                                required
+                            />
+                        </div>
+                    </div>
+
+                    {/* ROLE */}
+                    <div className="space-y-2">
+                        <label className="text-xs font-bold text-neon-blue uppercase">Role / Title</label>
+                        <div className="relative">
+                            <User className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30" size={18} />
+                            <input
+                                type="text"
+                                value={form.jobTitle} // Changed to form.jobTitle
+                                onChange={(e) => setForm({ ...form, jobTitle: e.target.value })} // Changed to form.jobTitle
+                                className="w-full bg-white/5 border border-white/10 rounded-xl py-4 pl-12 pr-4 text-white focus:outline-none focus:border-neon-blue transition"
+                                placeholder="e.g. CEO & Founder"
+                                required
+                            />
+                        </div>
+                    </div>
+
+                    <button
+                        onClick={handleCreate}
+                        disabled={loading}
+                        className="w-full bg-neon-blue hover:bg-white text-black font-bold py-5 rounded-xl mt-8 flex items-center justify-center gap-2 transition hover:scale-[1.02] shadow-[0_0_20px_rgba(0,243,255,0.3)]"
+                    >
+                        {loading ? <Loader2 className="animate-spin" /> : 'CREATE PROFILE'} <ArrowRight size={20} />
+                    </button>
+                </div>
+
+            </div> {/* Closing div for glass-panel */}
         </div>
     );
 }

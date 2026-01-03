@@ -9,6 +9,13 @@ const rajdhani = Rajdhani({ weight: ["600", "700"], subsets: ["latin"], variable
 export const metadata: Metadata = {
     title: "TapOS Platform",
     description: "The Next-Gen Digital Business Card Builder",
+    openGraph: {
+        images: ['/opengraph-image.png'],
+    },
+    icons: {
+        icon: '/opengraph-image.png',
+        apple: '/opengraph-image.png',
+    },
 };
 
 export default function RootLayout({
