@@ -130,6 +130,13 @@ function EditorContent() {
         setContent((prev: any) => ({ ...prev, [field]: value }));
     };
 
+    // FORCE ACTIVATION TAB IF LOCKED
+    useEffect(() => {
+        if (card && card.content && card.content.subscription !== 'active') {
+            setActiveTab('activate');
+        }
+    }, [card]);
+
     // IMAGE UPLOAD HANDLER
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, fieldName: string = 'profileImage') => {
         try {
@@ -199,22 +206,36 @@ function EditorContent() {
 
                 {/* Tabs */}
                 <div className="flex border-b border-white/10 overflow-x-auto hide-scrollbar">
-                    <button onClick={() => setActiveTab('profile')} className={`flex-1 min-w-[80px] py-5 text-xs font-bold uppercase tracking-wider border-b-2 ${activeTab === 'profile' ? 'border-neon-blue text-neon-blue bg-white/5' : 'border-transparent text-white/40 hover:text-white'}`}>
-                        Profile
-                    </button>
-                    <button onClick={() => setActiveTab('links')} className={`flex-1 min-w-[80px] py-5 text-xs font-bold uppercase tracking-wider border-b-2 ${activeTab === 'links' ? 'border-neon-blue text-neon-blue bg-white/5' : 'border-transparent text-white/40 hover:text-white'}`}>
-                        Links
-                    </button>
-                    <button onClick={() => setActiveTab('ads')} className={`flex-1 min-w-[80px] py-5 text-xs font-bold uppercase tracking-wider border-b-2 ${activeTab === 'ads' ? 'border-neon-blue text-neon-blue bg-white/5' : 'border-transparent text-white/40 hover:text-white'}`}>
-                        Ads
-                    </button>
-                    <button onClick={() => setActiveTab('services')} className={`flex-1 min-w-[80px] py-5 text-xs font-bold uppercase tracking-wider border-b-2 ${activeTab === 'services' ? 'border-neon-blue text-neon-blue bg-white/5' : 'border-transparent text-white/40 hover:text-white'}`}>
-                        Deck
-                    </button>
-                    <button onClick={() => setActiveTab('visuals')} className={`flex-1 min-w-[80px] py-5 text-xs font-bold uppercase tracking-wider border-b-2 ${activeTab === 'visuals' ? 'border-neon-blue text-neon-blue bg-white/5' : 'border-transparent text-white/40 hover:text-white'}`}>
-                        Visuals
-                    </button>
-                    <button onClick={() => setActiveTab('activate')} className={`flex-1 min-w-[80px] py-5 text-xs font-bold uppercase tracking-wider border-b-2 ${activeTab === 'activate' ? 'border-green-400 text-green-400 bg-white/5' : 'border-transparent text-white/40 hover:text-white'}`}>
+                    {['profile', 'links', 'ads', 'services', 'visuals'].map((tab) => (
+                        <button
+                            key={tab}
+                            onClick={() => {
+                                if (card.content.subscription === 'active') setActiveTab(tab);
+                            }}
+                            disabled={card.content.subscription !== 'active'}
+                            className={`flex-1 min-w-[80px] py-5 text-xs font-bold uppercase tracking-wider border-b-2 transition-all
+                                ${activeTab === tab
+                                    ? 'border-neon-blue text-neon-blue bg-white/5'
+                                    : 'border-transparent text-white/40'
+                                }
+                                ${card.content.subscription !== 'active' ? 'opacity-50 cursor-not-allowed' : 'hover:text-white'}
+                            `}
+                        >
+                            <div className="flex items-center justify-center gap-1">
+                                {card.content.subscription !== 'active' && <Lock size={10} />}
+                                {tab}
+                            </div>
+                        </button>
+                    ))}
+
+                    <button
+                        onClick={() => setActiveTab('activate')}
+                        className={`flex-1 min-w-[80px] py-5 text-xs font-bold uppercase tracking-wider border-b-2 
+                            ${activeTab === 'activate'
+                                ? 'border-neon-blue text-neon-blue bg-white/5'
+                                : 'border-transparent text-white/40 hover:text-white'
+                            }`}
+                    >
                         Activation
                     </button>
                 </div>
@@ -357,8 +378,8 @@ function EditorContent() {
                         <div className="space-y-8 animate-in fade-in">
                             <p className="text-xs text-white/40">These 5 cards rotate automatically on the home screen. Leave title blank to hide a card.</p>
 
-                            {/* Helper to update nested array */}
-                            {['ad1', 'ad2', 'ad3', 'ad4', 'ad5'].map((ad, idx) => (
+                            {/* Helper to update nested array - SKIPPING AD1 (System Logo Card) */}
+                            {['ad2', 'ad3', 'ad4', 'ad5'].map((ad, idx) => (
                                 <div key={ad} className="p-4 bg-white/5 rounded-lg border border-white/10 space-y-3">
                                     <div className="flex justify-between">
                                         <h4 className="font-bold text-neon-blue text-sm">CARD {idx + 1}</h4>

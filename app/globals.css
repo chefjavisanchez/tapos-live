@@ -28,6 +28,31 @@ body {
     text-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
 }
 
+/* GLOBAL CYBER BLUE OVERRIDES */
+.text-yellow-500,
+.text-amber-500,
+.text-gold {
+    color: #00F3FF !important;
+}
+
+.bg-yellow-500,
+.bg-amber-500,
+.bg-gold {
+    background-color: #00F3FF !important;
+}
+
+.border-yellow-500,
+.border-amber-500,
+.border-gold {
+    border-color: #00F3FF !important;
+}
+
+.shadow-yellow-500,
+.shadow-amber-500 {
+    box-shadow: 0 0 20px rgba(0, 243, 255, 0.4) !important;
+}
+
+
 /* LOGO CARD */
 .logo-card {
     position: relative;
