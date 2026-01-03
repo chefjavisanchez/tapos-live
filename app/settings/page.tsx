@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
-import { Settings, Lock, CreditCard, ShieldCheck } from 'lucide-react';
+import Link from 'next/link';
+import { Settings, Lock, CreditCard, ShieldCheck, ArrowLeft } from 'lucide-react';
 
 export default function SettingsPage() {
     const [loading, setLoading] = useState(true);
@@ -54,6 +55,10 @@ export default function SettingsPage() {
     return (
         <div className="min-h-screen bg-black bg-cyber-grid p-8 text-white flex justify-center">
             <div className="max-w-2xl w-full">
+
+                <Link href="/" className="inline-flex items-center text-white/50 hover:text-white mb-6 transition">
+                    <ArrowLeft className="mr-2" size={16} /> Back to Dashboard
+                </Link>
 
                 <div className="mb-8 flex items-center gap-4">
                     <div className="p-3 bg-neon-blue/20 rounded-xl border border-neon-blue">

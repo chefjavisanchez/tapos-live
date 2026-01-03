@@ -214,8 +214,8 @@ function EditorContent() {
                     <button onClick={() => setActiveTab('visuals')} className={`flex-1 min-w-[80px] py-5 text-xs font-bold uppercase tracking-wider border-b-2 ${activeTab === 'visuals' ? 'border-neon-blue text-neon-blue bg-white/5' : 'border-transparent text-white/40 hover:text-white'}`}>
                         Visuals
                     </button>
-                    <button onClick={() => setActiveTab('shipping')} className={`flex-1 min-w-[80px] py-5 text-xs font-bold uppercase tracking-wider border-b-2 ${activeTab === 'shipping' ? 'border-green-400 text-green-400 bg-white/5' : 'border-transparent text-white/40 hover:text-white'}`}>
-                        Ship
+                    <button onClick={() => setActiveTab('activate')} className={`flex-1 min-w-[80px] py-5 text-xs font-bold uppercase tracking-wider border-b-2 ${activeTab === 'activate' ? 'border-green-400 text-green-400 bg-white/5' : 'border-transparent text-white/40 hover:text-white'}`}>
+                        Activation
                     </button>
                 </div>
 
@@ -447,40 +447,98 @@ function EditorContent() {
                         </div>
                     )}
 
-                    {activeTab === 'shipping' && (
+                    {activeTab === 'activate' && (
                         <div className="space-y-6 animate-in fade-in">
-                            <div className="bg-gradient-to-br from-purple-900/20 to-blue-900/20 border border-white/10 rounded-xl p-6 text-center space-y-4">
+                            {/* Validation Warning Area */}
+                            <div className="p-4 bg-neon-blue/5 border border-neon-blue/30 rounded-lg">
+                                <h3 className="font-bold text-neon-blue flex items-center gap-2 text-sm">
+                                    <span className="w-2 h-2 rounded-full bg-neon-blue animate-pulse"></span>
+                                    FINAL STEP: ACTIVATION
+                                </h3>
+                                <p className="text-xs text-white/70 mt-1">
+                                    Please enter the delivery address for your physical NFC card.
+                                </p>
+                            </div>
+
+                            <div className="space-y-4">
+                                <label className="text-xs font-bold text-neon-blue uppercase">Shipping Details (Required)</label>
+
+                                <input
+                                    type="text"
+                                    placeholder="Full Street Address"
+                                    value={content.shipping?.address || content.address || ''}
+                                    onChange={e => updateField('shipping', { ...content.shipping, address: e.target.value })}
+                                    className="w-full bg-white/5 border border-white/10 rounded p-3 text-sm focus:border-neon-blue outline-none transition"
+                                />
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    <input
+                                        type="text"
+                                        placeholder="City"
+                                        value={content.shipping?.city || content.city || ''}
+                                        onChange={e => updateField('shipping', { ...content.shipping, city: e.target.value })}
+                                        className="w-full bg-white/5 border border-white/10 rounded p-3 text-sm focus:border-neon-blue outline-none transition"
+                                    />
+                                    <input
+                                        type="text"
+                                        placeholder="State / Province"
+                                        value={content.shipping?.state || content.state || ''}
+                                        onChange={e => updateField('shipping', { ...content.shipping, state: e.target.value })}
+                                        className="w-full bg-white/5 border border-white/10 rounded p-3 text-sm focus:border-neon-blue outline-none transition"
+                                    />
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    <input
+                                        type="text"
+                                        placeholder="Zip / Postal Code"
+                                        value={content.shipping?.zip || content.zip || ''}
+                                        onChange={e => updateField('shipping', { ...content.shipping, zip: e.target.value })}
+                                        className="w-full bg-white/5 border border-white/10 rounded p-3 text-sm focus:border-neon-blue outline-none transition"
+                                    />
+                                    <input
+                                        type="text"
+                                        placeholder="Country"
+                                        value={content.shipping?.country || content.country || ''}
+                                        onChange={e => updateField('shipping', { ...content.shipping, country: e.target.value })}
+                                        className="w-full bg-white/5 border border-white/10 rounded p-3 text-sm focus:border-neon-blue outline-none transition"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="bg-gradient-to-br from-purple-900/20 to-blue-900/20 border border-white/10 rounded-xl p-6 text-center space-y-4 shadow-xl">
                                 <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto animate-pulse">
                                     <CreditCard size={32} className="text-white" />
                                 </div>
                                 <div>
                                     <h3 className="text-lg font-bold text-white">Get Your Card</h3>
                                     <p className="text-xs text-white/60 mt-2">
-                                        Get our premium black NFC card. Includes lifetime app access for limited time only!
+                                        Activate your lifetime account and receive your premium NFC card.
                                     </p>
                                 </div>
-                                <a
-                                    href={`https://buy.stripe.com/6oU00i6UOa2YcVzaiH3gk00?client_reference_id=${cardId}`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="block w-full bg-[#635BFF] hover:bg-[#5851E3] text-white font-bold py-3 rounded-lg transition shadow-lg shadow-[#635BFF]/30"
+
+                                <button
+                                    onClick={() => {
+                                        const shipping = content.shipping || {};
+                                        // Simple validation
+                                        if (!shipping.address || !shipping.city || !shipping.state || !shipping.zip || !shipping.country) {
+                                            alert("⚠️ MISSING DETAILS\n\nPlease fill in your full shipping address (Address, City, State, Zip, Country) so we can send your card!");
+                                            return;
+                                        }
+
+                                        // Save before redirecting to ensure we capture the address
+                                        handleSave();
+
+                                        // Redirect to Stripe
+                                        window.open(`https://buy.stripe.com/6oU00i6UOa2YcVzaiH3gk00?client_reference_id=${cardId}`, '_blank');
+                                    }}
+                                    className="block w-full bg-[#635BFF] hover:bg-[#5851E3] text-white font-bold py-4 rounded-lg transition shadow-lg shadow-[#635BFF]/30 uppercase tracking-wider"
                                 >
-                                    ORDER CARD NOW • $99
-                                </a>
+                                    Confirm & Pay • $99
+                                </button>
                                 <p className="text-[10px] text-white/30">Processed securely by Stripe</p>
                             </div>
 
-                            <div className="space-y-4 pt-4 border-t border-white/10 opacity-50 pointer-events-none grayscale">
-                                <label className="text-xs font-bold text-neon-blue uppercase">Shipping Address</label>
-                                <input type="text" placeholder="Address Line 1" className="w-full bg-white/5 border border-white/10 rounded p-3 text-sm" />
-                                <div className="grid grid-cols-2 gap-4">
-                                    <input type="text" placeholder="City" className="w-full bg-white/5 border border-white/10 rounded p-3 text-sm" />
-                                    <input type="text" placeholder="Zip Code" className="w-full bg-white/5 border border-white/10 rounded p-3 text-sm" />
-                                </div>
-                                <p className="text-[10px] text-yellow-500 italic">
-                                    *Please enter shipping details directly in the Stripe Checkout page after clicking Order.
-                                </p>
-                            </div>
                         </div>
                     )}
 
