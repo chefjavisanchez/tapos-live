@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { Loader2, Save, Phone, Globe, Image, User, Upload, CreditCard } from 'lucide-react';
+import { Loader2, Save, Phone, Globe, Image, User, Upload, CreditCard, Lock } from 'lucide-react';
 
 // Force dynamic rendering to avoid static build errors
 export const dynamic = 'force-dynamic';
@@ -132,7 +132,7 @@ function EditorContent() {
 
     // FORCE ACTIVATION TAB IF LOCKED
     useEffect(() => {
-        if (card && card.content && card.content.subscription !== 'active') {
+        if (card && card.content && card.content?.subscription !== 'active') {
             setActiveTab('activate');
         }
     }, [card]);
@@ -210,19 +210,19 @@ function EditorContent() {
                         <button
                             key={tab}
                             onClick={() => {
-                                if (card.content.subscription === 'active') setActiveTab(tab);
+                                if (card.content?.subscription === 'active') setActiveTab(tab);
                             }}
-                            disabled={card.content.subscription !== 'active'}
+                            disabled={card.content?.subscription !== 'active'}
                             className={`flex-1 min-w-[80px] py-5 text-xs font-bold uppercase tracking-wider border-b-2 transition-all
                                 ${activeTab === tab
                                     ? 'border-neon-blue text-neon-blue bg-white/5'
                                     : 'border-transparent text-white/40'
                                 }
-                                ${card.content.subscription !== 'active' ? 'opacity-50 cursor-not-allowed' : 'hover:text-white'}
+                                ${card.content?.subscription !== 'active' ? 'opacity-50 cursor-not-allowed' : 'hover:text-white'}
                             `}
                         >
                             <div className="flex items-center justify-center gap-1">
-                                {card.content.subscription !== 'active' && <Lock size={10} />}
+                                {card.content?.subscription !== 'active' && <Lock size={10} />}
                                 {tab}
                             </div>
                         </button>
