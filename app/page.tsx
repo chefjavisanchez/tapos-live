@@ -66,6 +66,17 @@ export default function Home() {
             {/* MAIN CONTENT */}
             <div className="flex-1 p-8 overflow-y-auto">
 
+                {/* MOBILE HEADER (Visible on small screens only) */}
+                <div className="md:hidden flex justify-between items-center mb-8 pb-4 border-b border-white/10">
+                    <div className="flex items-center gap-2">
+                        <Terminal className="text-neon-blue w-6 h-6" />
+                        <h1 className="font-syncopate text-lg tracking-tighter">TAP<span className="text-neon-blue">OS</span></h1>
+                    </div>
+                    <button onClick={handleSignOut} className="p-2 bg-white/5 rounded-lg text-white/70 hover:text-white">
+                        <LogOut size={20} />
+                    </button>
+                </div>
+
                 {/* HEADER */}
                 <header className="flex justify-between items-center mb-10">
                     <div>
