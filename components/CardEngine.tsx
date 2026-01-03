@@ -453,6 +453,54 @@ export default function CardEngine({ data, slug, ownerId, cardId }: CardEnginePr
         link.setAttribute("download", "tapos_leads.csv");
         document.body.appendChild(link);
         link.click();
+        document.body.removeChild(link);
+    };
+
+    const handleSaveContact = async () => {
+        let photoBase64 = '';
+        if (data.profileImage) {
+            try {
+                // Determine image type (default to JPEG, but check extension if possible)
+                // For simplicity, we assume JPEG or PNG but VCF works best with JPEG usually.
+                // We'll trust the fetch blob.
+                const response = await fetch(data.profileImage);
+                const blob = await response.blob();
+                const reader = new FileReader();
+                photoBase64 = await new Promise<string>((resolve) => {
+                    reader.onloadend = () => {
+                        const res = reader.result as string;
+                        // Remote data:image... prefix
+                        const base64 = res.split(',')[1];
+                        resolve(base64);
+                    };
+                    reader.readAsDataURL(blob);
+                });
+            } catch (e) {
+                console.error("Failed to load profile image for VCF", e);
+            }
+        }
+
+        const vcard = `BEGIN:VCARD
+VERSION:3.0
+FN:${data.fullName || 'Contact'}
+TITLE:${data.jobTitle || ''}
+ORG:${data.company || ''}
+TEL:${data.phone || ''}
+EMAIL:${data.email || ''}
+URL:${typeof window !== 'undefined' ? window.location.href : ''}
+NOTE:Connected via TapOS
+${photoBase64 ? `PHOTO;ENCODING=b;TYPE=JPEG:${photoBase64}` : ''}
+END:VCARD`;
+
+        const blob = new Blob([vcard], { type: 'text/vcard' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${data.fullName || 'contact'}.vcf`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
     };
 
     if (!data) return <div className="text-white text-center mt-20">Card Protocol Not Found.</div>;
@@ -483,9 +531,7 @@ export default function CardEngine({ data, slug, ownerId, cardId }: CardEnginePr
                                 <span>{data.jobTitle}</span>
                             </div>
                         </div>
-                        <div className="sys-icons" style={{ color: 'var(--gold)', fontWeight: '800', letterSpacing: '2px', fontSize: '0.9rem', fontFamily: 'Rajdhani' }}>
-                            TAPOS
-                        </div>
+                        {/* TAPOS LABEL REMOVED TO PREVENT OVERLAP WITH EDIT BUTTON */}
                     </div>
 
                     {/* MARQUEE */}
@@ -736,28 +782,7 @@ export default function CardEngine({ data, slug, ownerId, cardId }: CardEnginePr
                             </div>
 
                             {/* SAVE VCF */}
-                            <div className="d-icon save" onClick={() => {
-                                const vcard = `BEGIN:VCARD
-VERSION:3.0
-FN:${data.fullName || 'TapOS User'}
-ORG:${data.company || 'TapOS'}
-TITLE:${data.jobTitle || ''}
-TEL;TYPE=CELL:${data.phone || ''}
-EMAIL:${data.email || ''}
-URL:${data.website || `https://tapos.com/${slug}`}
-NOTE:Powered by TapOS Impulso
-END:VCARD`;
-                                const blob = new Blob([vcard], { type: 'text/vcard' });
-                                const url = window.URL.createObjectURL(blob);
-                                const a = document.createElement('a');
-                                a.style.display = 'none';
-                                a.href = url;
-                                a.download = `${data.fullName || 'contact'}.vcf`;
-                                document.body.appendChild(a);
-                                a.click();
-                                window.URL.revokeObjectURL(url);
-                                document.body.removeChild(a);
-                            }}>
+                            <div className="d-icon save" onClick={handleSaveContact}>
                                 <i className="ph-bold ph-download-simple"></i>
                             </div>
                         </nav>
