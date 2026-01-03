@@ -75,6 +75,36 @@ export async function POST(req: Request) {
                     return NextResponse.json({ error: 'Database update failed' }, { status: 500 });
                 }
                 console.log(`✅ Card ${cardId} ACTIVATED successfully.`);
+
+                // ---------------------------------------------------------
+                // 3. TRIGGER GOHIGHLEVEL AUTOMATION (Welcome Email / SMS)
+                // ---------------------------------------------------------
+                const GHL_URL = process.env.GHL_WEBHOOK_URL;
+                if (GHL_URL) {
+                    try {
+                        console.log('🚀 Triggering GHL Webhook...');
+                        await fetch(GHL_URL, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                card_id: cardId,
+                                slug: card.content.slug, // Ensure slug is sent
+                                email: card.content.email, // Ensure email is sent
+                                name: card.content.fullName,
+                                phone: card.content.phone,
+                                payment_id: session.id,
+                                source: 'TAPOS_PAYMENT_SUCCESS'
+                            })
+                        });
+                        console.log('✅ GHL Triggered.');
+                    } catch (ghlError) {
+                        console.error('⚠️ GHL Webhook Failed:', ghlError);
+                        // Don't fail the request, just log it
+                    }
+                } else {
+                    console.log('ℹ️ No GHL_WEBHOOK_URL defined. Skipping automation.');
+                }
+                // ---------------------------------------------------------
             } else {
                 console.error('Card not found for activation:', fetchError);
             }
