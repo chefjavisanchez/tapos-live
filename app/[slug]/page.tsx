@@ -52,8 +52,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function Page({ params }: Props) {
     const { data, error } = await supabase
         .from('cards')
-        // We select ID to pass to Stripe for activation
-        .select('id, content')
+        // We select ID to pass to Stripe for activation, and USER_ID for ownership check
+        .select('id, user_id, content')
         .eq('slug', params.slug)
         .limit(1);
 
@@ -115,5 +115,5 @@ export default async function Page({ params }: Props) {
     }
 
     // Pass data to Client Component
-    return <CardEngine data={card.content} slug={params.slug} />;
+    return <CardEngine data={card.content} slug={params.slug} ownerId={card.user_id} cardId={card.id} />;
 }
