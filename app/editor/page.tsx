@@ -182,7 +182,7 @@ function EditorContent() {
         <div className="flex h-screen bg-black text-white font-mono overflow-hidden">
 
             {/* LEFT COLUMN: EDITOR SIDEBAR */}
-            <div className="w-[500px] flex flex-col border-r border-white/10 relative z-20 bg-black shadow-2xl">
+            <div className="w-full md:w-[500px] flex flex-col border-r border-white/10 relative z-20 bg-black shadow-2xl">
 
                 {/* Header */}
                 <div className="flex items-center justify-between p-6 border-b border-white/10 bg-black z-10">
@@ -587,7 +587,7 @@ function EditorContent() {
             </div>
 
             {/* RIGHT COLUMN: PREVIEW */}
-            <div className="flex-1 bg-[#111] relative flex items-center justify-center p-8">
+            <div className="hidden md:flex flex-1 bg-[#111] relative items-center justify-center p-8">
                 <div className="text-white/50 absolute top-4 right-4 text-xs font-mono">LIVE PREVIEW</div>
 
                 <div className="relative w-[375px] h-[750px] border-[10px] border-[#222] rounded-[40px] overflow-hidden shadow-2xl bg-black transition-all hover:scale-[1.02]">
