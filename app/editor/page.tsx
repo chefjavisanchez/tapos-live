@@ -381,35 +381,55 @@ function EditorContent() {
                             {/* Helper to update nested array - SKIPPING AD1 (System Logo Card) */}
                             {['ad2', 'ad3', 'ad4', 'ad5'].map((ad, idx) => (
                                 <div key={ad} className="p-4 bg-white/5 rounded-lg border border-white/10 space-y-3">
-                                    <div className="flex justify-between">
+                                    <div className="flex justify-between items-center mb-2">
                                         <h4 className="font-bold text-neon-blue text-sm">CARD {idx + 1}</h4>
                                         <span className="text-[10px] uppercase bg-white/10 px-2 py-1 rounded">Rotator</span>
                                     </div>
 
-                                    <input type="text" placeholder="Badge Text (e.g. URGENT)"
-                                        value={content[ad]?.badge || ''}
-                                        onChange={e => setContent({ ...content, [ad]: { ...content[ad], badge: e.target.value } })}
-                                        className="w-full bg-black/40 border border-white/10 rounded p-2 text-xs outline-none" />
+                                    {/* Badge */}
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] uppercase text-white/40">Badge (Top Left)</label>
+                                        <input type="text" placeholder="e.g. NEW"
+                                            value={content[ad]?.badge || ''}
+                                            onChange={e => setContent({ ...content, [ad]: { ...content[ad], badge: e.target.value } })}
+                                            className="w-full bg-black/40 border border-white/10 rounded p-2 text-xs outline-none" />
+                                    </div>
 
-                                    <input type="text" placeholder="Title Line 1 (e.g. BOOK)"
-                                        value={content[ad]?.title1 || ''}
-                                        onChange={e => setContent({ ...content, [ad]: { ...content[ad], title1: e.target.value } })}
-                                        className="w-full bg-black/40 border border-white/10 rounded p-2 text-xs outline-none font-bold" />
+                                    {/* Title 1 */}
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] uppercase text-white/40">Small Title (Top)</label>
+                                        <input type="text" placeholder="e.g. RESTAURANT"
+                                            value={content[ad]?.title1 || ''}
+                                            onChange={e => setContent({ ...content, [ad]: { ...content[ad], title1: e.target.value } })}
+                                            className="w-full bg-black/40 border border-white/10 rounded p-2 text-xs outline-none font-bold" />
+                                    </div>
 
-                                    <input type="text" placeholder="Title Line 2 (e.g. CALL)"
-                                        value={content[ad]?.title2 || ''}
-                                        onChange={e => setContent({ ...content, [ad]: { ...content[ad], title2: e.target.value } })}
-                                        className="w-full bg-black/40 border border-white/10 rounded p-2 text-xs outline-none text-neon-blue" />
+                                    {/* Title 2 */}
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] uppercase text-white/40">Main Title (Center)</label>
+                                        <input type="text" placeholder="e.g. CONSULTATION"
+                                            value={content[ad]?.title2 || ''}
+                                            onChange={e => setContent({ ...content, [ad]: { ...content[ad], title2: e.target.value } })}
+                                            className="w-full bg-black/40 border border-white/10 rounded p-2 text-xs outline-none text-neon-blue font-bold" />
+                                    </div>
 
-                                    <input type="text" placeholder="Button Link URL"
-                                        value={content[ad]?.link || ''}
-                                        onChange={e => setContent({ ...content, [ad]: { ...content[ad], link: e.target.value } })}
-                                        className="w-full bg-black/40 border border-white/10 rounded p-2 text-xs outline-none" />
+                                    {/* Button Label */}
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] uppercase text-white/40">Button Text</label>
+                                        <input type="text" placeholder="e.g. CLICK HERE"
+                                            value={content[ad]?.btnLabel || ''}
+                                            onChange={e => setContent({ ...content, [ad]: { ...content[ad], btnLabel: e.target.value } })}
+                                            className="w-full bg-black/40 border border-white/10 rounded p-2 text-xs outline-none" />
+                                    </div>
 
-                                    <input type="text" placeholder="Button Label (e.g. CLAIM NOW)"
-                                        value={content[ad]?.btnLabel || ''}
-                                        onChange={e => setContent({ ...content, [ad]: { ...content[ad], btnLabel: e.target.value } })}
-                                        className="w-full bg-black/40 border border-white/10 rounded p-2 text-xs outline-none" />
+                                    {/* Link */}
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] uppercase text-white/40">Button Action Link</label>
+                                        <input type="text" placeholder="https://..."
+                                            value={content[ad]?.link || ''}
+                                            onChange={e => setContent({ ...content, [ad]: { ...content[ad], link: e.target.value } })}
+                                            className="w-full bg-black/40 border border-white/10 rounded p-2 text-xs outline-none font-mono text-neon-blue" />
+                                    </div>
                                 </div>
                             ))}
                         </div>

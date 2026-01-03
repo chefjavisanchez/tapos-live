@@ -3,11 +3,12 @@
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
-import { Sparkles, ArrowRight, CreditCard, User } from 'lucide-react';
+import { Sparkles, ArrowRight, CreditCard, User, AlertTriangle, Loader2 } from 'lucide-react';
 
 export default function CreateCardPage() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
     const [form, setForm] = useState({
         title: '',
         slug: '',
@@ -80,7 +81,7 @@ export default function CreateCardPage() {
             router.push('/');
 
         } catch (error: any) {
-            alert('Error: ' + error.message);
+            setError(error.message);
         } finally {
             setLoading(false);
         }
@@ -93,96 +94,84 @@ export default function CreateCardPage() {
 
                 {/* Header */}
                 <div className="mb-8 border-b border-white/10 pb-6">
-                    <div className="flex items-center gap-3 mb-2">
-                        <div className="p-2 bg-neon-blue/20 rounded-lg border border-neon-blue">
-                            <Sparkles className="text-neon-blue" size={24} />
+                    <div className="mb-8 flex items-center gap-3">
+                        <div className="p-3 bg-neon-blue/20 rounded-xl border border-neon-blue text-neon-blue">
+                            <Sparkles size={24} />
                         </div>
-                        <h1 className="text-2xl font-bold font-syncopate">INITIATE NEW CARD</h1>
+                        <h1 className="text-2xl font-bold text-white tracking-wider">CREATE DIGITAL PROFILE</h1>
                     </div>
-                    <p className="text-white/50">Configure the core parameters for your digital identity.</p>
-                </div>
 
-                <form onSubmit={handleCreate} className="space-y-6">
+                    <p className="text-white/50 mb-8">
+                        Configure your public digital identity. This will be your unique URL.
+                    </p>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {error && (
+                        <div className="mb-6 p-4 bg-red-500/10 border border-red-500/50 rounded-lg text-red-500 text-sm font-bold flex items-center gap-2">
+                            <AlertTriangle size={16} />
+                            {error}
+                        </div>
+                    )}
 
-                        {/* Project Name */}
+                    <div className="space-y-6">
+                        {/* TITLE */}
                         <div className="space-y-2">
-                            <label className="text-xs font-bold text-neon-blue uppercase tracking-wider">Project / Business Name</label>
+                            <label className="text-xs font-bold text-neon-blue uppercase">Full Name or Business Name</label>
                             <div className="relative">
-                                <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40 w-5 h-5" />
+                                <CreditCard className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30" size={18} />
                                 <input
                                     type="text"
                                     value={form.title}
                                     onChange={(e) => setForm({ ...form, title: e.target.value })}
-                                    className="w-full bg-white/5 border border-white/10 rounded-lg py-3 pl-10 pr-4 text-white focus:outline-none focus:border-neon-blue transition"
-                                    placeholder="e.g. TapOS Main"
-                                    required
-                                />
-                            </div>
-                        </div>
-
-                        {/* Custom URL Slug */}
-                        <div className="space-y-2">
-                            <label className="text-xs font-bold text-neon-blue uppercase tracking-wider">Secure Link ID</label>
-                            <div className="relative flex items-center">
-                                <span className="absolute left-3 text-white/30 text-sm">tapos.com/</span>
-                                <input
-                                    type="text"
-                                    value={form.slug}
-                                    onChange={(e) => setForm({ ...form, slug: e.target.value })}
-                                    className="w-full bg-white/5 border border-white/10 rounded-lg py-3 pl-24 pr-4 text-white focus:outline-none focus:border-neon-blue transition"
-                                    placeholder="your-name"
-                                    required
-                                />
-                            </div>
-                        </div>
-
-                        {/* Personal Name */}
-                        <div className="space-y-2">
-                            <label className="text-xs font-bold text-neon-blue uppercase tracking-wider">Agent Name</label>
-                            <div className="relative">
-                                <User className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40 w-5 h-5" />
-                                <input
-                                    type="text"
-                                    value={form.fullName}
-                                    onChange={(e) => setForm({ ...form, fullName: e.target.value })}
-                                    className="w-full bg-white/5 border border-white/10 rounded-lg py-3 pl-10 pr-4 text-white focus:outline-none focus:border-neon-blue transition"
+                                    className="w-full bg-white/5 border border-white/10 rounded-xl py-4 pl-12 pr-4 text-white focus:outline-none focus:border-neon-blue transition"
                                     placeholder="e.g. Javi Sanchez"
                                     required
                                 />
                             </div>
                         </div>
 
-                        {/* Job Title */}
+                        {/* SLUG */}
                         <div className="space-y-2">
-                            <label className="text-xs font-bold text-neon-blue uppercase tracking-wider">Role / Title</label>
-                            <input
-                                type="text"
-                                value={form.jobTitle}
-                                onChange={(e) => setForm({ ...form, jobTitle: e.target.value })}
-                                className="w-full bg-white/5 border border-white/10 rounded-lg py-3 px-4 text-white focus:outline-none focus:border-neon-blue transition"
-                                placeholder="e.g. CEO & Founder"
-                                required
-                            />
+                            <label className="text-xs font-bold text-neon-blue uppercase">Custom Link Handle</label>
+                            <div className="relative">
+                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 text-sm font-mono">tapos360.com/</span>
+                                <input
+                                    type="text"
+                                    value={form.slug}
+                                    onChange={(e) => setForm({ ...form, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '') })}
+                                    className="w-full bg-white/5 border border-white/10 rounded-xl py-4 pl-36 pr-4 text-white focus:outline-none focus:border-neon-blue transition font-mono"
+                                    placeholder="your-name"
+                                    required
+                                />
+                            </div>
                         </div>
 
-                    </div>
+                        {/* ROLE */}
+                        <div className="space-y-2">
+                            <label className="text-xs font-bold text-neon-blue uppercase">Role / Title</label>
+                            <div className="relative">
+                                <User className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30" size={18} />
+                                <input
+                                    type="text"
+                                    value={form.jobTitle} // Changed to form.jobTitle
+                                    onChange={(e) => setForm({ ...form, jobTitle: e.target.value })} // Changed to form.jobTitle
+                                    className="w-full bg-white/5 border border-white/10 rounded-xl py-4 pl-12 pr-4 text-white focus:outline-none focus:border-neon-blue transition"
+                                    placeholder="e.g. CEO & Founder"
+                                    required
+                                />
+                            </div>
+                        </div>
 
-                    <div className="pt-6 border-t border-white/10">
                         <button
-                            type="submit"
+                            onClick={handleCreate}
                             disabled={loading}
-                            className="w-full bg-neon-blue hover:bg-white text-black font-bold py-4 rounded-lg uppercase tracking-widest transition-all duration-300 flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(0,243,255,0.3)] hover:shadow-[0_0_30px_rgba(255,255,255,0.6)]"
+                            className="w-full bg-neon-blue hover:bg-white text-black font-bold py-5 rounded-xl mt-8 flex items-center justify-center gap-2 transition hover:scale-[1.02] shadow-[0_0_20px_rgba(0,243,255,0.3)]"
                         >
-                            {loading ? 'Initializing System...' : 'Launch Card Protocol'}
-                            {!loading && <ArrowRight size={20} />}
+                            {loading ? <Loader2 className="animate-spin" /> : 'CREATE PROFILE'} <ArrowRight size={20} />
                         </button>
                     </div>
 
-                </form>
-
-            </div>
+                </div> {/* Closing div for glass-panel */}
+            </div> {/* Closing div for min-h-screen */}
         </div>
     );
 }
