@@ -1,35 +1,78 @@
-import { createClient } from '@supabase/supabase-js';
-import { redirect } from 'next/navigation';
-import { Shield, CheckCircle, XCircle, Mail, User, Clock } from 'lucide-react';
+'use client';
 
-// FORCE DYNAMIC (Always fetch fresh data)
-export const dynamic = 'force-dynamic';
+import { useEffect, useState } from 'react';
+import { supabase } from '@/lib/supabase';
+import { useRouter } from 'next/navigation';
+import { Shield, CheckCircle, XCircle, Mail, User, Clock, Loader2, Lock } from 'lucide-react';
 
-export default async function AdminDashboard() {
-    // 1. SERVICE ROLE CLIENT (Bypasses RLS to see ALL users)
-    const supabaseAdmin = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.SUPABASE_SERVICE_ROLE_KEY!
-    );
+export default function AdminDashboard() {
+    const router = useRouter();
+    const [loading, setLoading] = useState(true);
+    const [cards, setCards] = useState<any[]>([]);
+    const [error, setError] = useState('');
 
-    // 2. FETCH ALL CARDS
-    const { data: cards, error } = await supabaseAdmin
-        .from('cards')
-        .select('*')
-        .order('created_at', { ascending: false });
+    useEffect(() => {
+        checkAuthAndFetch();
+    }, []);
 
-    if (error) {
-        return <div className="p-10 text-red-500">Error loading admin data: {error.message}</div>;
+    const checkAuthAndFetch = async () => {
+        try {
+            // 1. Check Session
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) {
+                // Not logged in -> Redirect to login
+                return router.push('/login');
+            }
+
+            if (session.user.email !== 'javi@tapygo.com') {
+                setError('ACCESS DENIED: You are not authorized to view this page.');
+                setLoading(false);
+                return;
+            }
+
+            // 2. Fetch Data with Token
+            const res = await fetch('/api/admin/data', {
+                headers: {
+                    'Authorization': `Bearer ${session.access_token}`
+                }
+            });
+
+            if (!res.ok) {
+                const errData = await res.json();
+                throw new Error(errData.error || 'Failed to load data');
+            }
+
+            const data = await res.json();
+            setCards(data);
+
+        } catch (err: any) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-black flex items-center justify-center text-neon-blue">
+                <Loader2 className="animate-spin mr-2" /> VERIFYING ACCESS...
+            </div>
+        );
     }
 
-    // 3. SECURE VIEW (Only show to you - basic protection for now)
-    // For now, this page is 'open' if you know the URL, BUT since it's using the Service Key solely for rendering,
-    // we should add a check. Ideally, we check if the logged-in user is YOU.
-    // I'll add a simple client-side gate or server-side email check if you provide your email.
-    // For now, it will list data.
+    if (error) {
+        return (
+            <div className="min-h-screen bg-black flex flex-col items-center justify-center text-red-500 gap-4">
+                <Lock size={48} />
+                <h1 className="text-2xl font-bold">SECURITY ALERT</h1>
+                <p>{error}</p>
+                <button onClick={() => router.push('/')} className="text-white underline">Return Home</button>
+            </div>
+        );
+    }
 
     return (
-        <div className="min-h-screen bg-black bg-cyber-grid p-8 text-white font-mono">
+        <div className="min-h-screen bg-black bg-cyber-grid p-8 text-white font-mono animate-in fade-in">
             <div className="max-w-6xl mx-auto">
 
                 {/* HEADER */}
@@ -42,7 +85,7 @@ export default async function AdminDashboard() {
                         <p className="text-neon-blue font-bold">SUPER ADMIN DASHBOARD</p>
                     </div>
                     <div className="ml-auto bg-white/5 px-4 py-2 rounded-lg border border-white/10 text-xs">
-                        TOTAL USERS: <span className="text-neon-blue text-lg font-bold ml-2">{cards?.length || 0}</span>
+                        TOTAL USERS: <span className="text-neon-blue text-lg font-bold ml-2">{cards.length}</span>
                     </div>
                 </div>
 
@@ -60,7 +103,7 @@ export default async function AdminDashboard() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-white/5">
-                                {cards?.map((card) => {
+                                {cards.map((card) => {
                                     const content = card.content || {};
                                     const isActive = content.subscription === 'active';
                                     const email = content.email || 'No Email';
