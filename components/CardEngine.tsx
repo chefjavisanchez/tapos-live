@@ -360,6 +360,50 @@ export default function CardEngine({ data, slug, ownerId, cardId }: CardEnginePr
     const [activeTab, setActiveTab] = useState(initialView);
     const [activeAd, setActiveAd] = useState(0);
 
+    // Theme State - Default to Dark
+    const [isDarkMode, setIsDarkMode] = useState(true);
+    const toggleTheme = () => setIsDarkMode(!isDarkMode);
+
+    const dynamicStyles = `
+      :root {
+          --bg-main: ${isDarkMode ? '#000000' : '#f0f2f5'};
+          --bg-card: ${isDarkMode ? '#000000' : '#ffffff'};
+          --text-main: ${isDarkMode ? '#ffffff' : '#1a1a1a'};
+          --text-muted: ${isDarkMode ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.6)'};
+          --glass-panel: ${isDarkMode ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)'};
+          --border-light: ${isDarkMode ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid rgba(0, 0, 0, 0.1)'};
+          --gold: ${isDarkMode ? '#00f3ff' : '#007075'};
+      }
+      
+      .impulso-wrapper {
+          color: var(--text-main) !important;
+          background: var(--bg-main) !important;
+      }
+
+      #tap-os-engine {
+          background: var(--bg-card) !important;
+          border-left: 1px solid ${isDarkMode ? '#222' : '#e5e5e5'};
+          border-right: 1px solid ${isDarkMode ? '#222' : '#e5e5e5'};
+          color: var(--text-main);
+      }
+
+      .profile-pill {
+          background: ${isDarkMode ? 'rgba(0, 0, 0, 0.6)' : 'rgba(255, 255, 255, 0.8)'};
+          border: var(--border-light);
+          color: var(--text-main);
+      }
+      
+      .profile-pill span {
+          color: var(--text-muted);
+      }
+
+      .service-btn h3 { color: var(--text-main) !important; }
+      .service-btn p { color: var(--text-muted) !important; }
+      
+      /* Invert icons in light mode if needed */
+      ${!isDarkMode ? '.ph-fill { filter: brightness(0.8); }' : ''}
+    `;
+
     // SCANNER STATE
     const [scannedContacts, setScannedContacts] = useState<any[]>([]);
     const [scanning, setScanning] = useState(false);
@@ -512,8 +556,8 @@ END:VCARD`;
             <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Rajdhani:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
             <Script src="https://unpkg.com/@phosphor-icons/web" strategy="lazyOnload" />
 
-            <style>{IMPULSO_STYLES}</style>
-
+            <style dangerouslySetInnerHTML={{ __html: IMPULSO_STYLES }} />
+            <style dangerouslySetInnerHTML={{ __html: dynamicStyles }} />
             <div className="impulso-wrapper">
                 <div className="bg-gradient-radial"></div>
 
@@ -531,7 +575,27 @@ END:VCARD`;
                                 <span>{data.jobTitle}</span>
                             </div>
                         </div>
-                        {/* TAPOS LABEL REMOVED TO PREVENT OVERLAP WITH EDIT BUTTON */}
+                        {/* MODE TOGGLE */}
+                        <div className="flex gap-2">
+                            <button
+                                onClick={toggleTheme}
+                                className="w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-md transition hover:scale-105 active:scale-95"
+                                style={{
+                                    background: isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
+                                    border: isDarkMode ? '1px solid rgba(255,255,255,0.2)' : '1px solid rgba(0,0,0,0.1)'
+                                }}
+                            >
+                                <i className={`ph-fill ${isDarkMode ? 'ph-sun-dim' : 'ph-moon-stars'}`}
+                                    style={{ color: isDarkMode ? '#fbbf24' : '#64748b', fontSize: '20px' }}></i>
+                            </button>
+
+                            {/* OWNER EDIT BUTTON (If Applicable) */}
+                            {isOwner && (
+                                <a href={`/editor?id=${cardId}`} className="w-10 h-10 rounded-full bg-neon-blue/20 border border-neon-blue flex items-center justify-center animate-pulse hover:animate-none transition">
+                                    <Edit size={16} className="text-neon-blue" />
+                                </a>
+                            )}
+                        </div>
                     </div>
 
                     {/* MARQUEE */}
