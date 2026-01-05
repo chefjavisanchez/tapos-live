@@ -400,6 +400,41 @@ export default function CardEngine({ data, slug, ownerId, cardId }: CardEnginePr
       .service-btn h3 { color: var(--text-main) !important; }
       .service-btn p { color: var(--text-muted) !important; }
       
+      .ad-card {
+          width: 85%;
+          aspect-ratio: 4/5;
+          background: var(--bg-card); /* WAS #000 before */
+          border-radius: 30px;
+          border: var(--border-light);
+          position: absolute;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 30px;
+          text-align: center;
+          transition: 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+          opacity: 0;
+          transform: scale(0.9) translateY(20px);
+          pointer-events: none;
+          box-shadow: 0 10px 40px rgba(0,0,0,0.5); /* Keep shadow for depth */
+      }
+      
+      .ad-card.show {
+          opacity: 1;
+          transform: scale(1) translateY(0);
+          pointer-events: all;
+          z-index: 5;
+      }
+      
+      /* Invert text colors mostly, but keep specific colored elements */
+      .ad-card h2, .ad-card h3, .ad-card h4 {
+          color: var(--text-main);
+      }
+      
+      .ad-card p {
+          color: var(--text-muted);
+      }
       /* Invert icons in light mode if needed */
       ${!isDarkMode ? '.ph-fill { filter: brightness(0.8); }' : ''}
     `;
