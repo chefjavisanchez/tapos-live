@@ -26,14 +26,14 @@ export default function CreateCardPage() {
 
             // The basic data structure for the card
             const initialContent = {
-                fullName: form.fullName,
+                fullName: form.title,
                 jobTitle: form.jobTitle,
                 theme: 'neon-blue',
 
                 // Default Placeholder Data (From Leyda Template)
                 profileImage: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=800",
                 bio: "Digital innovator transforming how professionals connect.",
-                email: "contact@example.com",
+                email: user.email || "contact@example.com",
                 phone: "+1 (555) 000-0000",
                 website: "https://example.com",
                 company: form.title,

@@ -683,7 +683,7 @@ END:VCARD`;
                         {/* VIEW 4: QR */}
                         <div className={`view-pane justify-center items-center ${activeTab === 'v-qr' ? 'active' : ''}`}>
                             <div className="bg-white p-6 rounded-2xl">
-                                <img src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://tapos.com/${slug}`} alt="QR Code" />
+                                <img src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://tapos360.com/${slug}`} alt="QR Code" />
                             </div>
                         </div>
 
