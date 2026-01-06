@@ -406,7 +406,7 @@ export default function CardEngine({ data, slug, ownerId, cardId }: CardEnginePr
       }
       
       .ad-card {
-          width: 85%;
+          width: 92%; /* WIDER */
           aspect-ratio: 4/5;
           background: var(--bg-card);
           border-radius: 30px;
@@ -421,7 +421,7 @@ export default function CardEngine({ data, slug, ownerId, cardId }: CardEnginePr
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          padding: 30px;
+          padding: 20px; /* LESS PADDING = MORE TEXT SPACE */
           text-align: center;
           transition: 0.5s cubic-bezier(0.23, 1, 0.32, 1);
           opacity: 0;
