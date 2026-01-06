@@ -400,13 +400,23 @@ export default function CardEngine({ data, slug, ownerId, cardId }: CardEnginePr
       .service-btn h3 { color: var(--text-main) !important; }
       .service-btn p { color: var(--text-muted) !important; }
       
+      /* FIX: Explicitly color the name H1 to adapt to light mode */
+      .char-info h1 {
+          color: var(--text-main) !important;
+      }
+      
       .ad-card {
           width: 85%;
           aspect-ratio: 4/5;
-          background: var(--bg-card); /* WAS #000 before */
+          background: var(--bg-card);
           border-radius: 30px;
           border: var(--border-light);
           position: absolute;
+          /* FIX: CENTERING LOGIC */
+          left: 0;
+          right: 0;
+          margin: auto;
+          /* ------------------ */
           display: flex;
           flex-direction: column;
           align-items: center;
@@ -417,7 +427,7 @@ export default function CardEngine({ data, slug, ownerId, cardId }: CardEnginePr
           opacity: 0;
           transform: scale(0.9) translateY(20px);
           pointer-events: none;
-          box-shadow: 0 10px 40px rgba(0,0,0,0.5); /* Keep shadow for depth */
+          box-shadow: 0 10px 40px rgba(0,0,0,0.5);
       }
       
       .ad-card.show {
