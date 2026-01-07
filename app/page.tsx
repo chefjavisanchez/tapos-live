@@ -2,13 +2,16 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Terminal, CreditCard, User, Settings, LogOut, LayoutGrid, Loader2 } from "lucide-react";
+import { Terminal, CreditCard, User, Settings, LogOut, LayoutGrid, Loader2, Shield } from "lucide-react";
 import { useRouter } from 'next/navigation';
 
 export default function Home() {
     const [cards, setCards] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [isAdmin, setIsAdmin] = useState(false);
     const router = useRouter();
+
+    const [currentUserEmail, setCurrentUserEmail] = useState('');
 
     useEffect(() => {
         const fetchCards = async () => {
@@ -16,6 +19,15 @@ export default function Home() {
             if (!user) {
                 router.push('/login');
                 return;
+            }
+
+            // ROBUST CHECK
+            const email = user.email?.toLowerCase().trim() || '';
+            setCurrentUserEmail(email); // RESTORED FOR DEBUGGING
+            const allowedAdmins = ['javi@tapygo.com', 'chefjavisanchez@gmail.com'];
+
+            if (allowedAdmins.includes(email)) {
+                setIsAdmin(true);
             }
 
             const { data, error } = await supabase
@@ -39,6 +51,10 @@ export default function Home() {
     return (
         <main className="flex min-h-screen bg-space-900 bg-cyber-grid bg-[length:40px_40px]">
 
+            <div className="fixed top-0 left-0 w-full bg-red-600/90 text-white z-[9999] text-[10px] font-mono p-1 text-center backdrop-blur-sm">
+                ADMIN DEBUG: User [{currentUserEmail}] | IsAdmin: {isAdmin ? 'YES' : 'NO'}
+            </div>
+
             {/* SIDEBAR */}
             <aside className="w-64 border-r border-white/10 glass-panel flex flex-col p-6 max-md:hidden sticky top-0 h-screen">
                 <div className="flex items-center gap-3 mb-10">
@@ -53,6 +69,11 @@ export default function Home() {
                     <NavItem href="/" icon={<CreditCard size={20} />} label="My Cards" />
                     <NavItem href="/profile" icon={<User size={20} />} label="Profile" />
                     <NavItem href="/settings" icon={<Settings size={20} />} label="Settings" />
+                    {isAdmin && (
+                        <div className="pt-4 mt-4 border-t border-white/10">
+                            <NavItem href="/admin" icon={<Shield size={20} />} label="God Mode" />
+                        </div>
+                    )}
                 </nav>
 
                 <div className="mt-auto pt-6 border-t border-white/10">
@@ -72,9 +93,17 @@ export default function Home() {
                         <Terminal className="text-neon-blue w-6 h-6" />
                         <h1 className="font-syncopate text-lg tracking-tighter">TAP<span className="text-neon-blue">OS</span></h1>
                     </div>
-                    <button onClick={handleSignOut} className="p-2 bg-white/5 rounded-lg text-white/70 hover:text-white">
-                        <LogOut size={20} />
-                    </button>
+
+                    <div className="flex items-center gap-2">
+                        {isAdmin && (
+                            <a href="/admin" className="p-2 bg-neon-blue/20 rounded-lg text-neon-blue hover:text-white border border-neon-blue/50">
+                                <Shield size={20} />
+                            </a>
+                        )}
+                        <button onClick={handleSignOut} className="p-2 bg-white/5 rounded-lg text-white/70 hover:text-white">
+                            <LogOut size={20} />
+                        </button>
+                    </div>
                 </div>
 
                 {/* HEADER */}

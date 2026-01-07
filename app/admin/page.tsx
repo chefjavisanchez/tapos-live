@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
-import { Shield, CheckCircle, XCircle, Mail, User, Clock, Loader2, Lock } from 'lucide-react';
+import { Shield, CheckCircle, XCircle, Mail, User, Clock, Loader2, Lock, ShieldCheck } from 'lucide-react';
 
 export default function AdminDashboard() {
     const router = useRouter();
@@ -24,8 +24,13 @@ export default function AdminDashboard() {
                 return router.push('/login');
             }
 
-            if (session.user.email !== 'javi@tapygo.com') {
-                setError('ACCESS DENIED: You are not authorized to view this page.');
+            // PROACTIVE REFRESH
+            const { data: { session: freshSession }, error: refreshError } = await supabase.auth.refreshSession();
+            const activeSession = freshSession || session;
+
+            const allowedAdmins = ['javi@tapygo.com', 'chefjavisanchez@gmail.com'];
+            if (!allowedAdmins.includes(activeSession.user.email || '')) {
+                setError(`ACCESS DENIED: You are logged in as ${activeSession.user.email}. Authorization required.`);
                 setLoading(false);
                 return;
             }
@@ -33,7 +38,7 @@ export default function AdminDashboard() {
             // 2. Fetch Data with Token
             const res = await fetch('/api/admin/data', {
                 headers: {
-                    'Authorization': `Bearer ${session.access_token}`
+                    'Authorization': `Bearer ${activeSession.access_token}`
                 }
             });
 
@@ -66,10 +71,47 @@ export default function AdminDashboard() {
                 <Lock size={48} />
                 <h1 className="text-2xl font-bold">SECURITY ALERT</h1>
                 <p>{error}</p>
-                <button onClick={() => router.push('/')} className="text-white underline">Return Home</button>
+                <div className="flex gap-4">
+                    <button onClick={() => router.push('/')} className="text-white underline">Return Home</button>
+                    <button onClick={async () => {
+                        await supabase.auth.signOut();
+                        router.push('/login');
+                    }} className="text-neon-blue font-bold border border-neon-blue px-4 py-2 rounded">
+                        RE-AUTHENTICATE
+                    </button>
+                </div>
             </div>
         );
     }
+
+    const handleActivate = async (cardId: string) => {
+        if (!confirm('Are you sure you want to FORCE ACTIVATE this user?')) return;
+
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) return router.push('/login');
+
+            const res = await fetch('/api/admin/activate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${session.access_token}`
+                },
+                body: JSON.stringify({ cardId })
+            });
+
+            if (!res.ok) {
+                const err = await res.json();
+                throw new Error(err.error || 'Failed');
+            }
+
+            alert('User Activated Successfully');
+            checkAuthAndFetch(); // Refresh list
+
+        } catch (err: any) {
+            alert(err.message);
+        }
+    };
 
     return (
         <div className="min-h-screen bg-black bg-cyber-grid p-8 text-white font-mono animate-in fade-in">
@@ -100,6 +142,7 @@ export default function AdminDashboard() {
                                     <th className="p-4">Contact Info</th>
                                     <th className="p-4">Slug / URL</th>
                                     <th className="p-4">Joined</th>
+                                    <th className="p-4">Actions</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-white/5">
@@ -141,6 +184,14 @@ export default function AdminDashboard() {
                                                     {content.phone && (
                                                         <div className="text-xs text-gray-500 pl-5">{content.phone}</div>
                                                     )}
+                                                    {content.shipping && content.shipping.address && (
+                                                        <div className="mt-2 text-[10px] text-gray-400 border-t border-white/10 pt-1 pl-1">
+                                                            <div className="font-bold text-neon-blue mb-0.5">📍 SHIPPING ADDR:</div>
+                                                            <div className="text-white">{content.shipping.address}</div>
+                                                            <div>{content.shipping.city}, {content.shipping.state} {content.shipping.zip}</div>
+                                                            <div>{content.shipping.country}</div>
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </td>
                                             <td className="p-4">
@@ -154,6 +205,16 @@ export default function AdminDashboard() {
                                                     {new Date(card.created_at).toLocaleDateString()}
                                                 </div>
                                                 <div>{new Date(card.created_at).toLocaleTimeString()}</div>
+                                            </td>
+                                            <td className="p-4">
+                                                {!isActive && (
+                                                    <button
+                                                        onClick={() => handleActivate(card.id)}
+                                                        className="px-3 py-1 bg-neon-blue/10 hover:bg-neon-blue text-neon-blue hover:text-black border border-neon-blue/50 rounded text-xs font-bold transition flex items-center gap-2"
+                                                    >
+                                                        <ShieldCheck size={12} /> ACTIVATE
+                                                    </button>
+                                                )}
                                             </td>
                                         </tr>
                                     );

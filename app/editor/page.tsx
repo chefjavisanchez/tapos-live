@@ -559,7 +559,7 @@ function EditorContent() {
                                 </div>
 
                                 <button
-                                    onClick={() => {
+                                    onClick={async () => {
                                         const shipping = content.shipping || {};
                                         // Simple validation
                                         if (!shipping.address || !shipping.city || !shipping.state || !shipping.zip || !shipping.country) {
@@ -568,7 +568,8 @@ function EditorContent() {
                                         }
 
                                         // Save before redirecting to ensure we capture the address
-                                        handleSave();
+                                        // CRITICAL: Await this to prevent race condition
+                                        await handleSave();
 
                                         // Redirect to Stripe
                                         window.open(`https://buy.stripe.com/6oU00i6UOa2YcVzaiH3gk00?client_reference_id=${cardId}`, '_blank');

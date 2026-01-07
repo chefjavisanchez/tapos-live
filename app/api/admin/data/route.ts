@@ -20,11 +20,14 @@ export async function GET(req: Request) {
     const { data: { user }, error: authError } = await supabase.auth.getUser(token);
 
     if (authError || !user) {
-        return NextResponse.json({ error: 'Invalid Token' }, { status: 401 });
+        console.error("Admin Auth Error:", authError);
+        return NextResponse.json({ error: `Auth Failed: ${authError?.message || 'No User'}` }, { status: 401 });
     }
 
     // 2. SECURITY CHECK: EMAIL LOCK
-    if (user.email !== 'javi@tapygo.com') {
+    const allowedAdmins = ['javi@tapygo.com', 'chefjavisanchez@gmail.com'];
+
+    if (!allowedAdmins.includes(user.email || '')) {
         console.warn(`⚠️ Unauthorized Admin Access Attempt by: ${user.email}`);
         return NextResponse.json({ error: 'Forbidden: Admins Only' }, { status: 403 });
     }
