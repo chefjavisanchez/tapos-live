@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
-import { Shield, CheckCircle, XCircle, Mail, User, Clock, Loader2, Lock, ShieldCheck } from 'lucide-react';
+import { Shield, CheckCircle, XCircle, Mail, User, Clock, Loader2, Lock, ShieldCheck, LogOut } from 'lucide-react';
 
 export default function AdminDashboard() {
     const router = useRouter();
@@ -126,8 +126,13 @@ export default function AdminDashboard() {
                         <h1 className="text-3xl font-bold tracking-wider font-syncopate text-white">GOD MODE</h1>
                         <p className="text-neon-blue font-bold">SUPER ADMIN DASHBOARD</p>
                     </div>
-                    <div className="ml-auto bg-white/5 px-4 py-2 rounded-lg border border-white/10 text-xs">
-                        TOTAL USERS: <span className="text-neon-blue text-lg font-bold ml-2">{cards.length}</span>
+                    <div className="ml-auto flex items-center gap-4">
+                        <div className="bg-white/5 px-4 py-2 rounded-lg border border-white/10 text-xs">
+                            TOTAL USERS: <span className="text-neon-blue text-lg font-bold ml-2">{cards.length}</span>
+                        </div>
+                        <button onClick={() => router.push('/')} className="bg-white/5 hover:bg-white/10 border border-white/10 text-gray-400 hover:text-white px-4 py-2 rounded-lg text-xs font-bold transition flex items-center gap-2">
+                            EXIT <LogOut size={14} />
+                        </button>
                     </div>
                 </div>
 
