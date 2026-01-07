@@ -207,13 +207,26 @@ export default function AdminDashboard() {
                                                 <div>{new Date(card.created_at).toLocaleTimeString()}</div>
                                             </td>
                                             <td className="p-4">
-                                                {!isActive && (
+                                                {!isActive ? (
                                                     <button
                                                         onClick={() => handleActivate(card.id)}
                                                         className="px-3 py-1 bg-neon-blue/10 hover:bg-neon-blue text-neon-blue hover:text-black border border-neon-blue/50 rounded text-xs font-bold transition flex items-center gap-2"
                                                     >
                                                         <ShieldCheck size={12} /> ACTIVATE
                                                     </button>
+                                                ) : (
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-green-500 font-bold text-xs border border-green-500/20 px-2 py-0.5 rounded bg-green-900/10">ACTIVE</span>
+                                                        <button
+                                                            onClick={() => {
+                                                                if (confirm('Re-trigger GHL Webhook?')) handleActivate(card.id);
+                                                            }}
+                                                            title="Re-Sync / Re-Trigger Webhook"
+                                                            className="p-1.5 hover:bg-white/10 rounded-full text-white/30 hover:text-white transition"
+                                                        >
+                                                            <ShieldCheck size={14} />
+                                                        </button>
+                                                    </div>
                                                 )}
                                             </td>
                                         </tr>

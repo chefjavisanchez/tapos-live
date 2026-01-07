@@ -41,7 +41,7 @@ export async function POST(req: Request) {
         // 3. Fetch Current Card to Preserve Data
         const { data: card, error: fetchError } = await supabase
             .from('cards')
-            .select('content')
+            .select('content, slug')
             .eq('id', cardId)
             .single();
 
@@ -64,7 +64,31 @@ export async function POST(req: Request) {
 
         if (updateError) throw updateError;
 
-        return NextResponse.json({ success: true, message: 'Card Manually Activated' });
+        // 5. TRIGGER GOHIGHLEVEL WEBHOOK (New!)
+        const GHL_URL = process.env.GHL_WEBHOOK_URL;
+        if (GHL_URL) {
+            try {
+                console.log('🚀 Admin Triggering GHL Webhook...');
+                await fetch(GHL_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        card_id: cardId,
+                        slug: card.slug,
+                        email: newContent.email,
+                        name: newContent.fullName,
+                        phone: newContent.phone,
+                        shipping: newContent.shipping || {},
+                        payment_id: 'MANUAL_ADMIN_VIA_DASHBOARD',
+                        source: 'TAPOS_ADMIN_ACTIVATE'
+                    })
+                });
+            } catch (ghlError) {
+                console.error('⚠️ GHL Webhook Failed:', ghlError);
+            }
+        }
+
+        return NextResponse.json({ success: true, message: 'Card Manually Activated & GHL Triggered' });
 
     } catch (err: any) {
         console.error('Activation Error:', err);
