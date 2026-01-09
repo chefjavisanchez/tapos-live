@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Terminal, CreditCard, User, Settings, LogOut, LayoutGrid, Loader2, Shield } from "lucide-react";
+import { Terminal, CreditCard, User, Settings, LogOut, LayoutGrid, Loader2, Shield, Gift } from "lucide-react";
 import { useRouter } from 'next/navigation';
 
 export default function Home() {
@@ -61,6 +61,7 @@ export default function Home() {
                     <NavItem href="/" icon={<LayoutGrid size={20} />} label="Dashboard" active />
                     <NavItem href="/" icon={<CreditCard size={20} />} label="My Cards" />
                     <NavItem href="/profile" icon={<User size={20} />} label="Profile" />
+                    <NavItem href="/referrals" icon={<Gift size={20} />} label="Rewards" />
                     <NavItem href="/settings" icon={<Settings size={20} />} label="Settings" />
                     {isAdmin && (
                         <div className="pt-4 mt-4 border-t border-white/10">

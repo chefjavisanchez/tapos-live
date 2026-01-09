@@ -1,12 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react'; // Added Suspense for searchParams
 import { supabase } from '@/lib/supabase';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Sparkles, ArrowRight, CreditCard, User, AlertTriangle, Loader2 } from 'lucide-react';
 
-export default function CreateCardPage() {
+function CreateForm() {
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const referralCode = searchParams.get('ref'); // CAPTURE REFERRAL
+
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [form, setForm] = useState({
@@ -29,6 +32,7 @@ export default function CreateCardPage() {
                 fullName: form.title,
                 jobTitle: form.jobTitle,
                 theme: 'neon-blue',
+                referrer: referralCode || null, // SAVE REFERRER HERE
 
                 // Default Placeholder Data (From Leyda Template)
                 profileImage: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=800",
@@ -173,5 +177,13 @@ export default function CreateCardPage() {
 
             </div> {/* Closing div for glass-panel */}
         </div>
+    );
+}
+
+export default function CreateCardPage() {
+    return (
+        <Suspense fallback={<div className="min-h-screen bg-black text-white flex items-center justify-center">Loading...</div>}>
+            <CreateForm />
+        </Suspense>
     );
 }
