@@ -609,7 +609,8 @@ function EditorContent() {
                                             setSaving(false);
                                             return;
                                         }
-                                        if (!content.slug) {
+                                        const activeSlug = content.slug || card?.slug;
+                                        if (!activeSlug) {
                                             alert("Validation Error: Your card needs a unique URL (Slug). Please verify it in settings.");
                                             setSaving(false);
                                             return;
@@ -623,7 +624,7 @@ function EditorContent() {
                                                 body: JSON.stringify({
                                                     cardId: activeCardId, // USE THE FAIL-SAFE ID
                                                     email: content.email,
-                                                    slug: content.slug,
+                                                    slug: activeSlug,
                                                     title: content.fullName,
                                                     variant
                                                 })
