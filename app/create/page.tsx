@@ -91,7 +91,7 @@ function CreateForm() {
 
             // Success! Go to dashboard
             alert("Card Authorized! Systems Online.");
-            router.push('/');
+            router.push(`/editor?id=${data.id}`);
 
         } catch (error: any) {
             setError(error.message);

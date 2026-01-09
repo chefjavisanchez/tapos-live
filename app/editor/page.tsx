@@ -597,7 +597,14 @@ function EditorContent() {
                                         // Save local state first
                                         await handleSave();
 
-                                        if (!cardId) {
+                                        // FAIL-SAFE: If React state is empty, grab ID from URL directly
+                                        let activeCardId = cardId;
+                                        if (!activeCardId) {
+                                            const params = new URLSearchParams(window.location.search);
+                                            activeCardId = params.get('id');
+                                        }
+
+                                        if (!activeCardId) {
                                             alert("System Error: Card ID is missing. Please refresh the page.");
                                             setSaving(false);
                                             return;
@@ -614,7 +621,7 @@ function EditorContent() {
                                                 method: 'POST',
                                                 headers: { 'Content-Type': 'application/json' },
                                                 body: JSON.stringify({
-                                                    cardId,
+                                                    cardId: activeCardId, // USE THE FAIL-SAFE ID
                                                     email: content.email,
                                                     slug: content.slug,
                                                     title: content.fullName,
