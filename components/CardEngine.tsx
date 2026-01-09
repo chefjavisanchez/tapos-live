@@ -723,7 +723,8 @@ END:VCARD`;
                             </div>
                             {/* DYNAMIC SERVICE BUTTONS */}
                             {[1, 2, 3, 4].map((srv) => {
-                                const btnData = data.content?.[srv as keyof typeof data.content] as any;
+                                const srvKey = `srv${srv}`; // Construct key: srv1, srv2...
+                                const btnData = data[srvKey] || {}; // Access correct key
                                 const defaultLabels = { 1: 'Visit Website', 2: 'My Offerings', 3: 'WhatsApp', 4: 'More Info' };
                                 const defaultIcons = { 1: 'ph-globe', 2: 'ph-briefcase', 3: 'ph-whatsapp-logo', 4: 'ph-info' };
                                 const isWhatsApp = srv === 3; // Special check for button 3
