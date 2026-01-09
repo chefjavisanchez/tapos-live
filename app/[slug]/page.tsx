@@ -102,8 +102,8 @@ export default async function Page({ params }: Props) {
                         This digital identity ({card.content.fullName}) has been created but not yet activated.
                     </p>
 
-                    <a href={`https://buy.stripe.com/6oU00i6UOa2YcVzaiH3gk00?client_reference_id=${card.id}`} className="block w-full bg-[#00F3FF] hover:bg-white text-black font-bold py-4 rounded-xl transition transform hover:scale-105 shadow-lg shadow-[#00F3FF]/20 mb-4">
-                        ACTIVATE CARD • $99
+                    <a href={`/editor?id=${card.id}`} className="block w-full bg-[#00F3FF] hover:bg-white text-black font-bold py-4 rounded-xl transition transform hover:scale-105 shadow-lg shadow-[#00F3FF]/20 mb-4">
+                        OWNER ACTIVATION
                     </a>
 
                     <p className="text-[10px] text-white/30 uppercase tracking-wider">
