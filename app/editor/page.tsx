@@ -574,6 +574,22 @@ function EditorContent() {
                                     </button>
                                 </div>
 
+                                {/* ORDER SUMMARY */}
+                                <div className="bg-black/20 rounded-lg p-3 space-y-1 text-xs text-white/70 text-left">
+                                    <div className="flex justify-between">
+                                        <span>Subtotal</span>
+                                        <span>${variant === 'bundle' ? 129 : 99}.00</span>
+                                    </div>
+                                    <div className="flex justify-between text-indigo-300">
+                                        <span>Shipping & Handling</span>
+                                        <span>$7.99</span>
+                                    </div>
+                                    <div className="flex justify-between font-bold text-white pt-2 border-t border-white/10 mt-1">
+                                        <span>Total Due</span>
+                                        <span>${variant === 'bundle' ? 136.99 : 106.99}</span>
+                                    </div>
+                                </div>
+
                                 <button
                                     disabled={saving}
                                     onClick={async () => {
@@ -611,7 +627,7 @@ function EditorContent() {
                                     }}
                                     className="block w-full bg-[#635BFF] hover:bg-[#5851E3] text-white font-bold py-4 rounded-lg transition shadow-lg shadow-[#635BFF]/30 uppercase tracking-wider disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                                 >
-                                    {saving ? <Loader2 className="animate-spin" /> : `Confirm & Pay • $${variant === 'bundle' ? 129 : 99}`}
+                                    {saving ? <Loader2 className="animate-spin" /> : `Pay Total • $${variant === 'bundle' ? 136.99 : 106.99}`}
                                 </button>
                                 <p className="text-[10px] text-white/30">Processed securely by Stripe</p>
                             </div>
