@@ -9,15 +9,23 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 export async function POST(req: Request) {
     try {
         const body = await req.json();
-        const { cardId, email, slug, title } = body;
+        const { cardId, email, slug, title, variant } = body; // variant: 'card' | 'bundle'
         const origin = req.headers.get('origin');
 
         if (!cardId || !slug) {
             return NextResponse.json({ error: 'Missing Card ID' }, { status: 400 });
         }
 
-        // EDIT PRICE HERE
-        const PRICE_IN_CENTS = 9900; // $99.00 USD
+        // DETERMINE PRODUCT & PRICE
+        let priceInCents = 9900; // Default $99
+        let productName = `TapOS License: ${title || slug}`;
+        let productDesc = 'Professional Digital Identity + Premium Card';
+
+        if (variant === 'bundle') {
+            priceInCents = 12900; // $129
+            productName = `TapOS Ultimate Bundle: ${title || slug}`;
+            productDesc = 'Lifetime License + Premium Card + NFC Bracelet';
+        }
 
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
@@ -26,11 +34,10 @@ export async function POST(req: Request) {
                     price_data: {
                         currency: 'usd',
                         product_data: {
-                            name: `TapOS License: ${title || slug}`,
-                            description: 'Professional Digital Identity Activation',
-                            // images: ['https://tapos360.com/logo.png'], // Add logo if available
+                            name: productName,
+                            description: productDesc,
                         },
-                        unit_amount: PRICE_IN_CENTS,
+                        unit_amount: priceInCents,
                     },
                     quantity: 1,
                 },

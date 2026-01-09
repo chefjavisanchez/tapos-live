@@ -29,6 +29,7 @@ function EditorContent() {
 
     // The master state object
     const [card, setCard] = useState<any>(null);
+    const [variant, setVariant] = useState('card'); // 'card' | 'bundle'
     const [content, setContent] = useState<any>({
         fullName: '',
         jobTitle: '',
@@ -552,10 +553,25 @@ function EditorContent() {
                                     <CreditCard size={32} className="text-white" />
                                 </div>
                                 <div>
-                                    <h3 className="text-lg font-bold text-white">Get Your Card</h3>
+                                    <h3 className="text-lg font-bold text-white">Activate Your Identity</h3>
                                     <p className="text-xs text-white/60 mt-2">
-                                        Activate your lifetime account and receive your premium NFC card.
+                                        Choose your NFC Hardware below
                                     </p>
+                                </div>
+
+                                {/* SELECTION GRID */}
+                                <div className="grid grid-cols-1 gap-3 text-left">
+                                    <button onClick={() => setVariant('card')} className={`p-4 rounded-xl border flex items-center gap-4 transition-all ${variant === 'card' ? 'bg-neon-blue/20 border-neon-blue' : 'bg-black/20 border-white/10 hover:border-white/30'}`}>
+                                        <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${variant === 'card' ? 'border-neon-blue' : 'border-white/30'}`}>{variant === 'card' && <div className="w-2 h-2 rounded-full bg-neon-blue" />}</div>
+                                        <div className="flex-1"><div className="font-bold text-white text-sm">Premium Card</div><div className="text-[10px] text-white/50">Standard Edition</div></div>
+                                        <div className="ml-auto font-bold text-white">$99</div>
+                                    </button>
+                                    <button onClick={() => setVariant('bundle')} className={`p-4 rounded-xl border flex items-center gap-4 transition-all relative overflow-hidden ${variant === 'bundle' ? 'bg-purple-500/20 border-purple-500' : 'bg-black/20 border-white/10 hover:border-white/30'}`}>
+                                        <div className="absolute top-0 right-0 bg-gold/90 text-black text-[9px] font-bold px-2 py-0.5 rounded-bl shadow-lg">BEST VALUE</div>
+                                        <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${variant === 'bundle' ? 'border-purple-500' : 'border-white/30'}`}>{variant === 'bundle' && <div className="w-2 h-2 rounded-full bg-purple-500" />}</div>
+                                        <div className="flex-1"><div className="font-bold text-white text-sm">Ultimate Bundle</div><div className="text-[10px] text-white/50">Card + NFC Bracelet</div></div>
+                                        <div className="ml-auto text-right"><div className="font-bold text-white">$129</div><div className="text-[10px] text-green-400 line-through">$150</div></div>
+                                    </button>
                                 </div>
 
                                 <button
@@ -574,7 +590,8 @@ function EditorContent() {
                                                     cardId,
                                                     email: content.email,
                                                     slug: content.slug,
-                                                    title: content.fullName
+                                                    title: content.fullName,
+                                                    variant
                                                 })
                                             });
 
@@ -594,7 +611,7 @@ function EditorContent() {
                                     }}
                                     className="block w-full bg-[#635BFF] hover:bg-[#5851E3] text-white font-bold py-4 rounded-lg transition shadow-lg shadow-[#635BFF]/30 uppercase tracking-wider disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                                 >
-                                    {saving ? <Loader2 className="animate-spin" /> : 'Confirm & Pay • $99'}
+                                    {saving ? <Loader2 className="animate-spin" /> : `Confirm & Pay • $${variant === 'bundle' ? 129 : 99}`}
                                 </button>
                                 <p className="text-[10px] text-white/30">Processed securely by Stripe</p>
                             </div>
