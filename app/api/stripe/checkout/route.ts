@@ -27,6 +27,10 @@ export async function POST(req: Request) {
             priceInCents = 12900; // $129
             productName = `TapOS Ultimate Bundle: ${title || slug}`;
             productDesc = 'Lifetime License + Premium Card + NFC Bracelet';
+        } else if (variant === 'bracelet') {
+            priceInCents = 3000; // $30
+            productName = `NFC Bracelet Upgrade`;
+            productDesc = 'Premium NFC Bracelet (Add-on)';
         }
 
         const session = await stripe.checkout.sessions.create({
@@ -51,10 +55,23 @@ export async function POST(req: Request) {
             // KEY: This ensures we get the ID back in the webhook
             client_reference_id: cardId,
 
-            // FORCE ADDRESS COLLECTION
+            // FORCE ADDRESS COLLECTION & SHIPPING FEE
             shipping_address_collection: {
                 allowed_countries: ['US', 'PR', 'CA', 'GB', 'MX', 'ES'],
             },
+            shipping_options: [
+                {
+                    shipping_rate_data: {
+                        type: 'fixed_amount',
+                        fixed_amount: { amount: 799, currency: 'usd' },
+                        display_name: 'Standard Shipping',
+                        delivery_estimate: {
+                            minimum: { unit: 'business_day', value: 3 },
+                            maximum: { unit: 'business_day', value: 7 },
+                        },
+                    },
+                },
+            ],
             phone_number_collection: {
                 enabled: true,
             },
