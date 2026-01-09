@@ -80,7 +80,16 @@ function CreateForm() {
 
             if (error) throw error;
 
-            // Success! Go to dashboard (or later, the editor)
+            // CHECK REFERRALS & TRIGGER REWARDS (Async)
+            if (referralCode) {
+                fetch('/api/referrals/check', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ referrer: referralCode })
+                }).catch(err => console.error('Ref Check Failed', err));
+            }
+
+            // Success! Go to dashboard
             alert("Card Authorized! Systems Online.");
             router.push('/');
 

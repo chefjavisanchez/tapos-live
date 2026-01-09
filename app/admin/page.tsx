@@ -48,7 +48,20 @@ export default function AdminDashboard() {
             }
 
             const data = await res.json();
-            setCards(data);
+
+            // CALCULATE REFERRAL STATS
+            const counts: { [key: string]: number } = {};
+            data.forEach((c: any) => {
+                const ref = c.content?.referrer;
+                if (ref) counts[ref] = (counts[ref] || 0) + 1;
+            });
+
+            const dataWithStats = data.map((c: any) => ({
+                ...c,
+                referralCount: counts[c.slug] || 0
+            }));
+
+            setCards(dataWithStats);
 
         } catch (err: any) {
             setError(err.message);
@@ -145,6 +158,7 @@ export default function AdminDashboard() {
                                     <th className="p-4">Status</th>
                                     <th className="p-4">User Identity</th>
                                     <th className="p-4">Contact Info</th>
+                                    <th className="p-4 text-center">Referrals</th>
                                     <th className="p-4">Slug / URL</th>
                                     <th className="p-4">Joined</th>
                                     <th className="p-4">Actions</th>
@@ -154,6 +168,8 @@ export default function AdminDashboard() {
                                 {cards.map((card) => {
                                     const content = card.content || {};
                                     const isActive = content.subscription === 'active';
+                                    const refCount = (card as any).referralCount || 0;
+                                    const isWinner = refCount >= 5;
                                     const email = content.email || 'No Email';
                                     const name = content.fullName || card.title || 'Unknown';
 
@@ -198,6 +214,13 @@ export default function AdminDashboard() {
                                                         </div>
                                                     )}
                                                 </div>
+                                            </td>
+                                            <td className="p-4 text-center">
+                                                <div className={`inline-flex flex-col items-center justify-center p-2 rounded-lg ${isWinner ? 'bg-yellow-500/20 border border-yellow-500' : 'bg-white/5'}`}>
+                                                    <span className={`text-xl font-bold font-rajdhani ${isWinner ? 'text-yellow-400' : 'text-white'}`}>{refCount}</span>
+                                                    <span className="text-[10px] text-gray-400 uppercase">REFS</span>
+                                                </div>
+                                                {isWinner && <div className="text-[10px] font-bold text-yellow-500 mt-1 animate-pulse">🏆 WINNER</div>}
                                             </td>
                                             <td className="p-4">
                                                 <a href={`/${card.slug}`} target="_blank" className="text-neon-blue hover:underline font-mono">
