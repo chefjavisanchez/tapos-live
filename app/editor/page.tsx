@@ -559,24 +559,42 @@ function EditorContent() {
                                 </div>
 
                                 <button
+                                    disabled={saving}
                                     onClick={async () => {
-                                        const shipping = content.shipping || {};
-                                        // Simple validation
-                                        if (!shipping.address || !shipping.city || !shipping.state || !shipping.zip || !shipping.country) {
-                                            alert("⚠️ MISSING DETAILS\n\nPlease fill in your full shipping address (Address, City, State, Zip, Country) so we can send your card!");
-                                            return;
-                                        }
-
-                                        // Save before redirecting to ensure we capture the address
-                                        // CRITICAL: Await this to prevent race condition
+                                        setSaving(true);
+                                        // Save local state first
                                         await handleSave();
 
-                                        // Redirect to Stripe
-                                        window.open(`https://buy.stripe.com/6oU00i6UOa2YcVzaiH3gk00?client_reference_id=${cardId}`, '_blank');
+                                        try {
+                                            // Call Server-Side Checkout
+                                            const response = await fetch('/api/stripe/checkout', {
+                                                method: 'POST',
+                                                headers: { 'Content-Type': 'application/json' },
+                                                body: JSON.stringify({
+                                                    cardId,
+                                                    email: content.email,
+                                                    slug: content.slug,
+                                                    title: content.fullName
+                                                })
+                                            });
+
+                                            const session = await response.json();
+
+                                            if (session.url) {
+                                                window.location.href = session.url;
+                                            } else {
+                                                alert('System Error: ' + (session.error || 'Could not initialize checkout.'));
+                                                setSaving(false);
+                                            }
+                                        } catch (e) {
+                                            console.error(e);
+                                            alert('Network Error. Please try again.');
+                                            setSaving(false);
+                                        }
                                     }}
-                                    className="block w-full bg-[#635BFF] hover:bg-[#5851E3] text-white font-bold py-4 rounded-lg transition shadow-lg shadow-[#635BFF]/30 uppercase tracking-wider"
+                                    className="block w-full bg-[#635BFF] hover:bg-[#5851E3] text-white font-bold py-4 rounded-lg transition shadow-lg shadow-[#635BFF]/30 uppercase tracking-wider disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                                 >
-                                    Confirm & Pay • $99
+                                    {saving ? <Loader2 className="animate-spin" /> : 'Confirm & Pay • $99'}
                                 </button>
                                 <p className="text-[10px] text-white/30">Processed securely by Stripe</p>
                             </div>
