@@ -597,6 +597,17 @@ function EditorContent() {
                                         // Save local state first
                                         await handleSave();
 
+                                        if (!cardId) {
+                                            alert("System Error: Card ID is missing. Please refresh the page.");
+                                            setSaving(false);
+                                            return;
+                                        }
+                                        if (!content.slug) {
+                                            alert("Validation Error: Your card needs a unique URL (Slug). Please verify it in settings.");
+                                            setSaving(false);
+                                            return;
+                                        }
+
                                         try {
                                             // Call Server-Side Checkout
                                             const response = await fetch('/api/stripe/checkout', {

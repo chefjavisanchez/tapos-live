@@ -9,9 +9,11 @@ export default function Home() {
     const [cards, setCards] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [isAdmin, setIsAdmin] = useState(false);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false); // NEW STATE
     const router = useRouter();
 
     useEffect(() => {
+        // ... (existing fetch logic remains SAME) ...
         const fetchCards = async () => {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) {
@@ -48,7 +50,39 @@ export default function Home() {
     return (
         <main className="flex min-h-screen bg-space-900 bg-cyber-grid bg-[length:40px_40px]">
 
-            {/* SIDEBAR */}
+            {/* MOBILE MENU OVERLAY */}
+            {mobileMenuOpen && (
+                <div className="fixed inset-0 z-50 bg-[#050510] flex flex-col p-6 animate-in slide-in-from-left duration-200">
+                    <div className="flex justify-between items-center mb-8">
+                        <div className="flex items-center gap-2">
+                            <Terminal className="text-neon-blue w-6 h-6" />
+                            <h1 className="font-syncopate text-lg tracking-tighter">TAP<span className="text-neon-blue">OS</span></h1>
+                        </div>
+                        <button onClick={() => setMobileMenuOpen(false)} className="p-2 bg-white/10 rounded-full">
+                            <LogOut className="rotate-180" size={20} />
+                        </button>
+                    </div>
+
+                    <nav className="flex flex-col gap-4 text-lg">
+                        <NavItem href="/" icon={<LayoutGrid size={24} />} label="Dashboard" onClick={() => setMobileMenuOpen(false)} />
+                        <NavItem href="/" icon={<CreditCard size={24} />} label="My Cards" onClick={() => setMobileMenuOpen(false)} />
+                        <NavItem href="/profile" icon={<User size={24} />} label="Profile" onClick={() => setMobileMenuOpen(false)} />
+                        <NavItem href="/referrals" icon={<Gift size={24} />} label="Rewards" onClick={() => setMobileMenuOpen(false)} />
+                        <NavItem href="/shop" icon={<ShoppingBag size={24} />} label="Hardware Store" onClick={() => setMobileMenuOpen(false)} />
+                        <NavItem href="/settings" icon={<Settings size={24} />} label="Settings" onClick={() => setMobileMenuOpen(false)} />
+                        {isAdmin && <NavItem href="/admin" icon={<Shield size={24} />} label="God Mode" onClick={() => setMobileMenuOpen(false)} />}
+                    </nav>
+
+                    <div className="mt-auto border-t border-white/10 pt-6">
+                        <button onClick={handleSignOut} className="flex items-center gap-3 text-white/50 hover:text-white">
+                            <LogOut size={24} />
+                            <span>Sign Out</span>
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {/* SIDEBAR (Desktop) */}
             <aside className="w-64 border-r border-white/10 glass-panel flex flex-col p-6 max-md:hidden sticky top-0 h-screen">
                 <div className="flex items-center gap-3 mb-10">
                     <div className="w-10 h-10 rounded-full bg-neon-blue neon-glow flex items-center justify-center">
@@ -85,7 +119,10 @@ export default function Home() {
                 {/* MOBILE HEADER (Visible on small screens only) */}
                 <div className="md:hidden flex justify-between items-center mb-8 pb-4 border-b border-white/10">
                     <div className="flex items-center gap-2">
-                        <Terminal className="text-neon-blue w-6 h-6" />
+                        <button onClick={() => setMobileMenuOpen(true)} className="p-2 -ml-2 text-white">
+                            <LayoutGrid size={28} />
+                        </button>
+                        <Terminal className="text-neon-blue w-6 h-6 ml-2" />
                         <h1 className="font-syncopate text-lg tracking-tighter">TAP<span className="text-neon-blue">OS</span></h1>
                     </div>
 
@@ -161,9 +198,9 @@ export default function Home() {
     );
 }
 
-function NavItem({ icon, label, active = false, href }: { icon: any, label: string, active?: boolean, href: string }) {
+function NavItem({ icon, label, active = false, href, onClick }: { icon: any, label: string, active?: boolean, href: string, onClick?: () => void }) {
     return (
-        <a href={href} className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all duration-200 ${active ? 'bg-neon-blue/10 text-neon-blue border border-neon-blue/20' : 'text-white/60 hover:text-white hover:bg-white/5'}`}>
+        <a href={href} onClick={onClick} className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all duration-200 ${active ? 'bg-neon-blue/10 text-neon-blue border border-neon-blue/20' : 'text-white/60 hover:text-white hover:bg-white/5'}`}>
             {icon}
             <span className="font-medium">{label}</span>
         </a>
