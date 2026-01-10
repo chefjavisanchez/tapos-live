@@ -582,11 +582,11 @@ function EditorContent() {
                                     </div>
                                     <div className="flex justify-between text-indigo-300">
                                         <span>Shipping & Handling</span>
-                                        <span>$7.99</span>
+                                        <span>${variant === 'bundle' ? '9.99' : '7.99'}</span>
                                     </div>
                                     <div className="flex justify-between font-bold text-white pt-2 border-t border-white/10 mt-1">
                                         <span>Total Due</span>
-                                        <span>${variant === 'bundle' ? 136.99 : 106.99}</span>
+                                        <span>${variant === 'bundle' ? '138.99' : '106.99'}</span>
                                     </div>
                                 </div>
 

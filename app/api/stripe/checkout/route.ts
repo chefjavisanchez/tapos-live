@@ -63,7 +63,7 @@ export async function POST(req: Request) {
                 {
                     shipping_rate_data: {
                         type: 'fixed_amount',
-                        fixed_amount: { amount: 799, currency: 'usd' },
+                        fixed_amount: { amount: variant === 'bundle' ? 999 : 799, currency: 'usd' },
                         display_name: 'Standard Shipping',
                         delivery_estimate: {
                             minimum: { unit: 'business_day', value: 3 },
