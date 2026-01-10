@@ -23,7 +23,7 @@ export async function POST(req: Request) {
 
     // 2. INITIALIZE CLIENTS (Runtime only)
     const stripe = new Stripe(STRIPE_KEY, {
-        apiVersion: '2023-10-16', // Valid stable version
+        // apiVersion: '2023-10-16', // Let it use default to avoid type errors
     });
 
     const adminSupabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
@@ -42,7 +42,7 @@ export async function POST(req: Request) {
 
     // Handle the event
     if (event.type === 'checkout.session.completed') {
-        const session = event.data.object as Stripe.Checkout.Session;
+        const session = event.data.object as any; // Cast to any to access newer properties if types are outdated
 
         // 1. Get the Card ID from the link parameters
         const cardId = session.client_reference_id;
@@ -53,16 +53,20 @@ export async function POST(req: Request) {
             // Fetch current card
             const { data: card, error: fetchError } = await adminSupabase
                 .from('cards')
-                .select('content')
+                .select('content, slug') // ADD SLUG TO QUERY
                 .eq('id', cardId)
                 .single();
 
             if (card && !fetchError) {
+                // CAPTURE STRIPE SHIPPING DETAILS
+                const shippingDetails = session.shipping_details || session.customer_details; // fallback
+
                 const newContent = {
                     ...card.content,
                     subscription: 'active',
                     paymentId: session.id,
-                    paymentDate: new Date().toISOString()
+                    paymentDate: new Date().toISOString(),
+                    shipping_verified: shippingDetails // SAVE VERIFIED ADDRESS
                 };
 
                 const { error: updateError } = await adminSupabase
@@ -88,12 +92,13 @@ export async function POST(req: Request) {
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
                                 card_id: cardId,
-                                slug: card.content.slug, // Ensure slug is sent
-                                email: card.content.email, // Ensure email is sent
-                                name: card.content.fullName,
+                                slug: card.slug, // USE TOP-LEVEL SLUG (FIXES BUG)
+                                email: card.content.email || session.customer_details?.email, // Fallback to Stripe Email
+                                name: card.content.fullName || session.customer_details?.name,
                                 phone: card.content.phone,
                                 payment_id: session.id,
-                                source: 'TAPOS_PAYMENT_SUCCESS'
+                                source: 'TAPOS_PAYMENT_SUCCESS',
+                                shipping_address: shippingDetails // Send address to GHL too
                             })
                         });
                         console.log('✅ GHL Triggered.');

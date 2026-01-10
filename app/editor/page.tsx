@@ -616,6 +616,24 @@ function EditorContent() {
                                             return;
                                         }
 
+                                        // SHIPPING VALIDATION
+                                        const shipping = content.shipping || {};
+                                        // Fallback to top-level if legacy data
+                                        const shipAddr = shipping.address || content.address;
+                                        const shipCity = shipping.city || content.city;
+                                        const shipState = shipping.state || content.state;
+                                        const shipZip = shipping.zip || content.zip;
+                                        const shipCountry = shipping.country || content.country;
+
+                                        if (!shipAddr || !shipCity || !shipState || !shipZip || !shipCountry) {
+                                            alert("Shipping Address Incomplete. Please fill in all shipping details.");
+                                            setSaving(false);
+                                            // Highlight the input visually or navigate user?
+                                            // Ideally scroll to top or simple alert is enough for now.
+                                            setSaving(false);
+                                            return;
+                                        }
+
                                         try {
                                             // Call Server-Side Checkout
                                             const response = await fetch('/api/stripe/checkout', {
