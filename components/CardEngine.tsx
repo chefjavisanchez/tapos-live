@@ -897,8 +897,7 @@ END:VCARD`;
                             </div>
                         </nav>
                         <div className="footer-legal" style={{ opacity: 0.5, fontSize: '10px', textAlign: 'center' }}>
-                            2020-2026 Tap & Go 360©<br />
-                            Powered by <a href="https://jsdigitalhub.com/" target="_blank" style={{ color: 'inherit', textDecoration: 'underline' }}>JS Digital Hub</a> | <a href="https://tapygo.com/" target="_blank" style={{ color: 'inherit', textDecoration: 'underline' }}>Tap & GO</a>
+                            Copyright © 2026 TapOS Impulsó. All Rights Reserved.
                         </div>
                     </div>
 
