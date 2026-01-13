@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
-import { Shield, CheckCircle, XCircle, Mail, User, Clock, Loader2, Lock, ShieldCheck, LogOut } from 'lucide-react';
+import { Shield, CheckCircle, XCircle, Mail, User, Clock, Loader2, Lock, ShieldCheck, LogOut, Trash2 } from 'lucide-react';
 
 export default function AdminDashboard() {
     const router = useRouter();
@@ -119,6 +119,35 @@ export default function AdminDashboard() {
             }
 
             alert('User Activated Successfully');
+            checkAuthAndFetch(); // Refresh list
+
+        } catch (err: any) {
+            alert(err.message);
+        }
+    };
+
+    const handleDelete = async (cardId: string) => {
+        if (!confirm('⚠️ DANGER: Are you sure you want to PERMANENTLY DELETE this user? This action cannot be undone.')) return;
+
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) return router.push('/login');
+
+            const res = await fetch('/api/admin/delete', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${session.access_token}`
+                },
+                body: JSON.stringify({ cardId })
+            });
+
+            if (!res.ok) {
+                const err = await res.json();
+                throw new Error(err.error || 'Failed');
+            }
+
+            alert('User Deleted Successfully');
             checkAuthAndFetch(); // Refresh list
 
         } catch (err: any) {
@@ -255,6 +284,16 @@ export default function AdminDashboard() {
                                                             <ShieldCheck size={14} />
                                                         </button>
                                                     </div>
+                                                )}
+
+                                                {/* DELETE ACTION (ONLY FOR LOCKED/INACTIVE) */}
+                                                {!isActive && (
+                                                    <button
+                                                        onClick={() => handleDelete(card.id)}
+                                                        className="mt-2 px-3 py-1 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white border border-red-500/50 rounded text-xs font-bold transition flex items-center gap-2 w-full justify-center"
+                                                    >
+                                                        <Trash2 size={12} /> DELETE
+                                                    </button>
                                                 )}
                                             </td>
                                         </tr>

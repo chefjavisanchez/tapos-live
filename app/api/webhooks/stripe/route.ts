@@ -44,8 +44,8 @@ export async function POST(req: Request) {
     if (event.type === 'checkout.session.completed') {
         const session = event.data.object as any; // Cast to any to access newer properties if types are outdated
 
-        // 1. Get the Card ID from the link parameters
-        const cardId = session.client_reference_id;
+        // 1. Get the Card ID from the link parameters OR metadata fallback
+        const cardId = session.client_reference_id || session.metadata?.cardId;
 
         console.log(`💰 Payment received for Card ID: ${cardId}`);
 

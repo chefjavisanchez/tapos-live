@@ -569,9 +569,16 @@ export default function CardEngine({ data, slug, ownerId, cardId }: CardEnginePr
             }
         }
 
+        // Split name for N property (Required by iOS/Contacts apps to populate First/Last field)
+        const fullName = data.fullName || 'Contact';
+        const nameParts = fullName.trim().split(' ');
+        const firstName = nameParts[0] || '';
+        const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : '';
+
         const vcard = `BEGIN:VCARD
 VERSION:3.0
-FN:${data.fullName || 'Contact'}
+N:${lastName};${firstName};;;
+FN:${fullName}
 TITLE:${data.jobTitle || ''}
 ORG:${data.company || ''}
 TEL:${data.phone || ''}

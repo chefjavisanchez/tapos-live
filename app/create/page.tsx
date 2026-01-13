@@ -89,6 +89,23 @@ function CreateForm() {
                 }).catch(err => console.error('Ref Check Failed', err));
             }
 
+            // -----------------------------------------------------
+            // TRIGGER GOHIGHLEVEL LEAD (Async - Fire & Forget)
+            // -----------------------------------------------------
+            fetch('/api/ghl/lead', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    cardId: data.id,
+                    slug: form.slug,
+                    email: user.email,
+                    name: form.title, // User Name / Title
+                    jobTitle: form.jobTitle,
+                    phone: '' // Send empty to avoid overwriting real numbers in GHL with the placeholder
+                })
+            }).catch(err => console.error('GHL Lead Trigger Failed', err));
+            // -----------------------------------------------------
+
             // Success! Go to dashboard
             alert("Card Authorized! Systems Online.");
             router.push(`/editor?id=${data.id}`);
