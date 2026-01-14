@@ -105,15 +105,15 @@ export default function Home() {
             )}
 
             {/* SIDEBAR (Desktop) */}
-            <aside className="w-64 border-r border-white/10 glass-panel flex flex-col p-6 max-md:hidden sticky top-0 h-screen">
-                <div className="flex items-center gap-3 mb-10">
+            <aside className="w-64 border-r border-white/10 glass-panel flex flex-col p-6 max-md:hidden sticky top-0 h-screen overflow-y-auto custom-scrollbar">
+                <div className="flex items-center gap-3 mb-10 shrink-0">
                     <div className="w-10 h-10 rounded-full bg-neon-blue neon-glow flex items-center justify-center">
                         <Terminal className="text-black w-6 h-6" />
                     </div>
                     <h1 className="font-syncopate text-xl tracking-tighter">TAP<span className="text-neon-blue">OS</span></h1>
                 </div>
 
-                <nav className="flex flex-col gap-2 flex-grow">
+                <nav className="flex flex-col gap-2 flex-grow shrink-0">
                     <NavItem href="/" icon={<LayoutGrid size={20} />} label="Dashboard" active />
                     <NavItem href="/" icon={<CreditCard size={20} />} label="My Cards" />
                     <NavItem href="/profile" icon={<User size={20} />} label="Profile" />
@@ -127,39 +127,43 @@ export default function Home() {
                     )}
                 </nav>
 
-                {/* SIDEBAR ANALYTICS - PREMIUM UPGRADE */}
+                {/* SIDEBAR ANALYTICS - PREMIUM REWARDS STYLE */}
                 {cards.length > 0 && (
-                    <div className="mb-6 relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-b from-gray-900 to-black p-5 shadow-2xl group">
+                    <div className="my-6 relative overflow-hidden rounded-2xl border border-neon-blue/20 bg-gradient-to-br from-gray-900 to-black p-5 shadow-2xl shrink-0">
 
-                        {/* Background Effects */}
-                        <div className="absolute inset-0 bg-neon-blue/5 opacity-0 group-hover:opacity-100 transition duration-700"></div>
-                        <div className="absolute -top-10 -right-10 w-20 h-20 bg-neon-blue/20 blur-[40px] rounded-full point-events-none"></div>
+                        {/* Shine Effect */}
+                        <div className="absolute inset-0 bg-gradient-to-tr from-neon-blue/5 to-transparent opacity-50 pointer-events-none" />
 
                         <div className="relative z-10">
-                            <h4 className="text-[10px] uppercase font-bold text-neon-blue mb-4 tracking-widest flex items-center gap-2">
-                                <span className="w-1.5 h-1.5 rounded-full bg-neon-blue animate-pulse"></span>
-                                Live Analytics
-                            </h4>
+                            <div className="flex items-center justify-between mb-4">
+                                <h4 className="text-[10px] uppercase font-bold text-neon-blue tracking-widest flex items-center gap-2">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-neon-blue animate-pulse"></span>
+                                    Overview
+                                </h4>
+                                <div className="px-2 py-0.5 rounded bg-neon-blue/10 border border-neon-blue/20 text-[9px] font-bold text-neon-blue">
+                                    LIVE
+                                </div>
+                            </div>
 
-                            <div className="grid grid-cols-2 gap-4 mb-6">
+                            <div className="grid grid-cols-2 gap-2 mb-6">
                                 {/* VIEWS */}
-                                <div className="flex flex-col">
-                                    <span className="text-[10px] uppercase text-white/50 mb-1">Total Views</span>
-                                    <span className="text-2xl font-bold font-rajdhani text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">
+                                <div className="bg-black/40 rounded-lg p-2 border border-white/5 text-center">
+                                    <span className="text-[9px] uppercase text-white/40 block mb-1">Views</span>
+                                    <span className="text-lg font-bold font-rajdhani text-white">
                                         {cards[0].content?.analytics?.views || 0}
                                     </span>
                                 </div>
 
                                 {/* SAVES */}
-                                <div className="flex flex-col border-l border-white/10 pl-4">
-                                    <span className="text-[10px] uppercase text-white/50 mb-1">Contacts Saved</span>
-                                    <span className="text-2xl font-bold font-rajdhani text-neon-green drop-shadow-[0_0_10px_rgba(74,222,128,0.3)]" style={{ color: '#4ade80' }}>
+                                <div className="bg-black/40 rounded-lg p-2 border border-white/5 text-center">
+                                    <span className="text-[9px] uppercase text-white/40 block mb-1">Saves</span>
+                                    <span className="text-lg font-bold font-rajdhani text-neon-green" style={{ color: '#4ade80' }}>
                                         {cards[0].content?.analytics?.saves || 0}
                                     </span>
                                 </div>
                             </div>
 
-                            <div className="space-y-2">
+                            <div className="grid grid-cols-2 gap-2">
                                 <button onClick={() => {
                                     if (navigator.share) {
                                         navigator.share({
@@ -170,21 +174,21 @@ export default function Home() {
                                         navigator.clipboard.writeText(window.location.origin + '/' + cards[0].slug);
                                         alert('Link Copied!');
                                     }
-                                }} className="w-full flex items-center justify-center gap-2 p-3 bg-neon-blue/10 hover:bg-neon-blue text-neon-blue hover:text-black rounded-xl border border-neon-blue/30 font-bold text-xs uppercase tracking-wider transition-all duration-300 group-hover:shadow-[0_0_15px_rgba(0,243,255,0.3)]">
-                                    <Share2 size={14} />
-                                    Share Card
+                                }} className="flex flex-col items-center justify-center gap-1 p-3 bg-neon-blue hover:bg-white text-black rounded-xl font-bold text-[10px] uppercase tracking-wider transition-all shadow-[0_0_10px_rgba(0,243,255,0.2)] hover:shadow-[0_0_15px_rgba(255,255,255,0.4)]">
+                                    <Share2 size={16} />
+                                    Share
                                 </button>
 
-                                <a href={`/${cards[0].slug}`} target="_blank" className="w-full flex items-center justify-center gap-2 p-3 bg-white/5 hover:bg-white text-white hover:text-black rounded-xl border border-white/10 font-bold text-xs uppercase tracking-wider transition-all duration-300">
-                                    <Eye size={14} />
-                                    Preview Live
+                                <a href={`/${cards[0].slug}`} target="_blank" className="flex flex-col items-center justify-center gap-1 p-3 bg-white/5 hover:bg-white/10 text-white hover:text-white rounded-xl border border-white/10 hover:border-white/30 font-bold text-[10px] uppercase tracking-wider transition-all">
+                                    <Eye size={16} />
+                                    Preview
                                 </a>
                             </div>
                         </div>
                     </div>
                 )}
 
-                <div className="mt-auto pt-6 border-t border-white/10">
+                <div className="mt-auto pt-6 border-t border-white/10 shrink-0">
                     <button onClick={handleSignOut} className="flex items-center gap-3 text-white/50 hover:text-white transition-colors duration-200">
                         <LogOut size={20} />
                         <span>Sign Out</span>
