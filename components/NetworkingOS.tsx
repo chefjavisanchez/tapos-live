@@ -71,20 +71,35 @@ const TG_BRAIN_DATA = [
         ["A network that supports your life.", "Strategy: Treat taps as seeds.", "Vision: Play the long game."], "tg-cat-mind"]
 ] as const;
 
+// Helper to shuffle and pick N items
+function getRandomTopics(count: number, excludeTitle?: string) {
+    const shuffled = [...TG_BRAIN_DATA].sort(() => 0.5 - Math.random());
+    // Filter out if needed
+    const filtered = excludeTitle
+        ? shuffled.filter(item => item[1] !== excludeTitle)
+        : shuffled;
+    return filtered.slice(0, count);
+}
+
 type Message = {
     text: string | JSX.Element;
-    type: 'bot' | 'user';
+    type: 'bot' | 'user' | 'system';
 };
 
 export default function NetworkingOS() {
     const [messages, setMessages] = useState<Message[]>([
         {
             type: 'bot',
-            text: <span>Welcome to the 360 Command Center. 🌐<br /><br />Select a module on the right to initialize growth protocols.<br /><br />Awaiting input. 👇</span>
+            text: <span>Welcome to the <strong>TapOS Neural Interface</strong>. 🧠<br />Select a topic below, or ask me anything about networking strategies.</span>
         }
     ]);
     const [isTyping, setIsTyping] = useState(false);
-    const [clickTrackers, setClickTrackers] = useState<number[]>(new Array(TG_BRAIN_DATA.length).fill(0));
+
+    // Suggestion bubbles at the bottom
+    const [suggestions, setSuggestions] = useState(() => getRandomTopics(4));
+
+    const [clickCount, setClickCount] = useState(0);
+
     const chatBodyRef = useRef<HTMLDivElement>(null);
 
     const scrollToBottom = () => {
@@ -95,20 +110,25 @@ export default function NetworkingOS() {
 
     useEffect(() => {
         scrollToBottom();
-    }, [messages, isTyping]);
+    }, [messages, isTyping, suggestions]);
 
-    const handleTopicClick = (index: number) => {
+    const handleTopicClick = (index: number, topicItem?: typeof TG_BRAIN_DATA[number]) => {
         if (isTyping) return;
 
-        const topic = TG_BRAIN_DATA[index];
-        const userQ = topic[2];
-        const answerIndex = clickTrackers[index] % 3;
-        const botResponse = topic[3][answerIndex];
+        // If clicked from grid (legacy) or valid topic passed
+        let topic;
+        if (topicItem) {
+            topic = topicItem;
+        } else {
+            topic = TG_BRAIN_DATA[index];
+        }
 
-        // Update trackers
-        const newTrackers = [...clickTrackers];
-        newTrackers[index]++;
-        setClickTrackers(newTrackers);
+        const userQ = topic[2];
+        const answers = topic[3];
+        const botResponse = answers[Math.floor(Math.random() * answers.length)];
+
+        // Increment global interactions
+        setClickCount(prev => prev + 1);
 
         // Add User Message
         setMessages(prev => [...prev, { text: userQ, type: 'user' }]);
@@ -118,7 +138,29 @@ export default function NetworkingOS() {
         setTimeout(() => {
             setIsTyping(false);
             setMessages(prev => [...prev, { text: botResponse, type: 'bot' }]);
-        }, 600);
+
+            // Interaction Logic: Offer TapOS every 3 clicks
+            if ((clickCount + 1) % 3 === 0) {
+                setTimeout(() => {
+                    setMessages(prev => [...prev, {
+                        type: 'system',
+                        text: (
+                            <div className="flex flex-col gap-2 items-start mt-2">
+                                <span className="text-neon-blue font-bold text-sm uppercase">PRO TIP DETECTED</span>
+                                <span className="text-white/80 text-sm">Want to implement this strategy instantly? The TapOS card does the heavy lifting for you.</span>
+                                <a href="/login?view=sign_up" className="inline-block bg-white/10 hover:bg-neon-blue hover:text-black border border-white/20 px-4 py-2 rounded-lg text-xs font-bold transition mt-1">
+                                    GET IMPULSÓ
+                                </a>
+                            </div>
+                        )
+                    }]);
+                }, 400); // Small delay after bot answer
+            }
+
+            // Refresh suggestions
+            setSuggestions(getRandomTopics(4, topic[1]));
+
+        }, 800);
     };
 
     return (
@@ -126,27 +168,26 @@ export default function NetworkingOS() {
             <div className="tg-os-section">
 
                 <div className="tg-os-header">
-                    <h2>Tap & Go <span>OS 360</span></h2>
-                    <p>Your Neural Command Center for Networking, Growth, and High-Performance.</p>
-                    <div className="tg-os-badge">
-                        <i className="fas fa-mouse-pointer"></i> Click Once for Intel • Click Twice for Strategy
-                    </div>
+                    <h2>Neural <span>Assistant</span></h2>
+                    <p>Ask anything about networking, sales, or growth.</p>
                 </div>
 
-                <div className="tg-os-container">
+                <div className="tg-os-container" style={{ maxWidth: '500px' }}>
 
-                    {/* LEFT: PHONE CHAT */}
-                    <div className="tg-os-phone-wrap">
-                        <div className="tg-os-chat-ui">
+                    {/* CENTERED CHAT INTERFACE (Mobile Friendly) */}
+                    <div className="tg-os-phone-wrap" style={{ width: '100%', height: '700px', border: 'none', filter: 'drop-shadow(0 0 20px rgba(99, 102, 241, 0.3))' }}>
+                        <div className="tg-os-chat-ui" style={{ background: 'rgba(15, 23, 42, 0.95)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.1)' }}>
+
                             <div className="tg-os-chat-header">
-                                <div className="tg-os-avatar"><i className="fas fa-microchip"></i></div>
+                                <div className="tg-os-avatar"><i className="fas fa-robot"></i></div>
                                 <div>
-                                    <div style={{ fontWeight: 800, fontSize: '16px', color: 'white' }}>OS 360 CORE</div>
-                                    <div style={{ fontSize: '11px', color: '#4ade80', fontWeight: 700 }}>● SYSTEM ONLINE</div>
+                                    <div style={{ fontWeight: 800, fontSize: '16px', color: 'white' }}>TapOS AI</div>
+                                    <div style={{ fontSize: '11px', color: '#4ade80', fontWeight: 700 }}>● ONLINE</div>
                                 </div>
                             </div>
 
                             <div className="tg-os-chat-body" ref={chatBodyRef} id="tg-os-chat-stream">
+                                <div className="flex-1"></div> {/* Push messages down */}
                                 {messages.map((msg, idx) => (
                                     <div key={idx} className={`tg-os-msg ${msg.type}`}>
                                         {msg.text}
@@ -159,32 +200,27 @@ export default function NetworkingOS() {
                                     </div>
                                 )}
                             </div>
-                        </div>
-                    </div>
 
-                    {/* RIGHT: COMMAND CENTER */}
-                    <div className="tg-os-command-center">
-                        <div className="tg-os-cc-header">
-                            <div className="tg-os-cc-title">
-                                <span>Neural Interface</span>
-                                <h3>Command Grid</h3>
+                            {/* SUGGESTIONS AREA (Replaces Grid) */}
+                            <div className="p-4 border-t border-white/5 bg-black/20">
+                                <div className="text-[10px] uppercase text-white/30 font-bold mb-3 tracking-widest">Suggested Prompts</div>
+                                <div className="flex flex-wrap gap-2">
+                                    {suggestions.map((item, idx) => (
+                                        <button
+                                            key={idx}
+                                            onClick={() => handleTopicClick(0, item)}
+                                            disabled={isTyping}
+                                            className="text-left bg-white/5 hover:bg-white/10 border border-white/10 hover:border-neon-blue/50 rounded-xl px-4 py-3 bg-opacity-50 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed group"
+                                        >
+                                            <div className="flex items-center gap-2">
+                                                <i className={`fas ${item[0]} text-neon-blue text-opacity-70 group-hover:text-opacity-100`}></i>
+                                                <span className="text-sm font-medium text-white/80 group-hover:text-white">{item[1]}</span>
+                                            </div>
+                                        </button>
+                                    ))}
+                                </div>
                             </div>
-                            <i className="fas fa-network-wired" style={{ color: '#6366f1', fontSize: '20px' }}></i>
-                        </div>
 
-                        <div className="tg-os-grid-area">
-                            <div className="tg-os-btn-grid" id="tg-os-buttons-container">
-                                {TG_BRAIN_DATA.map((item, index) => (
-                                    <div
-                                        key={index}
-                                        className={`tg-os-btn ${item[4]}`}
-                                        onClick={() => handleTopicClick(index)}
-                                    >
-                                        <i className={`fas ${item[0]}`}></i>
-                                        <span>{item[1]}</span>
-                                    </div>
-                                ))}
-                            </div>
                         </div>
                     </div>
 

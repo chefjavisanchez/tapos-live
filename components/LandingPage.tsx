@@ -130,7 +130,7 @@ export default function LandingPage() {
                     </div>
 
                     <div className="tg-cta-bottom z-40">
-                        <a href="/login?view=sign_up" className="tg-btn-large">Get Your Tap & Go Today</a>
+                        <a href="/login?view=sign_up" className="tg-btn-large">GET IMPULSÓ</a>
                     </div>
 
                 </div>
