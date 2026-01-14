@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Script from 'next/script';
 import script from 'next/script';
-import { Loader2, Edit } from 'lucide-react';
+import { Loader2, Edit, Share2, UserPlus, Eye, Smartphone, Zap, X, Send } from 'lucide-react';
 import { createWorker } from 'tesseract.js';
 import { supabase } from '@/lib/supabase';
 
@@ -455,12 +455,65 @@ export default function CardEngine({ data, slug, ownerId, cardId }: CardEnginePr
     const [scanResult, setScanResult] = useState<any>(null);
     const [isOwner, setIsOwner] = useState(false);
 
+    // NEW FEATURES STATE
+    const [showLeadModal, setShowLeadModal] = useState(false);
+    const [stats, setStats] = useState({ views: 0, saves: 0 });
+    const [leadForm, setLeadForm] = useState({ name: '', phone: '', email: '', note: '' });
+    const [leadSending, setLeadSending] = useState(false);
+
+    // ANALYTICS & LOAD
     useEffect(() => {
-        if (!ownerId) return;
-        supabase.auth.getUser().then(({ data }) => {
-            if (data.user?.id === ownerId) setIsOwner(true);
-        });
-    }, [ownerId]);
+        // Track View
+        const tracked = sessionStorage.getItem(`viewed_${slug}`);
+        if (!tracked && cardId) {
+            fetch('/api/card/analytics', {
+                method: 'POST',
+                body: JSON.stringify({ cardId, type: 'view' })
+            }).catch(console.error);
+            sessionStorage.setItem(`viewed_${slug}`, 'true');
+        }
+
+        // Load Stats (from content prop or fresh fetch)
+        if (data.analytics) {
+            setStats(data.analytics);
+        }
+    }, [slug, cardId, data]);
+
+    // HANDLERS
+    const handleShare = async () => {
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: data.fullName,
+                    text: `Connect with ${data.fullName}`,
+                    url: window.location.href
+                });
+            } catch (err) {
+                console.log('Share canceled');
+            }
+        } else {
+            navigator.clipboard.writeText(window.location.href);
+            alert('Link copied to clipboard!');
+        }
+    };
+
+    const handleLeadSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setLeadSending(true);
+        try {
+            await fetch('/api/card/lead', {
+                method: 'POST',
+                body: JSON.stringify({ ...leadForm, cardId, ownerId })
+            });
+            setShowLeadModal(false);
+            alert('Info Sent! We will be in touch shortly.');
+            setLeadForm({ name: '', phone: '', email: '', note: '' });
+        } catch (error) {
+            alert('Failed to send info. Please try again.');
+        } finally {
+            setLeadSending(false);
+        }
+    };
 
     useEffect(() => {
         const saved = localStorage.getItem('tapos_leads');
@@ -546,6 +599,12 @@ export default function CardEngine({ data, slug, ownerId, cardId }: CardEnginePr
     };
 
     const handleSaveContact = async () => {
+        // Track Save
+        fetch('/api/card/analytics', {
+            method: 'POST',
+            body: JSON.stringify({ cardId, type: 'save' })
+        }).catch(console.error);
+
         let photoBase64 = '';
         if (data.profileImage) {
             try {
@@ -728,192 +787,265 @@ END:VCARD`;
                                     ))}
                                 </div>
                             </div>
-                            {/* DYNAMIC SERVICE BUTTONS */}
-                            {[1, 2, 3, 4].map((srv) => {
-                                const srvKey = `srv${srv}`; // Construct key: srv1, srv2...
-                                const btnData = data[srvKey] || {}; // Access correct key
-                                const defaultLabels = { 1: 'Visit Website', 2: 'My Offerings', 3: 'WhatsApp', 4: 'More Info' };
-                                const defaultIcons = { 1: 'ph-globe', 2: 'ph-briefcase', 3: 'ph-whatsapp-logo', 4: 'ph-info' };
-                                const isWhatsApp = srv === 3; // Special check for button 3
-
-                                return (
-                                    <a
-                                        key={srv}
-                                        href={btnData?.link || '#'}
-                                        target="_blank"
-                                        onClick={(e) => {
-                                            if (!btnData?.link || btnData.link === '#') {
-                                                e.preventDefault();
-                                            }
-                                        }}
-                                        className={`service-btn glass-panel ${(!btnData?.link || btnData.link === '#') ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                    >
-                                        <div className="icon-box" style={{
-                                            background: isWhatsApp ? 'rgba(37, 211, 102, 0.1)' : undefined,
-                                            borderColor: isWhatsApp ? 'rgba(37, 211, 102, 0.3)' : undefined
-                                        }}>
-                                            <i className={`ph-fill ${isWhatsApp ? 'ph-whatsapp-logo' : (btnData?.icon || defaultIcons[srv as keyof typeof defaultIcons])}`} style={{
-                                                color: isWhatsApp ? '#25D366' : undefined
-                                            }}></i>
-                                        </div>
-                                        <div className="text-content">
-                                            <h3>{btnData?.title || defaultLabels[srv as keyof typeof defaultLabels]}</h3>
-                                            <p>{btnData?.subtitle || 'Tap to view'}</p>
-                                        </div>
-                                        <div className="arrow-box">
-                                            <i className="ph-bold ph-arrow-right"></i>
-                                        </div>
-                                    </a>
-                                );
-                            })}
-
-                            {/* PERMANENT REFERRAL BUTTON (BUTTON 5) */}
-                            <a
-                                href={`https://tapos360.com/create?ref=${slug}`}
-                                target="_blank"
-                                className="service-btn glass-panel"
-                                style={{
-                                    border: '1px dashed rgba(0, 243, 255, 0.3)',
-                                    background: 'rgba(0, 243, 255, 0.03)'
-                                }}
-                            >
-                                <div className="icon-box" style={{ background: 'rgba(0, 243, 255, 0.1)', borderColor: 'rgba(0, 243, 255, 0.3)' }}>
-                                    <i className="ph-fill ph-crown" style={{ color: '#00F3FF' }}></i>
-                                </div>
-                                <div className="text-content">
-                                    <h3 style={{ color: '#00F3FF' }}>Get Your Own</h3>
-                                    <p>Create a card like this</p>
-                                </div>
-                                <div className="arrow-box">
-                                    <i className="ph-bold ph-plus" style={{ color: '#00F3FF' }}></i>
-                                </div>
-                            </a>
                         </div>
 
-                        {/* VIEW 3: VIDEO */}
-                        <div className={`view-pane justify-center ${activeTab === 'v-star' ? 'active' : ''}`}>
-                            <div className="video-frame">
-                                <iframe src={`https://www.youtube.com/embed/${data.youtubeId || 'dQw4w9WgXcQ'}`} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>
-                            </div>
+                        {/* NEW HERO ACTIONS */}
+                        <div className="flex gap-3 px-5 mb-4">
+                            <button onClick={handleShare} className="flex-1 bg-white/5 hover:bg-white/10 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition border border-white/10">
+                                <Share2 size={16} /> Share
+                            </button>
+                            <button onClick={() => setShowLeadModal(true)} className="flex-1 bg-neon-blue/20 hover:bg-neon-blue/30 text-neon-blue py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition border border-neon-blue/30">
+                                <UserPlus size={16} /> Connect
+                            </button>
                         </div>
 
-                        {/* VIEW 4: QR */}
-                        <div className={`view-pane justify-center items-center ${activeTab === 'v-qr' ? 'active' : ''}`}>
-                            <div className="bg-white p-6 rounded-2xl">
-                                <img src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://tapos360.com/${slug}`} alt="QR Code" />
-                            </div>
-                        </div>
+                        {/* DYNAMIC SERVICE BUTTONS */}
+                        {[1, 2, 3, 4].map((srv) => {
+                            const srvKey = `srv${srv}`; // Construct key: srv1, srv2...
+                            const btnData = data[srvKey] || {}; // Access correct key
+                            const defaultLabels = { 1: 'Visit Website', 2: 'My Offerings', 3: 'WhatsApp', 4: 'More Info' };
+                            const defaultIcons = { 1: 'ph-globe', 2: 'ph-briefcase', 3: 'ph-whatsapp-logo', 4: 'ph-info' };
+                            const isWhatsApp = srv === 3; // Special check for button 3
 
-                        {/* VIEW 5: SCANNER */}
-                        <div className={`view-pane items-center ${activeTab === 'v-scan' ? 'active' : ''}`} style={{ overflowY: 'auto' }}>
-                            <div className="w-full h-full p-4 flex flex-col gap-4">
-                                <div className="text-center mb-2">
-                                    <h2 className="font-syncopate text-neon-blue text-xl font-bold">LEAD SCANNER</h2>
-                                    <p className="text-xs text-white/50">AI OPTICAL RECOGNITION ONLINE</p>
-                                </div>
-
-                                {!scanResult ? (
-                                    <>
-                                        {/* CAMERA TRIGGER */}
-                                        <div className="flex justify-center py-6">
-                                            <label className="scan-btn relative group">
-                                                {scanning ? <Loader2 className="animate-spin text-black" /> : <i className="ph-fill ph-camera text-2xl text-black"></i>}
-                                                <input type="file" accept="image/*" capture="environment"
-                                                    onChange={(e) => e.target.files && processImage(e.target.files[0])}
-                                                    className="hidden" disabled={scanning} />
-                                            </label>
-                                        </div>
-                                        <p className="text-center text-xs text-white/40 mb-4">Tap Camera to Scan Business Card</p>
-
-                                        {/* LIST */}
-                                        <div className="flex-1 overflow-auto space-y-2">
-                                            <div className="flex justify-between items-center mb-2">
-                                                <span className="text-xs font-bold text-white uppercase">Saved Leads ({scannedContacts.length})</span>
-                                                <button onClick={downloadCSV} className="text-[10px] bg-green-500/20 text-green-400 px-2 py-1 rounded border border-green-500/30">
-                                                    EXPORT CSV
-                                                </button>
-                                            </div>
-                                            {scannedContacts.map((lead, i) => (
-                                                <div key={i} className="scan-list-item">
-                                                    <div className="font-bold text-white text-sm">{lead.name}</div>
-                                                    <div className="text-xs text-gray-400">{lead.email}</div>
-                                                    <div className="text-xs text-gray-400">{lead.phone}</div>
-                                                </div>
-                                            ))}
-                                            {scannedContacts.length === 0 && <div className="text-center text-xs text-white/20 py-4">No leads saved yet.</div>}
-                                        </div>
-                                    </>
-                                ) : (
-                                    /* EDIT RESULT FORM */
-                                    <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3 animate-in fade-in">
-                                        <h3 className="text-sm font-bold text-gold uppercase">Confirm Details</h3>
-
-                                        <div>
-                                            <label className="text-[10px] text-gray-400 uppercase">Name</label>
-                                            <input type="text" value={scanResult.name} onChange={e => setScanResult({ ...scanResult, name: e.target.value })}
-                                                className="w-full bg-black/50 border border-white/20 rounded p-2 text-sm text-white focus:border-accent outline-none" />
-                                        </div>
-                                        <div>
-                                            <label className="text-[10px] text-gray-400 uppercase">Email</label>
-                                            <input type="text" value={scanResult.email} onChange={e => setScanResult({ ...scanResult, email: e.target.value })}
-                                                className="w-full bg-black/50 border border-white/20 rounded p-2 text-sm text-white focus:border-accent outline-none" />
-                                        </div>
-                                        <div>
-                                            <label className="text-[10px] text-gray-400 uppercase">Phone</label>
-                                            <input type="text" value={scanResult.phone} onChange={e => setScanResult({ ...scanResult, phone: e.target.value })}
-                                                className="w-full bg-black/50 border border-white/20 rounded p-2 text-sm text-white focus:border-accent outline-none" />
-                                        </div>
-
-                                        <div className="flex gap-2 mt-4">
-                                            <button onClick={() => setScanResult(null)} className="flex-1 bg-white/10 p-2 rounded text-xs font-bold text-white uppercase">Cancel</button>
-                                            <button onClick={saveLead} className="flex-1 bg-neon-blue text-black p-2 rounded text-xs font-bold uppercase shadow-[0_0_15px_rgba(0,243,255,0.4)]">Save Lead</button>
-                                        </div>
+                            return (
+                                <a
+                                    key={srv}
+                                    href={btnData?.link || '#'}
+                                    target="_blank"
+                                    onClick={(e) => {
+                                        if (!btnData?.link || btnData.link === '#') {
+                                            e.preventDefault();
+                                        }
+                                    }}
+                                    className={`service-btn glass-panel ${(!btnData?.link || btnData.link === '#') ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                >
+                                    <div className="icon-box" style={{
+                                        background: isWhatsApp ? 'rgba(37, 211, 102, 0.1)' : undefined,
+                                        borderColor: isWhatsApp ? 'rgba(37, 211, 102, 0.3)' : undefined
+                                    }}>
+                                        <i className={`ph-fill ${isWhatsApp ? 'ph-whatsapp-logo' : (btnData?.icon || defaultIcons[srv as keyof typeof defaultIcons])}`} style={{
+                                            color: isWhatsApp ? '#25D366' : undefined
+                                        }}></i>
                                     </div>
-                                )}
-                            </div>
-                        </div>
+                                    <div className="text-content">
+                                        <h3>{btnData?.title || defaultLabels[srv as keyof typeof defaultLabels]}</h3>
+                                        <p>{btnData?.subtitle || 'Tap to view'}</p>
+                                    </div>
+                                    <div className="arrow-box">
+                                        <i className="ph-bold ph-arrow-right"></i>
+                                    </div>
+                                </a>
+                            );
+                        })}
 
+                        {/* PERMANENT REFERRAL BUTTON (BUTTON 5) */}
+                        <a
+                            href={`https://tapos360.com/create?ref=${slug}`}
+                            target="_blank"
+                            className="service-btn glass-panel"
+                            style={{
+                                border: '1px dashed rgba(0, 243, 255, 0.3)',
+                                background: 'rgba(0, 243, 255, 0.03)'
+                            }}
+                        >
+                            <div className="icon-box" style={{ background: 'rgba(0, 243, 255, 0.1)', borderColor: 'rgba(0, 243, 255, 0.3)' }}>
+                                <i className="ph-fill ph-crown" style={{ color: '#00F3FF' }}></i>
+                            </div>
+                            <div className="text-content">
+                                <h3 style={{ color: '#00F3FF' }}>Get Your Own</h3>
+                                <p>Create a card like this</p>
+                            </div>
+                            <div className="arrow-box">
+                                <i className="ph-bold ph-plus" style={{ color: '#00F3FF' }}></i>
+                            </div>
+                        </a>
                     </div>
 
-                    {/* DOCK */}
-                    <div className="dock-zone">
-                        <nav className="dock">
-                            <div className={`d-icon ${activeTab === 'v-home' ? 'active' : ''}`} onClick={() => setActiveTab('v-home')}>
-                                <i className="ph-fill ph-house"></i>
-                            </div>
-                            <div className={`d-icon ${activeTab === 'v-grid' ? 'active' : ''}`} onClick={() => setActiveTab('v-grid')}>
-                                <i className="ph-fill ph-squares-four"></i>
-                                {activeTab !== 'v-grid' && <div className="notify-dot" style={{ right: -2, top: 0 }}></div>}
+                    {/* VIEW 3: VIDEO */}
+                    <div className={`view-pane justify-center ${activeTab === 'v-star' ? 'active' : ''}`}>
+                        <div className="video-frame">
+                            <iframe src={`https://www.youtube.com/embed/${data.youtubeId || 'dQw4w9WgXcQ'}`} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>
+                        </div>
+                    </div>
+
+                    {/* VIEW 4: QR */}
+                    <div className={`view-pane justify-center items-center ${activeTab === 'v-qr' ? 'active' : ''}`}>
+                        <div className="bg-white p-6 rounded-2xl">
+                            <img src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://tapos360.com/${slug}`} alt="QR Code" />
+                        </div>
+                    </div>
+
+                    {/* VIEW 5: SCANNER */}
+                    <div className={`view-pane items-center ${activeTab === 'v-scan' ? 'active' : ''}`} style={{ overflowY: 'auto' }}>
+                        <div className="w-full h-full p-4 flex flex-col gap-4">
+                            <div className="text-center mb-2">
+                                <h2 className="font-syncopate text-neon-blue text-xl font-bold">LEAD SCANNER</h2>
+                                <p className="text-xs text-white/50">AI OPTICAL RECOGNITION ONLINE</p>
                             </div>
 
-                            {/* SCANNER */}
-                            <div className={`d-icon ${activeTab === 'v-scan' ? 'active' : ''}`} onClick={() => setActiveTab('v-scan')}>
-                                <i className="ph-fill ph-camera"></i>
-                            </div>
+                            {!scanResult ? (
+                                <>
+                                    {/* CAMERA TRIGGER */}
+                                    <div className="flex justify-center py-6">
+                                        <label className="scan-btn relative group">
+                                            {scanning ? <Loader2 className="animate-spin text-black" /> : <i className="ph-fill ph-camera text-2xl text-black"></i>}
+                                            <input type="file" accept="image/*" capture="environment"
+                                                onChange={(e) => e.target.files && processImage(e.target.files[0])}
+                                                className="hidden" disabled={scanning} />
+                                        </label>
+                                    </div>
+                                    <p className="text-center text-xs text-white/40 mb-4">Tap Camera to Scan Business Card</p>
 
-                            <div className={`d-icon ${activeTab === 'v-star' ? 'active' : ''}`} onClick={() => setActiveTab('v-star')}>
-                                <i className="ph-fill ph-star"></i>
-                            </div>
-                            <div className={`d-icon ${activeTab === 'v-qr' ? 'active' : ''}`} onClick={() => setActiveTab('v-qr')}>
-                                <i className="ph-fill ph-qr-code"></i>
-                            </div>
+                                    {/* LIST */}
+                                    <div className="flex-1 overflow-auto space-y-2">
+                                        <div className="flex justify-between items-center mb-2">
+                                            <span className="text-xs font-bold text-white uppercase">Saved Leads ({scannedContacts.length})</span>
+                                            <button onClick={downloadCSV} className="text-[10px] bg-green-500/20 text-green-400 px-2 py-1 rounded border border-green-500/30">
+                                                EXPORT CSV
+                                            </button>
+                                        </div>
+                                        {scannedContacts.map((lead, i) => (
+                                            <div key={i} className="scan-list-item">
+                                                <div className="font-bold text-white text-sm">{lead.name}</div>
+                                                <div className="text-xs text-gray-400">{lead.email}</div>
+                                                <div className="text-xs text-gray-400">{lead.phone}</div>
+                                            </div>
+                                        ))}
+                                        {scannedContacts.length === 0 && <div className="text-center text-xs text-white/20 py-4">No leads saved yet.</div>}
+                                    </div>
+                                </>
+                            ) : (
+                                /* EDIT RESULT FORM */
+                                <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3 animate-in fade-in">
+                                    <h3 className="text-sm font-bold text-gold uppercase">Confirm Details</h3>
 
-                            {/* SAVE VCF */}
-                            <div className="d-icon save" onClick={handleSaveContact}>
-                                <i className="ph-bold ph-download-simple"></i>
-                            </div>
-                        </nav>
-                        <div className="footer-legal" style={{ opacity: 0.5, fontSize: '10px', textAlign: 'center' }}>
-                            Copyright © 2026 TapOS Impulsó. All Rights Reserved.
+                                    <div>
+                                        <label className="text-[10px] text-gray-400 uppercase">Name</label>
+                                        <input type="text" value={scanResult.name} onChange={e => setScanResult({ ...scanResult, name: e.target.value })}
+                                            className="w-full bg-black/50 border border-white/20 rounded p-2 text-sm text-white focus:border-accent outline-none" />
+                                    </div>
+                                    <div>
+                                        <label className="text-[10px] text-gray-400 uppercase">Email</label>
+                                        <input type="text" value={scanResult.email} onChange={e => setScanResult({ ...scanResult, email: e.target.value })}
+                                            className="w-full bg-black/50 border border-white/20 rounded p-2 text-sm text-white focus:border-accent outline-none" />
+                                    </div>
+                                    <div>
+                                        <label className="text-[10px] text-gray-400 uppercase">Phone</label>
+                                        <input type="text" value={scanResult.phone} onChange={e => setScanResult({ ...scanResult, phone: e.target.value })}
+                                            className="w-full bg-black/50 border border-white/20 rounded p-2 text-sm text-white focus:border-accent outline-none" />
+                                    </div>
+
+                                    <div className="flex gap-2 mt-4">
+                                        <button onClick={() => setScanResult(null)} className="flex-1 bg-white/10 p-2 rounded text-xs font-bold text-white uppercase">Cancel</button>
+                                        <button onClick={saveLead} className="flex-1 bg-neon-blue text-black p-2 rounded text-xs font-bold uppercase shadow-[0_0_15px_rgba(0,243,255,0.4)]">Save Lead</button>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
 
                 </div>
+
+                {/* DOCK */}
+                <div className="dock-zone">
+                    <nav className="dock">
+                        <div className={`d-icon ${activeTab === 'v-home' ? 'active' : ''}`} onClick={() => setActiveTab('v-home')}>
+                            <i className="ph-fill ph-house"></i>
+                        </div>
+                        <div className={`d-icon ${activeTab === 'v-grid' ? 'active' : ''}`} onClick={() => setActiveTab('v-grid')}>
+                            <i className="ph-fill ph-squares-four"></i>
+                            {activeTab !== 'v-grid' && <div className="notify-dot" style={{ right: -2, top: 0 }}></div>}
+                        </div>
+
+                        {/* SCANNER */}
+                        <div className={`d-icon ${activeTab === 'v-scan' ? 'active' : ''}`} onClick={() => setActiveTab('v-scan')}>
+                            <i className="ph-fill ph-camera"></i>
+                        </div>
+
+                        <div className={`d-icon ${activeTab === 'v-star' ? 'active' : ''}`} onClick={() => setActiveTab('v-star')}>
+                            <i className="ph-fill ph-star"></i>
+                        </div>
+                        <div className={`d-icon ${activeTab === 'v-qr' ? 'active' : ''}`} onClick={() => setActiveTab('v-qr')}>
+                            <i className="ph-fill ph-qr-code"></i>
+                        </div>
+
+                        {/* SAVE VCF */}
+                        <div className="d-icon save" onClick={handleSaveContact}>
+                            <i className="ph-bold ph-download-simple"></i>
+                        </div>
+                    </nav>
+                    <div className="footer-legal" style={{ opacity: 0.5, fontSize: '10px', textAlign: 'center' }}>
+                        Copyright © 2026 TapOS Impulsó. All Rights Reserved.
+                        <div className="flex justify-center items-center gap-6 text-[10px] text-white/30 mt-2">
+                            <div className="flex items-center gap-1"><Eye size={10} /> {stats.views + (typeof stats.views === 'number' ? 1 : 0)} Views</div>
+                            <div className="flex items-center gap-1"><Smartphone size={10} /> {stats.saves || 0} Saves</div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
             {isOwner && (
                 <a href={`/editor?id=${cardId || ''}`} className="fixed top-4 right-4 z-[9999] bg-neon-blue text-black px-4 py-2 rounded-full font-bold shadow-[0_0_20px_rgba(0,243,255,0.5)] flex items-center gap-2 text-xs uppercase tracking-wider hover:scale-105 transition animate-in fade-in slide-in-from-top-4">
                     <Edit size={14} /> Edit Profile
                 </a>
+            )}
+
+            {/* LEAD CAPTURE MODAL */}
+            {showLeadModal && (
+                <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in">
+                    <div className="bg-[#111] border border-white/10 p-6 rounded-2xl w-full max-w-sm relative shadow-2xl">
+                        <button
+                            onClick={() => setShowLeadModal(false)}
+                            className="absolute top-4 right-4 text-white/50 hover:text-white"
+                        >
+                            <X size={20} />
+                        </button>
+
+                        <h3 className="text-xl font-bold text-white mb-1">Let's Connect</h3>
+                        <p className="text-white/60 text-xs mb-6">Share your info and I'll text you back.</p>
+
+                        <form onSubmit={handleLeadSubmit} className="space-y-4">
+                            <div>
+                                <input
+                                    required
+                                    type="text"
+                                    placeholder="Your Name"
+                                    className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white text-sm focus:border-neon-blue outline-none"
+                                    value={leadForm.name}
+                                    onChange={e => setLeadForm({ ...leadForm, name: e.target.value })}
+                                />
+                            </div>
+                            <div>
+                                <input
+                                    required
+                                    type="tel"
+                                    placeholder="Your Phone Number"
+                                    className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white text-sm focus:border-neon-blue outline-none"
+                                    value={leadForm.phone}
+                                    onChange={e => setLeadForm({ ...leadForm, phone: e.target.value })}
+                                />
+                            </div>
+                            <div>
+                                <input
+                                    type="email"
+                                    placeholder="Email Address (Optional)"
+                                    className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white text-sm focus:border-neon-blue outline-none"
+                                    value={leadForm.email}
+                                    onChange={e => setLeadForm({ ...leadForm, email: e.target.value })}
+                                />
+                            </div>
+
+                            <button
+                                disabled={leadSending}
+                                type="submit"
+                                className="w-full bg-neon-blue text-black font-bold py-3 rounded-xl flex items-center justify-center gap-2 hover:opacity-90 transition disabled:opacity-50"
+                            >
+                                {leadSending ? <Loader2 className="animate-spin" /> : <Send size={18} />}
+                                Send Info
+                            </button>
+                        </form>
+                    </div>
+                </div>
             )}
         </>
     );
