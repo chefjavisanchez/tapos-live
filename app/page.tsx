@@ -95,6 +95,67 @@ export default function Home() {
                         {isAdmin && <NavItem href="/admin" icon={<Shield size={24} />} label="God Mode" onClick={() => setMobileMenuOpen(false)} />}
                     </nav>
 
+                    {/* MOBILE ANALYTICS BLOCK */}
+                    {cards.length > 0 && (
+                        <div className="mt-8 mb-4 relative overflow-hidden rounded-2xl border border-neon-blue/20 bg-gradient-to-br from-gray-900 to-black p-5 shadow-2xl shrink-0">
+
+                            {/* Shine Effect */}
+                            <div className="absolute inset-0 bg-gradient-to-tr from-neon-blue/5 to-transparent opacity-50 pointer-events-none" />
+
+                            <div className="relative z-10">
+                                <div className="flex items-center justify-between mb-4">
+                                    <h4 className="text-[10px] uppercase font-bold text-neon-blue tracking-widest flex items-center gap-2">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-neon-blue animate-pulse"></span>
+                                        Overview
+                                    </h4>
+                                    <div className="px-2 py-0.5 rounded bg-neon-blue/10 border border-neon-blue/20 text-[9px] font-bold text-neon-blue">
+                                        LIVE
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-2 mb-6">
+                                    {/* VIEWS */}
+                                    <div className="bg-black/40 rounded-lg p-2 border border-white/5 text-center">
+                                        <span className="text-[9px] uppercase text-white/40 block mb-1">Views</span>
+                                        <span className="text-lg font-bold font-rajdhani text-white">
+                                            {cards[0].content?.analytics?.views || 0}
+                                        </span>
+                                    </div>
+
+                                    {/* SAVES */}
+                                    <div className="bg-black/40 rounded-lg p-2 border border-white/5 text-center">
+                                        <span className="text-[9px] uppercase text-white/40 block mb-1">Saves</span>
+                                        <span className="text-lg font-bold font-rajdhani text-neon-green" style={{ color: '#4ade80' }}>
+                                            {cards[0].content?.analytics?.saves || 0}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-2">
+                                    <button onClick={() => {
+                                        if (navigator.share) {
+                                            navigator.share({
+                                                title: cards[0].content.fullName,
+                                                url: window.location.origin + '/' + cards[0].slug
+                                            })
+                                        } else {
+                                            navigator.clipboard.writeText(window.location.origin + '/' + cards[0].slug);
+                                            alert('Link Copied!');
+                                        }
+                                    }} className="flex flex-col items-center justify-center gap-1 p-3 bg-neon-blue hover:bg-white text-black rounded-xl font-bold text-[10px] uppercase tracking-wider transition-all shadow-[0_0_10px_rgba(0,243,255,0.2)] hover:shadow-[0_0_15px_rgba(255,255,255,0.4)]">
+                                        <Share2 size={16} />
+                                        Share
+                                    </button>
+
+                                    <a href={`/${cards[0].slug}`} target="_blank" className="flex flex-col items-center justify-center gap-1 p-3 bg-white/5 hover:bg-white/10 text-white hover:text-white rounded-xl border border-white/10 hover:border-white/30 font-bold text-[10px] uppercase tracking-wider transition-all">
+                                        <Eye size={16} />
+                                        Preview
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
                     <div className="mt-auto border-t border-white/10 pt-6">
                         <button onClick={handleSignOut} className="flex items-center gap-3 text-white/50 hover:text-white">
                             <LogOut size={24} />
