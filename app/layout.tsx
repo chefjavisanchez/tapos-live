@@ -7,16 +7,62 @@ const syncopate = Syncopate({ weight: "700", subsets: ["latin"], variable: '--fo
 const rajdhani = Rajdhani({ weight: ["600", "700"], subsets: ["latin"], variable: '--font-rajdhani' });
 
 export const metadata: Metadata = {
-    title: "TapOS Platform",
-    description: "The Next-Gen Digital Business Card Builder",
+    metadataBase: new URL('https://tapos360.com'),
+    title: {
+        default: "TapOS Impulsó | The Ultimate Digital Identity",
+        template: "%s | TapOS Impulsó"
+    },
+    description: "Upgrade your networking with TapOS Impulsó. The intelligent NFC digital business card that shares your profile, captures leads, and tracks analytics instantly. No app required.",
+    keywords: ["Digital Business Card", "NFC Card", "Networking Tool", "Business Card Scanner", "Lead Generation", "TapOS", "Impulso", "Smart Business Card"],
+    authors: [{ name: "TapOS Impulsó", url: "https://tapos360.com" }],
+    creator: "TapOS Team",
+    publisher: "TapOS Impulsó",
+    formatDetection: {
+        email: false,
+        address: false,
+        telephone: false,
+    },
     openGraph: {
-        images: ['/opengraph-image.png'],
+        type: "website",
+        locale: "en_US",
+        url: "https://tapos360.com",
+        siteName: "TapOS Impulsó",
+        title: "TapOS Impulsó | The Networking Revolution",
+        description: "Don't just share a contact. Share an experience. The world's most advanced digital business card platform.",
+        images: [
+            {
+                url: "/tapos-logo.png",
+                width: 1200,
+                height: 630,
+                alt: "TapOS Impulsó Digital Card",
+            }
+        ],
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: "TapOS Impulsó | Next-Gen Networking",
+        description: "Share your contact info with a single tap. The premium digital card for modern professionals.",
+        images: ["/tapos-logo.png"],
+        creator: "@tapos_impulso",
     },
     icons: {
-        icon: '/opengraph-image.png',
-        apple: '/opengraph-image.png',
+        icon: '/tapos-logo.png',
+        shortcut: '/tapos-logo.png',
+        apple: '/tapos-logo.png',
+        other: {
+            rel: 'apple-touch-icon-precomposed',
+            url: '/tapos-logo.png',
+        },
     },
+    appleWebApp: {
+        capable: true,
+        title: "TapOS",
+        statusBarStyle: "black-translucent",
+        startupImage: ["/tapos-logo.png"],
+    },
+    category: "productivity",
 };
+
 
 export default function RootLayout({
     children,
