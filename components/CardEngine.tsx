@@ -686,117 +686,122 @@ END:VCARD`;
                                 <span>{data.jobTitle}</span>
                             </div>
                         </div>
-                        {/* MODE TOGGLE */}
-                        <div className="flex gap-2">
-                            <button
-                                onClick={toggleTheme}
-                                className="w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-md transition hover:scale-105 active:scale-95"
-                                style={{
-                                    background: isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
-                                    border: isDarkMode ? '1px solid rgba(255,255,255,0.2)' : '1px solid rgba(0,0,0,0.1)'
-                                }}
-                            >
-                                <i className={`ph-fill ${isDarkMode ? 'ph-sun-dim' : 'ph-moon-stars'}`}
-                                    style={{ color: isDarkMode ? '#fbbf24' : '#64748b', fontSize: '20px' }}></i>
-                            </button>
-
-                            {/* OWNER EDIT BUTTON (If Applicable) */}
-                            {isOwner && (
-                                <a href={`/editor?id=${cardId}`} className="w-10 h-10 rounded-full bg-neon-blue/20 border border-neon-blue flex items-center justify-center animate-pulse hover:animate-none transition">
-                                    <Edit size={16} className="text-neon-blue" />
-                                </a>
-                            )}
-                        </div>
                     </div>
-
-                    {/* MARQUEE */}
-                    <div className="marquee-container">
-                        <div className="marquee-content">
-                            {[1, 2, 3, 4].map(k => (
-                                <span key={k}>
-                                    <span className="m-item">{data.marqueeText || `🚀 ${data.company || "TAPOS SYSTEM"} LAUNCHED`}</span><span className="m-item">•</span>
-                                    <span className="m-item">{data.marqueeText ? "" : `CONNECT WITH ${data.fullName}`}</span><span className="m-item">•</span>
-                                </span>
-                            ))}
-                        </div>
+                    {/* HEADER ACTIONS */}
+                    <div className="flex gap-2">
+                        <button
+                            onClick={handleShare}
+                            className="w-10 h-10 rounded-full flex items-center justify-center bg-white/5 border border-white/10 text-white/70 hover:text-white hover:bg-white/10 transition active:scale-95"
+                        >
+                            <Share2 size={18} />
+                        </button>
+                        <button
+                            onClick={() => setShowLeadModal(true)}
+                            className="w-10 h-10 rounded-full flex items-center justify-center bg-neon-blue/20 border border-neon-blue/50 text-neon-blue hover:bg-neon-blue/30 transition active:scale-95"
+                        >
+                            <UserPlus size={18} />
+                        </button>
                     </div>
+                    {/* MODE TOGGLE */}
+                    <div className="flex gap-2">
+                        <button
+                            onClick={toggleTheme}
+                            className="w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-md transition hover:scale-105 active:scale-95"
+                            style={{
+                                background: isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
+                                border: isDarkMode ? '1px solid rgba(255,255,255,0.2)' : '1px solid rgba(0,0,0,0.1)'
+                            }}
+                        >
+                            <i className={`ph-fill ${isDarkMode ? 'ph-sun-dim' : 'ph-moon-stars'}`}
+                                style={{ color: isDarkMode ? '#fbbf24' : '#64748b', fontSize: '20px' }}></i>
+                        </button>
 
-                    {/* VIEWPORT */}
-                    <div className="viewport">
+                        {/* OWNER EDIT BUTTON (If Applicable) */}
+                        {isOwner && (
+                            <a href={`/editor?id=${cardId}`} className="w-10 h-10 rounded-full bg-neon-blue/20 border border-neon-blue flex items-center justify-center animate-pulse hover:animate-none transition">
+                                <Edit size={16} className="text-neon-blue" />
+                            </a>
+                        )}
+                    </div>
+                </div>
 
-                        {/* VIEW 1: HOME */}
-                        <div className={`view-pane justify-center items-center ${activeTab === 'v-home' ? 'active' : ''}`}>
-                            <div className="ad-container">
-                                {adsToRender.map((key, idx) => {
-                                    // SPECIAL: FIRST CARD IS LOGO IF AVAILABLE
-                                    if (idx === 0 && data.logoImage) {
-                                        return (
-                                            <div key={key} className={`ad-card ${activeAd === idx ? 'show' : ''}`} style={{ background: 'transparent', boxShadow: 'none', border: 'none' }}>
-                                                <div className="notify-badge"><i className="ph-fill ph-check-circle pulse-bell"></i> VERIFIED</div>
-                                                <img src={data.logoImage} alt="Brand Logo" style={{ width: '80%', height: 'auto', objectFit: 'contain', filter: 'drop-shadow(0 0 20px rgba(255,255,255,0.2))' }} />
-                                                <div className="ad-title" style={{ marginTop: 20 }}><span>{data.company || "OFFICIAL PARTNER"}</span></div>
-                                            </div>
-                                        );
-                                    }
+                {/* MARQUEE */}
+                <div className="marquee-container">
+                    <div className="marquee-content">
+                        {[1, 2, 3, 4].map(k => (
+                            <span key={k}>
+                                <span className="m-item">{data.marqueeText || `🚀 ${data.company || "TAPOS SYSTEM"} LAUNCHED`}</span><span className="m-item">•</span>
+                                <span className="m-item">{data.marqueeText ? "" : `CONNECT WITH ${data.fullName}`}</span><span className="m-item">•</span>
+                            </span>
+                        ))}
+                    </div>
+                </div>
 
-                                    // STANDARD AD CARD
-                                    const ad = data[key] || {};
-                                    const badge = ad.badge || (idx === 0 ? "SYSTEM ALERT" : idx === 1 ? "CONNECT" : "URGENT");
-                                    const t1 = ad.title1 || (idx === 0 ? "DISCOVER" : idx === 1 ? "DIRECT" : "BOOK");
-                                    const t2 = ad.title2 || (idx === 0 ? "MY WORK" : idx === 1 ? "ACCESS" : "CALL");
-                                    const btnLabel = ad.btnLabel || (idx === 0 ? "VIEW PORTFOLIO" : idx === 1 ? "TEXT ME NOW" : "CALL OFFICE");
-                                    const link = ad.link || "#";
+                {/* VIEWPORT */}
+                <div className="viewport">
 
-                                    const icons = ["ph-briefcase", "ph-chat-circle-text", "ph-phone-call", "ph-star", "ph-gift"];
-                                    const colors = ["#ffffff", "var(--gold)", "var(--accent)", "#ff0055", "#00ff88"];
-                                    const icon = icons[idx % icons.length];
-                                    const iconColor = colors[idx % colors.length];
-
+                    {/* VIEW 1: HOME */}
+                    <div className={`view-pane justify-center items-center ${activeTab === 'v-home' ? 'active' : ''}`}>
+                        <div className="ad-container">
+                            {adsToRender.map((key, idx) => {
+                                // SPECIAL: FIRST CARD IS LOGO IF AVAILABLE
+                                if (idx === 0 && data.logoImage) {
                                     return (
-                                        <div key={key} className={`ad-card ${activeAd === idx ? 'show' : ''}`}>
-                                            <div className="notify-badge"><i className={`ph-fill ${idx === 0 ? 'ph-bell' : 'ph-lightning'} pulse-bell`}></i> {badge}</div>
-                                            <div className="ad-title">{t1}<br /><span>{t2}</span></div>
-                                            <i className={`ph-fill ${icon} ad-icon-lg`} style={{ color: iconColor }}></i>
-                                            <a href={link} target="_blank" className="urgent-btn">{btnLabel}</a>
+                                        <div key={key} className={`ad-card ${activeAd === idx ? 'show' : ''}`} style={{ background: 'transparent', boxShadow: 'none', border: 'none' }}>
+                                            <div className="notify-badge"><i className="ph-fill ph-check-circle pulse-bell"></i> VERIFIED</div>
+                                            <img src={data.logoImage} alt="Brand Logo" style={{ width: '80%', height: 'auto', objectFit: 'contain', filter: 'drop-shadow(0 0 20px rgba(255,255,255,0.2))' }} />
+                                            <div className="ad-title" style={{ marginTop: 20 }}><span>{data.company || "OFFICIAL PARTNER"}</span></div>
                                         </div>
-                                    )
-                                })}
-                            </div>
-                        </div>
+                                    );
+                                }
 
-                        {/* VIEW 2: GRID */}
-                        <div className={`view-pane ${activeTab === 'v-grid' ? 'active' : ''}`} style={{ overflowY: 'auto', paddingBottom: 20 }}>
-                            <div className="velocity-container">
-                                <div className="velocity-track">
-                                    {[1, 2, 3, 4].map(k => (
-                                        <div key={k} className="flex gap-4">
-                                            {data.phone && <a href={`tel:${data.phone}`} className="soc-pill" style={{ borderColor: '#00ff88', color: '#fff' }}><i className="ph-fill ph-phone" style={{ color: '#00ff88' }}></i> Call</a>}
-                                            {data.phone && <a href={`sms:${data.phone}`} className="soc-pill" style={{ borderColor: '#00d2ff', color: '#fff' }}><i className="ph-fill ph-chat-circle-text" style={{ color: '#00d2ff' }}></i> SMS</a>}
-                                            {data.email && <a href={`mailto:${data.email}`} className="soc-pill" style={{ borderColor: '#ffa500', color: '#fff' }}><i className="ph-fill ph-envelope" style={{ color: '#ffa500' }}></i> Email</a>}
-                                            {data.social_instagram && <a href={data.social_instagram} target="_blank" className="soc-pill" style={{ borderColor: '#E1306C' }}><i className="ph-fill ph-instagram-logo"></i> Instagram</a>}
-                                            {data.social_facebook && <a href={data.social_facebook} target="_blank" className="soc-pill" style={{ borderColor: '#1877F2' }}><i className="ph-fill ph-facebook-logo"></i> Facebook</a>}
-                                            {data.social_linkedin && <a href={data.social_linkedin} target="_blank" className="soc-pill" style={{ borderColor: '#0077B5' }}><i className="ph-fill ph-linkedin-logo"></i> LinkedIn</a>}
-                                            {data.social_tiktok && <a href={data.social_tiktok} target="_blank" className="soc-pill" style={{ borderColor: '#fff' }}><i className="ph-fill ph-tiktok-logo"></i> TikTok</a>}
-                                            {data.social_threads && <a href={data.social_threads} target="_blank" className="soc-pill" style={{ borderColor: '#fff' }}><i className="ph-fill ph-at"></i> Threads</a>}
-                                            {data.social_x && <a href={data.social_x} target="_blank" className="soc-pill"><i className="ph-fill ph-x-logo"></i> X</a>}
-                                            {data.social_snapchat && <a href={data.social_snapchat} target="_blank" className="soc-pill" style={{ borderColor: '#FFFC00', color: '#FFFC00' }}><i className="ph-fill ph-snapchat-logo"></i> Snap</a>}
-                                            {!data.phone && !data.email && !data.website && !data.social_instagram && (
-                                                <span className="soc-pill" style={{ opacity: 0.5, borderColor: 'rgba(255,255,255,0.2)' }}>TAPOS IMPULSO • CONNECT</span>
-                                            )}
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
+                                // STANDARD AD CARD
+                                const ad = data[key] || {};
+                                const badge = ad.badge || (idx === 0 ? "SYSTEM ALERT" : idx === 1 ? "CONNECT" : "URGENT");
+                                const t1 = ad.title1 || (idx === 0 ? "DISCOVER" : idx === 1 ? "DIRECT" : "BOOK");
+                                const t2 = ad.title2 || (idx === 0 ? "MY WORK" : idx === 1 ? "ACCESS" : "CALL");
+                                const btnLabel = ad.btnLabel || (idx === 0 ? "VIEW PORTFOLIO" : idx === 1 ? "TEXT ME NOW" : "CALL OFFICE");
+                                const link = ad.link || "#";
 
-                        {/* NEW HERO ACTIONS */}
-                        <div className="flex gap-3 px-5 mb-4">
-                            <button onClick={handleShare} className="flex-1 bg-white/5 hover:bg-white/10 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition border border-white/10">
-                                <Share2 size={16} /> Share
-                            </button>
-                            <button onClick={() => setShowLeadModal(true)} className="flex-1 bg-neon-blue/20 hover:bg-neon-blue/30 text-neon-blue py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition border border-neon-blue/30">
-                                <UserPlus size={16} /> Connect
-                            </button>
+                                const icons = ["ph-briefcase", "ph-chat-circle-text", "ph-phone-call", "ph-star", "ph-gift"];
+                                const colors = ["#ffffff", "var(--gold)", "var(--accent)", "#ff0055", "#00ff88"];
+                                const icon = icons[idx % icons.length];
+                                const iconColor = colors[idx % colors.length];
+
+                                return (
+                                    <div key={key} className={`ad-card ${activeAd === idx ? 'show' : ''}`}>
+                                        <div className="notify-badge"><i className={`ph-fill ${idx === 0 ? 'ph-bell' : 'ph-lightning'} pulse-bell`}></i> {badge}</div>
+                                        <div className="ad-title">{t1}<br /><span>{t2}</span></div>
+                                        <i className={`ph-fill ${icon} ad-icon-lg`} style={{ color: iconColor }}></i>
+                                        <a href={link} target="_blank" className="urgent-btn">{btnLabel}</a>
+                                    </div>
+                                )
+                            })}
+                        </div>
+                    </div>
+
+                    {/* VIEW 2: GRID */}
+                    <div className={`view-pane ${activeTab === 'v-grid' ? 'active' : ''}`} style={{ overflowY: 'auto', paddingBottom: 20 }}>
+                        <div className="velocity-container">
+                            <div className="velocity-track">
+                                {[1, 2, 3, 4].map(k => (
+                                    <div key={k} className="flex gap-4">
+                                        {data.phone && <a href={`tel:${data.phone}`} className="soc-pill" style={{ borderColor: '#00ff88', color: '#fff' }}><i className="ph-fill ph-phone" style={{ color: '#00ff88' }}></i> Call</a>}
+                                        {data.phone && <a href={`sms:${data.phone}`} className="soc-pill" style={{ borderColor: '#00d2ff', color: '#fff' }}><i className="ph-fill ph-chat-circle-text" style={{ color: '#00d2ff' }}></i> SMS</a>}
+                                        {data.email && <a href={`mailto:${data.email}`} className="soc-pill" style={{ borderColor: '#ffa500', color: '#fff' }}><i className="ph-fill ph-envelope" style={{ color: '#ffa500' }}></i> Email</a>}
+                                        {data.social_instagram && <a href={data.social_instagram} target="_blank" className="soc-pill" style={{ borderColor: '#E1306C' }}><i className="ph-fill ph-instagram-logo"></i> Instagram</a>}
+                                        {data.social_facebook && <a href={data.social_facebook} target="_blank" className="soc-pill" style={{ borderColor: '#1877F2' }}><i className="ph-fill ph-facebook-logo"></i> Facebook</a>}
+                                        {data.social_linkedin && <a href={data.social_linkedin} target="_blank" className="soc-pill" style={{ borderColor: '#0077B5' }}><i className="ph-fill ph-linkedin-logo"></i> LinkedIn</a>}
+                                        {data.social_tiktok && <a href={data.social_tiktok} target="_blank" className="soc-pill" style={{ borderColor: '#fff' }}><i className="ph-fill ph-tiktok-logo"></i> TikTok</a>}
+                                        {data.social_threads && <a href={data.social_threads} target="_blank" className="soc-pill" style={{ borderColor: '#fff' }}><i className="ph-fill ph-at"></i> Threads</a>}
+                                        {data.social_x && <a href={data.social_x} target="_blank" className="soc-pill"><i className="ph-fill ph-x-logo"></i> X</a>}
+                                        {data.social_snapchat && <a href={data.social_snapchat} target="_blank" className="soc-pill" style={{ borderColor: '#FFFC00', color: '#FFFC00' }}><i className="ph-fill ph-snapchat-logo"></i> Snap</a>}
+                                        {!data.phone && !data.email && !data.website && !data.social_instagram && (
+                                            <span className="soc-pill" style={{ opacity: 0.5, borderColor: 'rgba(255,255,255,0.2)' }}>TAPOS IMPULSO • CONNECT</span>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
                         </div>
 
                         {/* DYNAMIC SERVICE BUTTONS */}
