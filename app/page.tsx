@@ -74,7 +74,7 @@ export default function Home() {
 
             {/* MOBILE MENU OVERLAY */}
             {mobileMenuOpen && (
-                <div className="fixed inset-0 z-50 bg-[#050510] flex flex-col p-6 animate-in slide-in-from-left duration-200">
+                <div className="fixed inset-0 z-50 bg-[#050510] flex flex-col p-6 animate-in slide-in-from-left duration-200 overflow-y-auto custom-scrollbar">
                     <div className="flex justify-between items-center mb-8">
                         <div className="flex items-center gap-2">
                             <Terminal className="text-neon-blue w-6 h-6" />
