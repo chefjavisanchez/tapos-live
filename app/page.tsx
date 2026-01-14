@@ -5,23 +5,30 @@ import { supabase } from '@/lib/supabase';
 import { Terminal, CreditCard, User, Settings, LogOut, LayoutGrid, Loader2, Shield, Gift, ShoppingBag } from "lucide-react";
 import { useRouter } from 'next/navigation';
 
+import LandingPage from '@/components/LandingPage'; // Import Landing Page
+
 export default function Home() {
     const [cards, setCards] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [isAdmin, setIsAdmin] = useState(false);
-    const [mobileMenuOpen, setMobileMenuOpen] = useState(false); // NEW STATE
+    const [isAuthenticated, setIsAuthenticated] = useState(false); // NEW STATE
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const router = useRouter();
 
     useEffect(() => {
-        // ... (existing fetch logic remains SAME) ...
         const fetchCards = async () => {
             const { data: { user } } = await supabase.auth.getUser();
+
             if (!user) {
-                router.push('/login');
+                // If no user, we are just on the Landing Page. Stop here.
+                setLoading(false);
                 return;
             }
 
-            // ROBUST CHECK
+            // If user exists, we are authenticated
+            setIsAuthenticated(true);
+
+            // ROBUST CHECK admin logic...
             const email = user.email?.toLowerCase().trim() || '';
             const allowedAdmins = ['javi@tapygo.com', 'chefjavisanchez@gmail.com'];
 
@@ -44,8 +51,14 @@ export default function Home() {
 
     const handleSignOut = async () => {
         await supabase.auth.signOut();
-        router.push('/login');
+        // Instead of push login, we just reload or reset state to show landing
+        window.location.href = '/';
     };
+
+    // 1. SHOW LANDING PAGE IF NOT LOGGED IN
+    if (!loading && !isAuthenticated) {
+        return <LandingPage />;
+    }
 
     return (
         <main className="flex min-h-screen bg-space-900 bg-cyber-grid bg-[length:40px_40px]">
