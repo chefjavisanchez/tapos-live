@@ -976,10 +976,6 @@ END:VCARD`;
                     </nav>
                     <div className="footer-legal" style={{ opacity: 0.5, fontSize: '10px', textAlign: 'center' }}>
                         Copyright © 2026 TapOS Impulsó. All Rights Reserved.
-                        <div className="flex justify-center items-center gap-6 text-[10px] text-white/30 mt-2">
-                            <div className="flex items-center gap-1"><Eye size={10} /> {stats.views + (typeof stats.views === 'number' ? 1 : 0)} Views</div>
-                            <div className="flex items-center gap-1"><Smartphone size={10} /> {stats.saves || 0} Saves</div>
-                        </div>
                     </div>
                 </div>
 

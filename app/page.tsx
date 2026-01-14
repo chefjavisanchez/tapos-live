@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Terminal, CreditCard, User, Settings, LogOut, LayoutGrid, Loader2, Shield, Gift, ShoppingBag } from "lucide-react";
+import { Terminal, CreditCard, User, Settings, LogOut, LayoutGrid, Loader2, Shield, Gift, ShoppingBag, Eye } from "lucide-react";
 import { useRouter } from 'next/navigation';
 
 import LandingPage from '@/components/LandingPage'; // Import Landing Page
@@ -126,6 +126,23 @@ export default function Home() {
                         </div>
                     )}
                 </nav>
+
+                {/* SIDEBAR ANALYTICS */}
+                {cards.length > 0 && cards[0].content?.analytics && (
+                    <div className="mb-6 p-4 rounded-xl bg-white/5 border border-white/10">
+                        <h4 className="text-[10px] uppercase font-bold text-white/40 mb-3 tracking-widest">Performance</h4>
+                        <div className="flex flex-col gap-3">
+                            <div className="flex justify-between items-center">
+                                <span className="text-sm text-white/70 flex items-center gap-2"><Eye size={14} className="text-neon-blue" /> Views</span>
+                                <span className="text-white font-mono font-bold">{cards[0].content.analytics.views || 0}</span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                                <span className="text-sm text-white/70 flex items-center gap-2"><ShoppingBag size={14} className="text-green-400" /> Saves</span>
+                                <span className="text-white font-mono font-bold">{cards[0].content.analytics.saves || 0}</span>
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 <div className="mt-auto pt-6 border-t border-white/10">
                     <button onClick={handleSignOut} className="flex items-center gap-3 text-white/50 hover:text-white transition-colors duration-200">
