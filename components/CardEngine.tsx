@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Script from 'next/script';
-import script from 'next/script';
+
 import { Loader2, Edit } from 'lucide-react';
 import { createWorker } from 'tesseract.js';
 import { supabase } from '@/lib/supabase';
@@ -906,11 +906,13 @@ END:VCARD`;
 
                 </div>
 
-                {isOwner && (
-                    <a href={`/editor?id=${cardId || ''}`} className="fixed top-4 right-4 z-[9999] bg-neon-blue text-black px-4 py-2 rounded-full font-bold shadow-[0_0_20px_rgba(0,243,255,0.5)] flex items-center gap-2 text-xs uppercase tracking-wider hover:scale-105 transition animate-in fade-in slide-in-from-top-4">
-                        <Edit size={14} /> Edit Profile
-                    </a>
-                )}
-            </>
-            );
+            </div>
+
+            {isOwner && (
+                <a href={`/editor?id=${cardId || ''}`} className="fixed top-4 right-4 z-[9999] bg-neon-blue text-black px-4 py-2 rounded-full font-bold shadow-[0_0_20px_rgba(0,243,255,0.5)] flex items-center gap-2 text-xs uppercase tracking-wider hover:scale-105 transition animate-in fade-in slide-in-from-top-4">
+                    <Edit size={14} /> Edit Profile
+                </a>
+            )}
+        </>
+    );
 }
