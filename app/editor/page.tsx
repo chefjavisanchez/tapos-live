@@ -294,8 +294,7 @@ function EditorContent() {
                             </div>
 
                             {/* Fallback URL Inputs */}
-                            <input type="text" value={content.profileImage || ''} onChange={e => updateField('profileImage', e.target.value)}
-                                className="w-full bg-white/5 border border-white/10 rounded p-2 text-[10px] text-white/30 focus:text-white outline-none mt-2" placeholder="Or paste Profile URL..." />
+
 
                             <p className="text-[10px] text-white/60 text-center uppercase tracking-widest border border-white/10 p-2 rounded bg-white/5">
                                 Tip: The Brand Logo will appear on the First Ad Card.
