@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
-import { Terminal, Lock, Mail, ArrowRight, UserPlus, LogIn } from 'lucide-react';
+import { Terminal, Lock, Mail, ArrowRight, UserPlus, LogIn, Eye, EyeOff } from 'lucide-react';
 
 export default function LoginPage() {
     const [email, setEmail] = useState('');
@@ -11,6 +11,7 @@ export default function LoginPage() {
     const [loading, setLoading] = useState(false);
     const [mode, setMode] = useState<'LOGIN' | 'SIGNUP'>('LOGIN');
     const [error, setError] = useState<string | null>(null);
+    const [showPassword, setShowPassword] = useState(false); // NEW STATE
     const router = useRouter();
 
     // Clear errors when switching modes
@@ -113,13 +114,21 @@ export default function LoginPage() {
                                 <div className="relative">
                                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40 w-5 h-5" />
                                     <input
-                                        type="password"
+                                        type={showPassword ? "text" : "password"}
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
-                                        className="w-full bg-white/5 border border-white/10 rounded-lg py-3 pl-10 pr-4 text-white focus:outline-none focus:border-neon-blue focus:bg-white/10 transition"
+                                        className="w-full bg-white/5 border border-white/10 rounded-lg py-3 pl-10 pr-12 text-white focus:outline-none focus:border-neon-blue focus:bg-white/10 transition"
                                         placeholder="••••••••"
                                         required
                                     />
+                                    {/* Toggle Password Visibility Button */}
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white transition"
+                                    >
+                                        {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                                    </button>
                                 </div>
                             </div>
 

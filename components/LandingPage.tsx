@@ -168,7 +168,7 @@ export default function LandingPage() {
 
             {/* FOOTER */}
             <footer className="py-12 border-t border-white/5 text-center text-white/30 text-sm">
-                <p>&copy; {new Date().getFullYear()} TapOS. All systems operational.</p>
+                <p className="text-white/30">Copyright &copy; 2026 TapOS Impulsó. All Rights Reserved.</p>
             </footer>
 
             <style jsx>{`
