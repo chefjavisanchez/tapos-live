@@ -127,42 +127,61 @@ export default function Home() {
                     )}
                 </nav>
 
-                {/* SIDEBAR ANALYTICS */}
+                {/* SIDEBAR ANALYTICS - PREMIUM UPGRADE */}
                 {cards.length > 0 && (
-                    <div className="mb-6 p-4 rounded-xl bg-white/5 border border-white/10">
-                        <h4 className="text-[10px] uppercase font-bold text-white/40 mb-3 tracking-widest">Performance</h4>
-                        {cards[0].content?.analytics && (
-                            <div className="flex flex-col gap-3 mb-4">
-                                <div className="flex justify-between items-center">
-                                    <span className="text-sm text-white/70 flex items-center gap-2"><Eye size={14} className="text-neon-blue" /> Views</span>
-                                    <span className="text-white font-mono font-bold">{cards[0].content.analytics.views || 0}</span>
-                                </div>
-                                <div className="flex justify-between items-center">
-                                    <span className="text-sm text-white/70 flex items-center gap-2"><ShoppingBag size={14} className="text-green-400" /> Saves</span>
-                                    <span className="text-white font-mono font-bold">{cards[0].content.analytics.saves || 0}</span>
-                                </div>
-                            </div>
-                        )}
+                    <div className="mb-6 relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-b from-gray-900 to-black p-5 shadow-2xl group">
 
-                        <div className="grid grid-cols-2 gap-2">
-                            <button onClick={() => {
-                                if (navigator.share) {
-                                    navigator.share({
-                                        title: cards[0].content.fullName,
-                                        url: window.location.origin + '/' + cards[0].slug
-                                    })
-                                } else {
-                                    navigator.clipboard.writeText(window.location.origin + '/' + cards[0].slug);
-                                    alert('Link Copied!');
-                                }
-                            }} className="flex flex-col items-center gap-1 p-2 bg-white/5 hover:bg-neon-blue/20 rounded-lg border border-white/10 hover:border-neon-blue/50 text-xs transition">
-                                <Share2 size={16} className="text-neon-blue" />
-                                <span>Share</span>
-                            </button>
-                            <a href={`/${cards[0].slug}`} target="_blank" className="flex flex-col items-center gap-1 p-2 bg-white/5 hover:bg-neon-blue/20 rounded-lg border border-white/10 hover:border-neon-blue/50 text-xs transition">
-                                <UserPlus size={16} className="text-neon-blue" />
-                                <span>Connect</span>
-                            </a>
+                        {/* Background Effects */}
+                        <div className="absolute inset-0 bg-neon-blue/5 opacity-0 group-hover:opacity-100 transition duration-700"></div>
+                        <div className="absolute -top-10 -right-10 w-20 h-20 bg-neon-blue/20 blur-[40px] rounded-full point-events-none"></div>
+
+                        <div className="relative z-10">
+                            <h4 className="text-[10px] uppercase font-bold text-neon-blue mb-4 tracking-widest flex items-center gap-2">
+                                <span className="w-1.5 h-1.5 rounded-full bg-neon-blue animate-pulse"></span>
+                                Live Analytics
+                            </h4>
+
+                            {cards[0].content?.analytics && (
+                                <div className="grid grid-cols-2 gap-4 mb-6">
+                                    {/* VIEWS */}
+                                    <div className="flex flex-col">
+                                        <span className="text-[10px] uppercase text-white/50 mb-1">Total Views</span>
+                                        <span className="text-2xl font-bold font-rajdhani text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">
+                                            {cards[0].content.analytics.views || 0}
+                                        </span>
+                                    </div>
+
+                                    {/* SAVES */}
+                                    <div className="flex flex-col border-l border-white/10 pl-4">
+                                        <span className="text-[10px] uppercase text-white/50 mb-1">Contacts Saved</span>
+                                        <span className="text-2xl font-bold font-rajdhani text-neon-green drop-shadow-[0_0_10px_rgba(74,222,128,0.3)]" style={{ color: '#4ade80' }}>
+                                            {cards[0].content.analytics.saves || 0}
+                                        </span>
+                                    </div>
+                                </div>
+                            )}
+
+                            <div className="space-y-2">
+                                <button onClick={() => {
+                                    if (navigator.share) {
+                                        navigator.share({
+                                            title: cards[0].content.fullName,
+                                            url: window.location.origin + '/' + cards[0].slug
+                                        })
+                                    } else {
+                                        navigator.clipboard.writeText(window.location.origin + '/' + cards[0].slug);
+                                        alert('Link Copied!');
+                                    }
+                                }} className="w-full flex items-center justify-center gap-2 p-3 bg-neon-blue/10 hover:bg-neon-blue text-neon-blue hover:text-black rounded-xl border border-neon-blue/30 font-bold text-xs uppercase tracking-wider transition-all duration-300 group-hover:shadow-[0_0_15px_rgba(0,243,255,0.3)]">
+                                    <Share2 size={14} />
+                                    Share Card
+                                </button>
+
+                                <a href={`/${cards[0].slug}`} target="_blank" className="w-full flex items-center justify-center gap-2 p-3 bg-white/5 hover:bg-white text-white hover:text-black rounded-xl border border-white/10 font-bold text-xs uppercase tracking-wider transition-all duration-300">
+                                    <Eye size={14} />
+                                    Preview Live
+                                </a>
+                            </div>
                         </div>
                     </div>
                 )}
