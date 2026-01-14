@@ -688,20 +688,6 @@ END:VCARD`;
                         </div>
                     </div>
                     {/* HEADER ACTIONS */}
-                    <div className="flex gap-2">
-                        <button
-                            onClick={handleShare}
-                            className="w-10 h-10 rounded-full flex items-center justify-center bg-white/5 border border-white/10 text-white/70 hover:text-white hover:bg-white/10 transition active:scale-95"
-                        >
-                            <Share2 size={18} />
-                        </button>
-                        <button
-                            onClick={() => setShowLeadModal(true)}
-                            className="w-10 h-10 rounded-full flex items-center justify-center bg-neon-blue/20 border border-neon-blue/50 text-neon-blue hover:bg-neon-blue/30 transition active:scale-95"
-                        >
-                            <UserPlus size={18} />
-                        </button>
-                    </div>
                     {/* MODE TOGGLE */}
                     <div className="flex gap-2">
                         <button

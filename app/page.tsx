@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Terminal, CreditCard, User, Settings, LogOut, LayoutGrid, Loader2, Shield, Gift, ShoppingBag, Eye } from "lucide-react";
+import { Terminal, CreditCard, User, Settings, LogOut, LayoutGrid, Loader2, Shield, Gift, ShoppingBag, Eye, Share2, UserPlus } from "lucide-react";
 import { useRouter } from 'next/navigation';
 
 import LandingPage from '@/components/LandingPage'; // Import Landing Page
@@ -128,18 +128,41 @@ export default function Home() {
                 </nav>
 
                 {/* SIDEBAR ANALYTICS */}
-                {cards.length > 0 && cards[0].content?.analytics && (
+                {cards.length > 0 && (
                     <div className="mb-6 p-4 rounded-xl bg-white/5 border border-white/10">
                         <h4 className="text-[10px] uppercase font-bold text-white/40 mb-3 tracking-widest">Performance</h4>
-                        <div className="flex flex-col gap-3">
-                            <div className="flex justify-between items-center">
-                                <span className="text-sm text-white/70 flex items-center gap-2"><Eye size={14} className="text-neon-blue" /> Views</span>
-                                <span className="text-white font-mono font-bold">{cards[0].content.analytics.views || 0}</span>
+                        {cards[0].content?.analytics && (
+                            <div className="flex flex-col gap-3 mb-4">
+                                <div className="flex justify-between items-center">
+                                    <span className="text-sm text-white/70 flex items-center gap-2"><Eye size={14} className="text-neon-blue" /> Views</span>
+                                    <span className="text-white font-mono font-bold">{cards[0].content.analytics.views || 0}</span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                    <span className="text-sm text-white/70 flex items-center gap-2"><ShoppingBag size={14} className="text-green-400" /> Saves</span>
+                                    <span className="text-white font-mono font-bold">{cards[0].content.analytics.saves || 0}</span>
+                                </div>
                             </div>
-                            <div className="flex justify-between items-center">
-                                <span className="text-sm text-white/70 flex items-center gap-2"><ShoppingBag size={14} className="text-green-400" /> Saves</span>
-                                <span className="text-white font-mono font-bold">{cards[0].content.analytics.saves || 0}</span>
-                            </div>
+                        )}
+
+                        <div className="grid grid-cols-2 gap-2">
+                            <button onClick={() => {
+                                if (navigator.share) {
+                                    navigator.share({
+                                        title: cards[0].content.fullName,
+                                        url: window.location.origin + '/' + cards[0].slug
+                                    })
+                                } else {
+                                    navigator.clipboard.writeText(window.location.origin + '/' + cards[0].slug);
+                                    alert('Link Copied!');
+                                }
+                            }} className="flex flex-col items-center gap-1 p-2 bg-white/5 hover:bg-neon-blue/20 rounded-lg border border-white/10 hover:border-neon-blue/50 text-xs transition">
+                                <Share2 size={16} className="text-neon-blue" />
+                                <span>Share</span>
+                            </button>
+                            <a href={`/${cards[0].slug}`} target="_blank" className="flex flex-col items-center gap-1 p-2 bg-white/5 hover:bg-neon-blue/20 rounded-lg border border-white/10 hover:border-neon-blue/50 text-xs transition">
+                                <UserPlus size={16} className="text-neon-blue" />
+                                <span>Connect</span>
+                            </a>
                         </div>
                     </div>
                 )}
