@@ -141,25 +141,23 @@ export default function Home() {
                                 Live Analytics
                             </h4>
 
-                            {cards[0].content?.analytics && (
-                                <div className="grid grid-cols-2 gap-4 mb-6">
-                                    {/* VIEWS */}
-                                    <div className="flex flex-col">
-                                        <span className="text-[10px] uppercase text-white/50 mb-1">Total Views</span>
-                                        <span className="text-2xl font-bold font-rajdhani text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">
-                                            {cards[0].content.analytics.views || 0}
-                                        </span>
-                                    </div>
-
-                                    {/* SAVES */}
-                                    <div className="flex flex-col border-l border-white/10 pl-4">
-                                        <span className="text-[10px] uppercase text-white/50 mb-1">Contacts Saved</span>
-                                        <span className="text-2xl font-bold font-rajdhani text-neon-green drop-shadow-[0_0_10px_rgba(74,222,128,0.3)]" style={{ color: '#4ade80' }}>
-                                            {cards[0].content.analytics.saves || 0}
-                                        </span>
-                                    </div>
+                            <div className="grid grid-cols-2 gap-4 mb-6">
+                                {/* VIEWS */}
+                                <div className="flex flex-col">
+                                    <span className="text-[10px] uppercase text-white/50 mb-1">Total Views</span>
+                                    <span className="text-2xl font-bold font-rajdhani text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">
+                                        {cards[0].content?.analytics?.views || 0}
+                                    </span>
                                 </div>
-                            )}
+
+                                {/* SAVES */}
+                                <div className="flex flex-col border-l border-white/10 pl-4">
+                                    <span className="text-[10px] uppercase text-white/50 mb-1">Contacts Saved</span>
+                                    <span className="text-2xl font-bold font-rajdhani text-neon-green drop-shadow-[0_0_10px_rgba(74,222,128,0.3)]" style={{ color: '#4ade80' }}>
+                                        {cards[0].content?.analytics?.saves || 0}
+                                    </span>
+                                </div>
+                            </div>
 
                             <div className="space-y-2">
                                 <button onClick={() => {
