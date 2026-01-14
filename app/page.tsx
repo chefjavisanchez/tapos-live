@@ -55,8 +55,17 @@ export default function Home() {
         window.location.href = '/';
     };
 
-    // 1. SHOW LANDING PAGE IF NOT LOGGED IN
-    if (!loading && !isAuthenticated) {
+    // 1. LOADING STATE (Prevent Glitch/Flash)
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-black flex items-center justify-center">
+                <Loader2 className="w-8 h-8 text-neon-blue animate-spin" />
+            </div>
+        );
+    }
+
+    // 2. SHOW LANDING PAGE IF NOT LOGGED IN
+    if (!isAuthenticated) {
         return <LandingPage />;
     }
 
