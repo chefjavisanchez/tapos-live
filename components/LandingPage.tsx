@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { Rocket, Zap, Shield, Globe, ArrowRight, Share2, Trees, Smartphone } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
+import NetworkingOS from './NetworkingOS';
+
 export default function LandingPage() {
     const router = useRouter();
     const [focusedPhone, setFocusedPhone] = useState<number | null>(null);
@@ -141,6 +143,9 @@ export default function LandingPage() {
                     <span>NFC TECHNOLOGY</span> • <span>NO APP REQUIRED</span> • <span>WORKS ON IPHONE & ANDROID</span> • <span>ECO-FRIENDLY</span> • <span>INSTANT SHARING</span> •
                 </div>
             </div >
+
+            {/* NETWORKING OS 360 */}
+            <NetworkingOS />
 
             {/* FEATURES GRID */}
             < section className="py-32 px-6 max-w-7xl mx-auto" >
