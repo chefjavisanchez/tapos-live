@@ -155,6 +155,51 @@ export default function AdminDashboard() {
         }
     };
 
+    const handleRescue = async (cardId: string, currentEmail: string) => {
+        const newEmail = prompt(`ENTER NEW EMAIL for this user:\n(Currently: ${currentEmail})`, currentEmail);
+        if (newEmail === null) return; // Cancelled
+
+        const newPassword = prompt(`ENTER NEW TEMPORARY PASSWORD (Optional):\nLeave blank to keep existing password.`);
+        if (newPassword === null) return; // Cancelled
+
+        if (newEmail === currentEmail && !newPassword) {
+            return alert('No changes made.');
+        }
+
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) return router.push('/login');
+
+            // Show Loading State (Basic)
+            setLoading(true);
+
+            const res = await fetch('/api/admin/rescue', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${session.access_token}`
+                },
+                body: JSON.stringify({
+                    cardId,
+                    newEmail: newEmail !== currentEmail ? newEmail : undefined,
+                    newPassword: newPassword || undefined
+                })
+            });
+
+            if (!res.ok) {
+                const err = await res.json();
+                throw new Error(err.error || 'Failed');
+            }
+
+            alert('✅ USER RESCUED!\nCredentials updated successfully.');
+            checkAuthAndFetch();
+
+        } catch (err: any) {
+            alert('❌ ERROR: ' + err.message);
+            setLoading(false);
+        }
+    };
+
     return (
         <div className="min-h-screen bg-black bg-cyber-grid p-8 text-white font-mono animate-in fade-in">
             <div className="max-w-6xl mx-auto">
@@ -282,6 +327,13 @@ export default function AdminDashboard() {
                                                             className="p-1.5 hover:bg-white/10 rounded-full text-white/30 hover:text-white transition"
                                                         >
                                                             <ShieldCheck size={14} />
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleRescue(card.id, email)}
+                                                            className="px-2 py-1 bg-yellow-500/10 hover:bg-yellow-500 text-yellow-500 hover:text-black border border-yellow-500/50 rounded text-xs font-bold transition flex items-center gap-1"
+                                                            title="Rescue Account (Change Email/Password)"
+                                                        >
+                                                            <Lock size={12} /> RESCUE
                                                         </button>
                                                     </div>
                                                 )}
