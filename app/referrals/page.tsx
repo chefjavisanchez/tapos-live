@@ -213,7 +213,7 @@ export default function RewardsPage() {
                                     </div>
                                     <h3 className="text-2xl font-bold text-white mb-1">EARN 15% COMMISSION</h3>
                                     <p className="text-white/60 text-xs mb-4">Promote TapOS Premium plans and earn recurring revenue for every successful signup.</p>
-                                    <button onClick={() => alert('Accessing Partner Portal... (Feature Coming Soon)')} className="w-full py-2 bg-green-500 hover:bg-green-400 text-black font-bold uppercase rounded-lg text-xs transition shadow-[0_0_15px_rgba(72,187,120,0.4)]">
+                                    <button onClick={() => window.location.href = 'mailto:javee@tapygo.com?subject=Join%20Partner%20Program&body=I%20am%20interested%20in%20becoming%20a%20TapOS%20Partner.'} className="w-full py-2 bg-green-500 hover:bg-green-400 text-black font-bold uppercase rounded-lg text-xs transition shadow-[0_0_15px_rgba(72,187,120,0.4)]">
                                         Join Affiliate Program
                                     </button>
                                 </div>
