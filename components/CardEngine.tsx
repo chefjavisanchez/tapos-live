@@ -655,6 +655,10 @@ END:VCARD`;
                 cardData={data}
             />
 
+            <link rel="preconnect" href="https://fonts.googleapis.com" />
+            <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+            <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Rajdhani:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+            <Script src="https://unpkg.com/@phosphor-icons/web" strategy="lazyOnload" />
 
             <style dangerouslySetInnerHTML={{ __html: IMPULSO_STYLES }} />
             <style dangerouslySetInnerHTML={{ __html: dynamicStyles }} />
