@@ -151,34 +151,91 @@ export default function RewardsPage() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
                             {/* LEFT: PROGRESS CHART */}
-                            <div className="bg-white/5 border border-white/10 rounded-3xl p-8 relative overflow-hidden flex flex-col items-center justify-center text-center group hover:border-neon-blue/30 transition-all duration-500">
-                                <div className="absolute inset-0 bg-neon-blue/5 opacity-0 group-hover:opacity-100 transition duration-500" />
+                            {/* LEFT: METRICS & STRATEGY */}
+                            <div className="flex flex-col gap-6">
 
-                                <div className="relative w-64 h-64 mb-6">
-                                    {/* SVG Ring */}
-                                    <svg className="w-full h-full transform -rotate-90">
-                                        <circle
-                                            cx="128" cy="128" r={radius}
-                                            stroke="rgba(255,255,255,0.1)" strokeWidth="12" fill="none"
-                                        />
-                                        <circle
-                                            cx="128" cy="128" r={radius}
-                                            stroke="#00f3ff" strokeWidth="12" fill="none"
-                                            strokeDasharray={circumference}
-                                            strokeDashoffset={offset}
-                                            strokeLinecap="round"
-                                            className="transition-all duration-1000 ease-out shadow-[0_0_20px_#00f3ff]"
-                                        />
-                                    </svg>
-                                    {/* Center Text */}
-                                    <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                        <div className="text-5xl font-bold font-rajdhani text-white animate-pulse">{currentCyclePoints}</div>
-                                        <div className="text-xs font-bold text-white/50 uppercase tracking-widest mt-1">/ {GOAL} PTS</div>
+                                {/* DUAL CIRCLES ROW */}
+                                <div className="grid grid-cols-2 gap-4">
+                                    {/* 1. AD REWARDS CIRCLE */}
+                                    <div className="bg-white/5 border border-white/10 rounded-3xl p-6 relative overflow-hidden flex flex-col items-center justify-center text-center group hover:border-neon-blue/30 transition-all duration-500">
+                                        <div className="absolute inset-0 bg-neon-blue/5 opacity-0 group-hover:opacity-100 transition duration-500" />
+                                        <div className="relative w-32 h-32 mb-4">
+                                            <svg className="w-full h-full transform -rotate-90">
+                                                <circle cx="64" cy="64" r="58" stroke="rgba(255,255,255,0.1)" strokeWidth="8" fill="none" />
+                                                <circle cx="64" cy="64" r="58" stroke="#00f3ff" strokeWidth="8" fill="none"
+                                                    strokeDasharray={2 * Math.PI * 58}
+                                                    strokeDashoffset={(2 * Math.PI * 58) - (currentCyclePoints / GOAL) * (2 * Math.PI * 58)}
+                                                    strokeLinecap="round" className="transition-all duration-1000 ease-out shadow-[0_0_20px_#00f3ff]" />
+                                            </svg>
+                                            <div className="absolute inset-0 flex flex-col items-center justify-center">
+                                                <div className="text-2xl font-bold font-rajdhani text-white animate-pulse">{currentCyclePoints}</div>
+                                                <div className="text-[8px] font-bold text-white/50 uppercase tracking-widest">/ {GOAL} PTS</div>
+                                            </div>
+                                        </div>
+                                        <h3 className="text-sm font-bold text-white uppercase tracking-wider">Ad Rewards</h3>
+                                    </div>
+
+                                    {/* 2. PARTNER PROGRAM CIRCLE */}
+                                    <div className="bg-gradient-to-br from-green-900/20 to-black border border-green-500/20 rounded-3xl p-6 relative overflow-hidden flex flex-col items-center justify-center text-center group hover:border-green-400/30 transition-all duration-500">
+                                        <div className="absolute inset-0 bg-green-500/5 opacity-0 group-hover:opacity-100 transition duration-500" />
+                                        <div className="relative w-32 h-32 mb-4">
+                                            <svg className="w-full h-full transform -rotate-90">
+                                                <circle cx="64" cy="64" r="58" stroke="rgba(255,255,255,0.1)" strokeWidth="8" fill="none" />
+                                                <circle cx="64" cy="64" r="58" stroke="#48bb78" strokeWidth="8" fill="none"
+                                                    strokeDasharray={2 * Math.PI * 58}
+                                                    strokeDashoffset={2 * Math.PI * 58} // Empty for now
+                                                    strokeLinecap="round" className="transition-all duration-1000 ease-out shadow-[0_0_20px_#48bb78]" />
+                                            </svg>
+                                            <div className="absolute inset-0 flex flex-col items-center justify-center">
+                                                <div className="text-2xl font-bold font-rajdhani text-green-400">$0</div>
+                                                <div className="text-[8px] font-bold text-white/50 uppercase tracking-widest">EARNED</div>
+                                            </div>
+                                        </div>
+                                        <h3 className="text-sm font-bold text-green-400 uppercase tracking-wider">Partner Ops</h3>
                                     </div>
                                 </div>
 
-                                <h3 className="text-xl font-bold text-white mb-2">Current Cycle</h3>
-                                <p className="text-sm text-white/60 max-w-xs">{5 - (referrals.length % 5)} more referrals needed to unlock reward.</p>
+                                {/* TRACKING & PAYMENT STRATEGY */}
+                                <div className="bg-white/5 border border-white/10 rounded-2xl p-6 relative overflow-hidden">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                                            <Shield size={18} className="text-neon-blue" /> Tracking & Payment Strategy
+                                        </h3>
+                                        <span className="text-[10px] bg-white/10 text-white/50 px-2 py-1 rounded border border-white/10 uppercase">Beta Mode</span>
+                                    </div>
+
+                                    <div className="space-y-3">
+                                        <div className="flex items-center justify-between p-3 bg-black/40 rounded-lg border border-white/5">
+                                            <div className="flex items-center gap-3">
+                                                <div className="p-2 bg-blue-500/20 rounded text-blue-400"><CreditCard size={16} /></div>
+                                                <div>
+                                                    <div className="text-xs font-bold text-white">Payout Method</div>
+                                                    <div className="text-[10px] text-white/50">Manual Transfer (Net-30)</div>
+                                                </div>
+                                            </div>
+                                            <button className="text-[10px] text-neon-blue hover:text-white transition">CONFIGURE</button>
+                                        </div>
+
+                                        <div className="flex items-center justify-between p-3 bg-black/40 rounded-lg border border-white/5">
+                                            <div className="flex items-center gap-3">
+                                                <div className="p-2 bg-purple-500/20 rounded text-purple-400"><Terminal size={16} /></div>
+                                                <div>
+                                                    <div className="text-xs font-bold text-white">Tracking Pixel</div>
+                                                    <div className="text-[10px] text-green-400">● Active (Global Cookie)</div>
+                                                </div>
+                                            </div>
+                                            <button className="text-[10px] text-neon-blue hover:text-white transition">VIEW TAGS</button>
+                                        </div>
+
+                                        <div className="mt-4 pt-4 border-t border-white/10">
+                                            <p className="text-[10px] text-white/40 leading-relaxed text-center">
+                                                Automated payouts and real-time email notifications are currently being provisioned.
+                                                Ensure your Stripe Connect account is ready for instant transfers.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
                             </div>
 
                             {/* RIGHT: REWARD INFO & LINK */}
@@ -213,7 +270,7 @@ export default function RewardsPage() {
                                     </div>
                                     <h3 className="text-2xl font-bold text-white mb-1">EARN 15% COMMISSION</h3>
                                     <p className="text-white/60 text-xs mb-4">Promote TapOS Premium plans and earn recurring revenue for every successful signup.</p>
-                                    <button onClick={() => window.location.href = 'mailto:javee@tapygo.com?subject=Join%20Partner%20Program&body=I%20am%20interested%20in%20becoming%20a%20TapOS%20Partner.'} className="w-full py-2 bg-green-500 hover:bg-green-400 text-black font-bold uppercase rounded-lg text-xs transition shadow-[0_0_15px_rgba(72,187,120,0.4)]">
+                                    <button onClick={() => window.location.href = 'mailto:javi@tapygo.com?subject=Join%20Partner%20Program&body=I%20am%20interested%20in%20becoming%20a%20TapOS%20Partner.'} className="w-full py-2 bg-green-500 hover:bg-green-400 text-black font-bold uppercase rounded-lg text-xs transition shadow-[0_0_15px_rgba(72,187,120,0.4)]">
                                         Join Affiliate Program
                                     </button>
                                 </div>
