@@ -196,13 +196,26 @@ export default function RewardsPage() {
                                     <div className="text-3xl font-bold text-white mb-4">30 DAYS FREE ADS</div>
                                     <p className="text-white/70 text-sm mb-6 leading-relaxed">
                                         Reach {GOAL} Points to unlock a full month of featured advertising in the
-                                        <span className="text-neon-blue font-bold"> JAVEELIST Directory+</span>.
+                                        <span className="text-neon-blue font-bold"> JAVEELIST D+</span>.
                                         Boost your visibility instantly!
                                     </p>
                                     <div className="flex items-center gap-2 p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
                                         <AlertTriangle size={16} className="text-red-500 flex-shrink-0" />
                                         <p className="text-xs text-red-300 font-bold">Hurry! Point requirement increases to 1000 soon!</p>
                                     </div>
+                                </div>
+
+                                {/* AFFILIATE PROGRAM SECTION (ADDED) */}
+                                <div className="bg-gradient-to-br from-green-900/40 to-black border border-green-500/30 rounded-2xl p-6 relative overflow-hidden">
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <div className="p-2 bg-green-500/20 rounded-lg text-green-400"><User size={16} /></div>
+                                        <span className="text-sm font-bold text-green-400 uppercase tracking-wider">TapOS Partner Program</span>
+                                    </div>
+                                    <h3 className="text-2xl font-bold text-white mb-1">EARN 15% COMMISSION</h3>
+                                    <p className="text-white/60 text-xs mb-4">Promote TapOS Premium plans and earn recurring revenue for every successful signup.</p>
+                                    <button onClick={() => alert('Accessing Partner Portal... (Feature Coming Soon)')} className="w-full py-2 bg-green-500 hover:bg-green-400 text-black font-bold uppercase rounded-lg text-xs transition shadow-[0_0_15px_rgba(72,187,120,0.4)]">
+                                        Join Affiliate Program
+                                    </button>
                                 </div>
 
                                 {/* Link Box */}

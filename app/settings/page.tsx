@@ -4,11 +4,13 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Settings, Lock, CreditCard, ShieldCheck, ArrowLeft } from 'lucide-react';
+import { Settings, Lock, CreditCard, ShieldCheck, ArrowLeft, Loader2 } from 'lucide-react';
 
 export default function SettingsPage() {
     const [loading, setLoading] = useState(true);
     const [card, setCard] = useState<any>(null);
+    const [openaiKey, setOpenaiKey] = useState('');
+    const [saving, setSaving] = useState(false);
     const router = useRouter();
 
     useEffect(() => {
@@ -25,11 +27,42 @@ export default function SettingsPage() {
                 .eq('user_id', user.id)
                 .single();
 
-            setCard(data);
+            if (data) {
+                setCard(data);
+                // Initialize Key
+                if (data.content?.openai_api_key) {
+                    setOpenaiKey(data.content.openai_api_key);
+                }
+            }
             setLoading(false);
         };
         checkAccess();
     }, []);
+
+    const saveSettings = async () => {
+        setSaving(true);
+        if (!card) return;
+
+        // Update JSONB content
+        const newContent = {
+            ...card.content,
+            openai_api_key: openaiKey.trim()
+        };
+
+        const { error } = await supabase
+            .from('cards')
+            .update({ content: newContent })
+            .eq('id', card.id);
+
+        if (error) {
+            alert('Failed to save settings.');
+        } else {
+            alert('Settings Saved Successfully!');
+            // Update local state
+            setCard({ ...card, content: newContent });
+        }
+        setSaving(false);
+    };
 
     if (loading) return <div className="min-h-screen bg-black flex items-center justify-center text-white">Loading...</div>;
 
@@ -102,6 +135,49 @@ export default function SettingsPage() {
                         <div className="text-sm text-white/60 space-y-2 pl-16">
                             <p>• Advanced Encryption Standard (AES) Enabled</p>
                             <p>• Public Profile: <a href={`/${card.slug}`} target="_blank" className="text-neon-blue hover:underline">tapos360.com/{card.slug}</a></p>
+                        </div>
+                    </div>
+
+                    {/* AI TOOLS CONFIGURATION */}
+                    <div className="glass-panel border border-purple-500/30 rounded-2xl p-6 relative overflow-hidden">
+                        <div className="absolute top-0 right-0 p-3 opacity-30 pointer-events-none">
+                            <i className="ph-fill ph-brain text-6xl text-purple-500"></i>
+                        </div>
+
+                        <div className="flex items-center gap-4 mb-4">
+                            <div className="w-12 h-12 bg-purple-500/10 rounded-full flex items-center justify-center border border-purple-500/20">
+                                <i className="ph-bold ph-magic-wand text-purple-400 text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 className="font-bold text-lg text-white">AI Scanner Turbo Mode</h3>
+                                <p className="text-xs text-white/50">Enhance your Lead Scanner accuracy with GPT-4 Vision.</p>
+                            </div>
+                        </div>
+
+                        <div className="pl-0 md:pl-16 space-y-4">
+                            <div className="space-y-2">
+                                <label className="text-[10px] uppercase font-bold text-white/40 tracking-wider">Your OpenAI API Key</label>
+                                <div className="flex gap-2">
+                                    <input
+                                        type="password"
+                                        placeholder="sk-..."
+                                        value={openaiKey}
+                                        onChange={(e) => setOpenaiKey(e.target.value)}
+                                        className="flex-1 bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-sm text-white focus:border-purple-500 outline-none transition font-mono"
+                                    />
+                                    <button
+                                        onClick={saveSettings}
+                                        disabled={saving}
+                                        className="px-6 bg-purple-600 hover:bg-purple-500 text-white rounded-lg font-bold text-xs uppercase tracking-wider transition disabled:opacity-50"
+                                    >
+                                        {saving ? <Loader2 className="animate-spin" size={16} /> : 'Save'}
+                                    </button>
+                                </div>
+                                <p className="text-[10px] text-white/30">
+                                    Don't have one? <a href="https://platform.openai.com/api-keys" target="_blank" className="text-purple-400 hover:underline">Get an API Key here</a>.
+                                    Key is stored securely and only used for your scans.
+                                </p>
+                            </div>
                         </div>
                     </div>
 

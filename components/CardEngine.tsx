@@ -490,25 +490,56 @@ export default function CardEngine({ data, slug, ownerId, cardId }: CardEnginePr
     const processImage = async (file: File) => {
         setScanning(true);
         try {
-            const worker = await createWorker('eng');
-            const ret = await worker.recognize(file);
-            const text = ret.data.text;
-            await worker.terminate();
-
-            const emailRegex = /([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+)/gi;
-            const phoneRegex = /(?:(?:\+?1\s*(?:[.-]\s*)?)?(?:\(\s*([2-9]1[02-9]|[2-9][02-8]1|[2-9][02-8][02-9])\s*\)|([2-9]1[02-9]|[2-9][02-8]1|[2-9][02-8][02-9]))\s*(?:[.-]\s*)?)?([2-9]1[02-9]|[2-9][02-9]1|[2-9][02-9]{2})\s*(?:[.-]\s*)?([0-9]{4})(?:\s*(?:#|x\.?|ext\.?|extension)\s*(\d+))?/gi;
-
-            const emails = text.match(emailRegex) || [];
-            const phones = text.match(phoneRegex) || [];
-            const lines = text.split('\n').filter(l => l.trim().length > 2);
-            const potentialName = lines.find(l => !l.match(emailRegex) && !l.match(phoneRegex)) || "Unknown Name";
-
-            setScanResult({
-                name: potentialName.substring(0, 30),
-                email: emails[0] || '',
-                phone: phones[0] || '',
-                notes: text.substring(0, 100) + '...'
+            // 1. Convert to Base64 (needed for both OpenAI and local display mostly)
+            const toBase64 = (file: File) => new Promise<string>((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result as string);
+                reader.onerror = error => reject(error);
             });
+            const base64Image = await toBase64(file);
+
+            // 2. Check for Turbo Mode
+            if (data.openai_api_key && data.openai_api_key.startsWith('sk-')) {
+                console.log("🚀 Using AI Turbo Scan...");
+                const res = await fetch('/api/scan', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ image: base64Image, apiKey: data.openai_api_key })
+                });
+
+                if (!res.ok) throw new Error('AI Scan Failed');
+
+                const aiData = await res.json();
+                setScanResult({
+                    name: aiData.name || '',
+                    email: aiData.email || '',
+                    phone: aiData.phone || '',
+                    notes: aiData.notes || 'Scanned with GPT-4 Vision'
+                });
+
+            } else {
+                // 3. Fallback to Local Tesseract
+                const worker = await createWorker('eng');
+                const ret = await worker.recognize(file);
+                const text = ret.data.text;
+                await worker.terminate();
+
+                const emailRegex = /([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+)/gi;
+                const phoneRegex = /(?:(?:\+?1\s*(?:[.-]\s*)?)?(?:\(\s*([2-9]1[02-9]|[2-9][02-8]1|[2-9][02-8][02-9])\s*\)|([2-9]1[02-9]|[2-9][02-8]1|[2-9][02-8][02-9]))\s*(?:[.-]\s*)?)?([2-9]1[02-9]|[2-9][02-9]1|[2-9][02-9]{2})\s*(?:[.-]\s*)?([0-9]{4})(?:\s*(?:#|x\.?|ext\.?|extension)\s*(\d+))?/gi;
+
+                const emails = text.match(emailRegex) || [];
+                const phones = text.match(phoneRegex) || [];
+                const lines = text.split('\n').filter(l => l.trim().length > 2);
+                const potentialName = lines.find(l => !l.match(emailRegex) && !l.match(phoneRegex)) || "Unknown Name";
+
+                setScanResult({
+                    name: potentialName.substring(0, 30),
+                    email: emails[0] || '',
+                    phone: phones[0] || '',
+                    notes: text.substring(0, 100) + '...'
+                });
+            }
 
         } catch (err) {
             alert('Scan Failed. Try again.');
@@ -540,21 +571,40 @@ export default function CardEngine({ data, slug, ownerId, cardId }: CardEnginePr
         document.body.removeChild(link);
     };
 
-    const handleSaveContact = async () => {
+    const handleSaveContact = () => {
+        setExchangeMode(true);
+    };
 
+    // EXCHANGE MODE STATE
+    const [exchangeMode, setExchangeMode] = useState(false);
+    const [exchangeData, setExchangeData] = useState({ name: '', email: '', phone: '' });
+
+    if (!data) return <div className="text-white text-center mt-20">Card Protocol Not Found.</div>;
+
+    const handleExchangeSubmit = () => {
+        // 1. Save their info locally (simulated lead capture)
+        const newLead = { ...exchangeData, date: new Date().toISOString(), notes: 'Exchanged via TapOS' };
+        const saved = JSON.parse(localStorage.getItem('tapos_leads') || '[]');
+        localStorage.setItem('tapos_leads', JSON.stringify([...saved, newLead]));
+
+        // 2. Download our VCF
+        downloadVcf();
+
+        // 3. Close & Reset
+        alert(`Shared! You received ${data.fullName}'s card and we saved your info.`);
+        setExchangeMode(false);
+    };
+
+    const downloadVcf = async () => {
         let photoBase64 = '';
         if (data.profileImage) {
             try {
-                // Determine image type (default to JPEG, but check extension if possible)
-                // For simplicity, we assume JPEG or PNG but VCF works best with JPEG usually.
-                // We'll trust the fetch blob.
                 const response = await fetch(data.profileImage);
                 const blob = await response.blob();
                 const reader = new FileReader();
                 photoBase64 = await new Promise<string>((resolve) => {
                     reader.onloadend = () => {
                         const res = reader.result as string;
-                        // Remote data:image... prefix
                         const base64 = res.split(',')[1];
                         resolve(base64);
                     };
@@ -565,7 +615,6 @@ export default function CardEngine({ data, slug, ownerId, cardId }: CardEnginePr
             }
         }
 
-        // Split name for N property (Required by iOS/Contacts apps to populate First/Last field)
         const fullName = data.fullName || 'Contact';
         const nameParts = fullName.trim().split(' ');
         const firstName = nameParts[0] || '';
@@ -595,324 +644,391 @@ END:VCARD`;
         window.URL.revokeObjectURL(url);
     };
 
-    if (!data) return <div className="text-white text-center mt-20">Card Protocol Not Found.</div>;
-
     return (
         <>
-            <link rel="preconnect" href="https://fonts.googleapis.com" />
-            <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-            <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Rajdhani:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-            <Script src="https://unpkg.com/@phosphor-icons/web" strategy="lazyOnload" />
+            {/* EXCHANGE MODAL */}
+            {exchangeMode && (
+                <div className="fixed inset-0 z-[10000] bg-black/90 backdrop-blur-md flex items-center justify-center p-6 animate-in fade-in duration-300">
+                    <div className="bg-[#111] border border-white/20 rounded-3xl w-full max-w-sm p-8 relative shadow-[0_0_50px_rgba(0,243,255,0.2)]">
+                        <button onClick={() => setExchangeMode(false)} className="absolute top-4 right-4 text-white/50 hover:text-white">
+                            <i className="ph-bold ph-x text-2xl"></i>
+                        </button>
 
-            <style dangerouslySetInnerHTML={{ __html: IMPULSO_STYLES }} />
-            <style dangerouslySetInnerHTML={{ __html: dynamicStyles }} />
-            <div className="impulso-wrapper">
-                <div className="bg-gradient-radial"></div>
-
-                <div id="tap-os-engine">
-
-                    {/* HEADER */}
-                    <div className="header-zone">
-                        <div className="profile-pill">
-                            <div className="avatar-wrap">
-                                <img src={data.profileImage || "https://placehold.co/100x100"} className="avatar-img" />
-                                <div className="online-dot"></div>
+                        <div className="text-center mb-8">
+                            <div className="w-20 h-20 rounded-full border-2 border-[#00f3ff] p-1 mx-auto mb-4 relative">
+                                <img src={data.profileImage || "https://placehold.co/100x100"} className="w-full h-full rounded-full object-cover" />
+                                <div className="absolute -bottom-2 -right-2 bg-black rounded-full p-1 border border-white/20">
+                                    <i className="ph-fill ph-arrows-left-right text-[#00f3ff] text-xl"></i>
+                                </div>
                             </div>
-                            <div className="char-info">
-                                <h1>{data.fullName}</h1>
-                                <span>{data.jobTitle}</span>
-                            </div>
+                            <h2 className="font-syncopate text-xl text-white font-bold uppercase leading-none mb-2">Connect & Exchange</h2>
+                            <p className="text-white/60 text-xs">Share your info to instantly get {data.fullName}'s Digital Card.</p>
                         </div>
 
-                        <div className="flex gap-2">
+                        <div className="space-y-4">
+                            <div>
+                                <label className="text-[10px] text-[#00f3ff] uppercase font-bold tracking-wider mb-1 block">Your Name</label>
+                                <input
+                                    type="text"
+                                    placeholder="John Doe"
+                                    className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white focus:border-[#00f3ff] outline-none transition"
+                                    value={exchangeData.name}
+                                    onChange={e => setExchangeData({ ...exchangeData, name: e.target.value })}
+                                />
+                            </div>
+                            <div>
+                                <label className="text-[10px] text-[#00f3ff] uppercase font-bold tracking-wider mb-1 block">Your Email</label>
+                                <input
+                                    type="email"
+                                    placeholder="john@example.com"
+                                    className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white focus:border-[#00f3ff] outline-none transition"
+                                    value={exchangeData.email}
+                                    onChange={e => setExchangeData({ ...exchangeData, email: e.target.value })}
+                                />
+                            </div>
+                            <div>
+                                <label className="text-[10px] text-[#00f3ff] uppercase font-bold tracking-wider mb-1 block">Your Phone</label>
+                                <input
+                                    type="tel"
+                                    placeholder="+1 555 000 0000"
+                                    className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white focus:border-[#00f3ff] outline-none transition"
+                                    value={exchangeData.phone}
+                                    onChange={e => setExchangeData({ ...exchangeData, phone: e.target.value })}
+                                />
+                            </div>
+
                             <button
-                                onClick={toggleTheme}
-                                className="w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-md transition hover:scale-105 active:scale-95"
-                                style={{
-                                    background: isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
-                                    border: isDarkMode ? '1px solid rgba(255,255,255,0.2)' : '1px solid rgba(0,0,0,0.1)'
-                                }}
+                                onClick={handleExchangeSubmit}
+                                disabled={!exchangeData.name}
+                                className="w-full py-4 mt-4 bg-[#00f3ff] hover:bg-white text-black font-rajdhani font-bold text-lg uppercase tracking-wider rounded-xl transition shadow-[0_0_20px_rgba(0,243,255,0.3)] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                             >
-                                <i className={`ph-fill ${isDarkMode ? 'ph-sun-dim' : 'ph-moon-stars'}`}
-                                    style={{ color: isDarkMode ? '#fbbf24' : '#64748b', fontSize: '20px' }}></i>
+                                <i className="ph-bold ph-swap"></i> Exchange Now
                             </button>
 
-                            {isOwner && (
-                                <a href={`/editor?id=${cardId}`} className="w-10 h-10 rounded-full bg-neon-blue/20 border border-neon-blue flex items-center justify-center animate-pulse hover:animate-none transition">
-                                    <Edit size={16} className="text-neon-blue" />
-                                </a>
-                            )}
+                            <button onClick={downloadVcf} className="w-full text-center text-[10px] text-white/30 hover:text-white uppercase tracking-widest mt-4">
+                                Skip & Just Download Card
+                            </button>
                         </div>
+
                     </div>
+                </div>
+            )}
+            <>
+                <link rel="preconnect" href="https://fonts.googleapis.com" />
+                <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+                <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Rajdhani:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+                <Script src="https://unpkg.com/@phosphor-icons/web" strategy="lazyOnload" />
 
-                    {/* MARQUEE */}
-                    <div className="marquee-container">
-                        <div className="marquee-content">
-                            {[1, 2, 3, 4].map(k => (
-                                <span key={k}>
-                                    <span className="m-item">{data.marqueeText || `🚀 ${data.company || "TAPOS SYSTEM"} LAUNCHED`}</span><span className="m-item">•</span>
-                                    <span className="m-item">{data.marqueeText ? "" : `CONNECT WITH ${data.fullName}`}</span><span className="m-item">•</span>
-                                </span>
-                            ))}
-                        </div>
-                    </div>
+                <style dangerouslySetInnerHTML={{ __html: IMPULSO_STYLES }} />
+                <style dangerouslySetInnerHTML={{ __html: dynamicStyles }} />
+                <div className="impulso-wrapper">
+                    <div className="bg-gradient-radial"></div>
 
-                    {/* VIEWPORT */}
-                    <div className="viewport">
+                    <div id="tap-os-engine">
 
-                        {/* VIEW 1: HOME */}
-                        <div className={`view-pane justify-center items-center ${activeTab === 'v-home' ? 'active' : ''}`}>
-                            <div className="ad-container">
-                                {adsToRender.map((key, idx) => {
-                                    // SPECIAL: FIRST CARD IS LOGO IF AVAILABLE
-                                    if (idx === 0 && data.logoImage) {
-                                        return (
-                                            <div key={key} className={`ad-card ${activeAd === idx ? 'show' : ''}`} style={{ background: 'transparent', boxShadow: 'none', border: 'none' }}>
-                                                <div className="notify-badge"><i className="ph-fill ph-check-circle pulse-bell"></i> VERIFIED</div>
-                                                <img src={data.logoImage} alt="Brand Logo" style={{ width: '80%', height: 'auto', objectFit: 'contain', filter: 'drop-shadow(0 0 20px rgba(255,255,255,0.2))' }} />
-                                                <div className="ad-title" style={{ marginTop: 20 }}><span>{data.company || "OFFICIAL PARTNER"}</span></div>
-                                            </div>
-                                        );
-                                    }
-
-                                    // STANDARD AD CARD
-                                    const ad = data[key] || {};
-                                    const badge = ad.badge || (idx === 0 ? "SYSTEM ALERT" : idx === 1 ? "CONNECT" : "URGENT");
-                                    const t1 = ad.title1 || (idx === 0 ? "DISCOVER" : idx === 1 ? "DIRECT" : "BOOK");
-                                    const t2 = ad.title2 || (idx === 0 ? "MY WORK" : idx === 1 ? "ACCESS" : "CALL");
-                                    const btnLabel = ad.btnLabel || (idx === 0 ? "VIEW PORTFOLIO" : idx === 1 ? "TEXT ME NOW" : "CALL OFFICE");
-                                    const link = ad.link || "#";
-
-                                    const icons = ["ph-briefcase", "ph-chat-circle-text", "ph-phone-call", "ph-star", "ph-gift"];
-                                    const colors = ["#ffffff", "var(--gold)", "var(--accent)", "#ff0055", "#00ff88"];
-                                    const icon = icons[idx % icons.length];
-                                    const iconColor = colors[idx % colors.length];
-
-                                    return (
-                                        <div key={key} className={`ad-card ${activeAd === idx ? 'show' : ''}`}>
-                                            <div className="notify-badge"><i className={`ph-fill ${idx === 0 ? 'ph-bell' : 'ph-lightning'} pulse-bell`}></i> {badge}</div>
-                                            <div className="ad-title">{t1}<br /><span>{t2}</span></div>
-                                            <i className={`ph-fill ${icon} ad-icon-lg`} style={{ color: iconColor }}></i>
-                                            <a href={link} target="_blank" className="urgent-btn">{btnLabel}</a>
-                                        </div>
-                                    )
-                                })}
-                            </div>
-                        </div>
-
-                        {/* VIEW 2: GRID */}
-                        <div className={`view-pane ${activeTab === 'v-grid' ? 'active' : ''}`} style={{ overflowY: 'auto', paddingBottom: 20 }}>
-                            <div className="velocity-container">
-                                <div className="velocity-track">
-                                    {[1, 2, 3, 4].map(k => (
-                                        <div key={k} className="flex gap-4">
-                                            {data.phone && <a href={`tel:${data.phone}`} className="soc-pill" style={{ borderColor: '#00ff88', color: '#fff' }}><i className="ph-fill ph-phone" style={{ color: '#00ff88' }}></i> Call</a>}
-                                            {data.phone && <a href={`sms:${data.phone}`} className="soc-pill" style={{ borderColor: '#00d2ff', color: '#fff' }}><i className="ph-fill ph-chat-circle-text" style={{ color: '#00d2ff' }}></i> SMS</a>}
-                                            {data.email && <a href={`mailto:${data.email}`} className="soc-pill" style={{ borderColor: '#ffa500', color: '#fff' }}><i className="ph-fill ph-envelope" style={{ color: '#ffa500' }}></i> Email</a>}
-                                            {data.social_instagram && <a href={data.social_instagram} target="_blank" className="soc-pill" style={{ borderColor: '#E1306C' }}><i className="ph-fill ph-instagram-logo"></i> Instagram</a>}
-                                            {data.social_facebook && <a href={data.social_facebook} target="_blank" className="soc-pill" style={{ borderColor: '#1877F2' }}><i className="ph-fill ph-facebook-logo"></i> Facebook</a>}
-                                            {data.social_linkedin && <a href={data.social_linkedin} target="_blank" className="soc-pill" style={{ borderColor: '#0077B5' }}><i className="ph-fill ph-linkedin-logo"></i> LinkedIn</a>}
-                                            {data.social_tiktok && <a href={data.social_tiktok} target="_blank" className="soc-pill" style={{ borderColor: '#fff' }}><i className="ph-fill ph-tiktok-logo"></i> TikTok</a>}
-                                            {data.social_threads && <a href={data.social_threads} target="_blank" className="soc-pill" style={{ borderColor: '#fff' }}><i className="ph-fill ph-at"></i> Threads</a>}
-                                            {data.social_x && <a href={data.social_x} target="_blank" className="soc-pill"><i className="ph-fill ph-x-logo"></i> X</a>}
-                                            {data.social_snapchat && <a href={data.social_snapchat} target="_blank" className="soc-pill" style={{ borderColor: '#FFFC00', color: '#FFFC00' }}><i className="ph-fill ph-snapchat-logo"></i> Snap</a>}
-                                            {!data.phone && !data.email && !data.website && !data.social_instagram && (
-                                                <span className="soc-pill" style={{ opacity: 0.5, borderColor: 'rgba(255,255,255,0.2)' }}>TAPOS IMPULSO • CONNECT</span>
-                                            )}
-                                        </div>
-                                    ))}
+                        {/* HEADER */}
+                        <div className="header-zone">
+                            <div className="profile-pill">
+                                <div className="avatar-wrap">
+                                    <img src={data.profileImage || "https://placehold.co/100x100"} className="avatar-img" />
+                                    <div className="online-dot"></div>
+                                </div>
+                                <div className="char-info">
+                                    <h1>{data.fullName}</h1>
+                                    <span>{data.jobTitle}</span>
                                 </div>
                             </div>
 
-                            {/* DYNAMIC SERVICE BUTTONS */}
-                            {[1, 2, 3, 4].map((srv) => {
-                                const srvKey = `srv${srv}`; // Construct key: srv1, srv2...
-                                const btnData = data[srvKey] || {}; // Access correct key
-                                const defaultLabels = { 1: 'Visit Website', 2: 'My Offerings', 3: 'WhatsApp', 4: 'More Info' };
-                                const defaultIcons = { 1: 'ph-globe', 2: 'ph-briefcase', 3: 'ph-whatsapp-logo', 4: 'ph-info' };
-                                const isWhatsApp = srv === 3; // Special check for button 3
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={toggleTheme}
+                                    className="w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-md transition hover:scale-105 active:scale-95"
+                                    style={{
+                                        background: isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
+                                        border: isDarkMode ? '1px solid rgba(255,255,255,0.2)' : '1px solid rgba(0,0,0,0.1)'
+                                    }}
+                                >
+                                    <i className={`ph-fill ${isDarkMode ? 'ph-sun-dim' : 'ph-moon-stars'}`}
+                                        style={{ color: isDarkMode ? '#fbbf24' : '#64748b', fontSize: '20px' }}></i>
+                                </button>
 
-                                return (
-                                    <a
-                                        key={srv}
-                                        href={btnData?.link || '#'}
-                                        target="_blank"
-                                        onClick={(e) => {
-                                            if (!btnData?.link || btnData.link === '#') {
-                                                e.preventDefault();
-                                            }
-                                        }}
-                                        className={`service-btn glass-panel ${(!btnData?.link || btnData.link === '#') ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                    >
-                                        <div className="icon-box" style={{
-                                            background: isWhatsApp ? 'rgba(37, 211, 102, 0.1)' : undefined,
-                                            borderColor: isWhatsApp ? 'rgba(37, 211, 102, 0.3)' : undefined
-                                        }}>
-                                            <i className={`ph-fill ${isWhatsApp ? 'ph-whatsapp-logo' : (btnData?.icon || defaultIcons[srv as keyof typeof defaultIcons])}`} style={{
-                                                color: isWhatsApp ? '#25D366' : undefined
-                                            }}></i>
-                                        </div>
-                                        <div className="text-content">
-                                            <h3>{btnData?.title || defaultLabels[srv as keyof typeof defaultLabels]}</h3>
-                                            <p>{btnData?.subtitle || 'Tap to view'}</p>
-                                        </div>
-                                        <div className="arrow-box">
-                                            <i className="ph-bold ph-arrow-right"></i>
-                                        </div>
+                                {isOwner && (
+                                    <a href={`/editor?id=${cardId}`} className="w-10 h-10 rounded-full bg-neon-blue/20 border border-neon-blue flex items-center justify-center animate-pulse hover:animate-none transition">
+                                        <Edit size={16} className="text-neon-blue" />
                                     </a>
-                                );
-                            })}
-
-                            {/* PERMANENT REFERRAL BUTTON (BUTTON 5) */}
-                            <a
-                                href={`https://tapos360.com/create?ref=${slug}`}
-                                target="_blank"
-                                className="service-btn glass-panel"
-                                style={{
-                                    border: '1px dashed rgba(0, 243, 255, 0.3)',
-                                    background: 'rgba(0, 243, 255, 0.03)'
-                                }}
-                            >
-                                <div className="icon-box" style={{ background: 'rgba(0, 243, 255, 0.1)', borderColor: 'rgba(0, 243, 255, 0.3)' }}>
-                                    <i className="ph-fill ph-crown" style={{ color: '#00F3FF' }}></i>
-                                </div>
-                                <div className="text-content">
-                                    <h3 style={{ color: '#00F3FF' }}>Get Your Own</h3>
-                                    <p>Create a card like this</p>
-                                </div>
-                                <div className="arrow-box">
-                                    <i className="ph-bold ph-plus" style={{ color: '#00F3FF' }}></i>
-                                </div>
-                            </a>
-                        </div>
-
-                        {/* VIEW 3: VIDEO */}
-                        <div className={`view-pane justify-center ${activeTab === 'v-star' ? 'active' : ''}`}>
-                            <div className="video-frame">
-                                <iframe src={`https://www.youtube.com/embed/${data.youtubeId || 'dQw4w9WgXcQ'}`} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>
-                            </div>
-                        </div>
-
-                        {/* VIEW 4: QR */}
-                        <div className={`view-pane justify-center items-center ${activeTab === 'v-qr' ? 'active' : ''}`}>
-                            <div className="bg-white p-6 rounded-2xl">
-                                <img src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://tapos360.com/${slug}`} alt="QR Code" />
-                            </div>
-                        </div>
-
-                        {/* VIEW 5: SCANNER */}
-                        <div className={`view-pane items-center ${activeTab === 'v-scan' ? 'active' : ''}`} style={{ overflowY: 'auto' }}>
-                            <div className="w-full h-full p-4 flex flex-col gap-4">
-                                <div className="text-center mb-2">
-                                    <h2 className="font-syncopate text-neon-blue text-xl font-bold">LEAD SCANNER</h2>
-                                    <p className="text-xs text-white/50">AI OPTICAL RECOGNITION ONLINE</p>
-                                </div>
-
-                                {!scanResult ? (
-                                    <>
-                                        {/* CAMERA TRIGGER */}
-                                        <div className="flex justify-center py-6">
-                                            <label className="scan-btn relative group">
-                                                {scanning ? <Loader2 className="animate-spin text-black" /> : <i className="ph-fill ph-camera text-2xl text-black"></i>}
-                                                <input type="file" accept="image/*" capture="environment"
-                                                    onChange={(e) => e.target.files && processImage(e.target.files[0])}
-                                                    className="hidden" disabled={scanning} />
-                                            </label>
-                                        </div>
-                                        <p className="text-center text-xs text-white/40 mb-4">Tap Camera to Scan Business Card</p>
-
-                                        {/* LIST */}
-                                        <div className="flex-1 overflow-auto space-y-2">
-                                            <div className="flex justify-between items-center mb-2">
-                                                <span className="text-xs font-bold text-white uppercase">Saved Leads ({scannedContacts.length})</span>
-                                                <button onClick={downloadCSV} className="text-[10px] bg-green-500/20 text-green-400 px-2 py-1 rounded border border-green-500/30">
-                                                    EXPORT CSV
-                                                </button>
-                                            </div>
-                                            {scannedContacts.map((lead, i) => (
-                                                <div key={i} className="scan-list-item">
-                                                    <div className="font-bold text-white text-sm">{lead.name}</div>
-                                                    <div className="text-xs text-gray-400">{lead.email}</div>
-                                                    <div className="text-xs text-gray-400">{lead.phone}</div>
-                                                </div>
-                                            ))}
-                                            {scannedContacts.length === 0 && <div className="text-center text-xs text-white/20 py-4">No leads saved yet.</div>}
-                                        </div>
-                                    </>
-                                ) : (
-                                    /* EDIT RESULT FORM */
-                                    <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3 animate-in fade-in">
-                                        <h3 className="text-sm font-bold text-gold uppercase">Confirm Details</h3>
-
-                                        <div>
-                                            <label className="text-[10px] text-gray-400 uppercase">Name</label>
-                                            <input type="text" value={scanResult.name} onChange={e => setScanResult({ ...scanResult, name: e.target.value })}
-                                                className="w-full bg-black/50 border border-white/20 rounded p-2 text-sm text-white focus:border-accent outline-none" />
-                                        </div>
-                                        <div>
-                                            <label className="text-[10px] text-gray-400 uppercase">Email</label>
-                                            <input type="text" value={scanResult.email} onChange={e => setScanResult({ ...scanResult, email: e.target.value })}
-                                                className="w-full bg-black/50 border border-white/20 rounded p-2 text-sm text-white focus:border-accent outline-none" />
-                                        </div>
-                                        <div>
-                                            <label className="text-[10px] text-gray-400 uppercase">Phone</label>
-                                            <input type="text" value={scanResult.phone} onChange={e => setScanResult({ ...scanResult, phone: e.target.value })}
-                                                className="w-full bg-black/50 border border-white/20 rounded p-2 text-sm text-white focus:border-accent outline-none" />
-                                        </div>
-
-                                        <div className="flex gap-2 mt-4">
-                                            <button onClick={() => setScanResult(null)} className="flex-1 bg-white/10 p-2 rounded text-xs font-bold text-white uppercase">Cancel</button>
-                                            <button onClick={saveLead} className="flex-1 bg-neon-blue text-black p-2 rounded text-xs font-bold uppercase shadow-[0_0_15px_rgba(0,243,255,0.4)]">Save Lead</button>
-                                        </div>
-                                    </div>
                                 )}
                             </div>
                         </div>
 
-                    </div>
-
-                    {/* DOCK */}
-                    <div className="dock-zone">
-                        <nav className="dock">
-                            <div className={`d-icon ${activeTab === 'v-home' ? 'active' : ''}`} onClick={() => setActiveTab('v-home')}>
-                                <i className="ph-fill ph-house"></i>
+                        {/* MARQUEE */}
+                        <div className="marquee-container">
+                            <div className="marquee-content">
+                                {[1, 2, 3, 4].map(k => (
+                                    <span key={k}>
+                                        <span className="m-item">{data.marqueeText || `🚀 ${data.company || "TAPOS SYSTEM"} LAUNCHED`}</span><span className="m-item">•</span>
+                                        <span className="m-item">{data.marqueeText ? "" : `CONNECT WITH ${data.fullName}`}</span><span className="m-item">•</span>
+                                    </span>
+                                ))}
                             </div>
-                            <div className={`d-icon ${activeTab === 'v-grid' ? 'active' : ''}`} onClick={() => setActiveTab('v-grid')}>
-                                <i className="ph-fill ph-squares-four"></i>
-                                {activeTab !== 'v-grid' && <div className="notify-dot" style={{ right: -2, top: 0 }}></div>}
-                            </div>
-
-                            {/* SCANNER */}
-                            <div className={`d-icon ${activeTab === 'v-scan' ? 'active' : ''}`} onClick={() => setActiveTab('v-scan')}>
-                                <i className="ph-fill ph-camera"></i>
-                            </div>
-
-                            <div className={`d-icon ${activeTab === 'v-star' ? 'active' : ''}`} onClick={() => setActiveTab('v-star')}>
-                                <i className="ph-fill ph-star"></i>
-                            </div>
-                            <div className={`d-icon ${activeTab === 'v-qr' ? 'active' : ''}`} onClick={() => setActiveTab('v-qr')}>
-                                <i className="ph-fill ph-qr-code"></i>
-                            </div>
-
-                            {/* SAVE VCF */}
-                            <div className="d-icon save" onClick={handleSaveContact}>
-                                <i className="ph-bold ph-download-simple"></i>
-                            </div>
-                        </nav>
-                        <div className="footer-legal" style={{ opacity: 0.5, fontSize: '10px', textAlign: 'center' }}>
-                            Copyright © 2026 TapOS Impulsó. All Rights Reserved.
                         </div>
+
+                        {/* VIEWPORT */}
+                        <div className="viewport">
+
+                            {/* VIEW 1: HOME */}
+                            <div className={`view-pane justify-center items-center ${activeTab === 'v-home' ? 'active' : ''}`}>
+                                <div className="ad-container">
+                                    {adsToRender.map((key, idx) => {
+                                        // SPECIAL: FIRST CARD IS LOGO IF AVAILABLE
+                                        if (idx === 0 && data.logoImage) {
+                                            return (
+                                                <div key={key} className={`ad-card ${activeAd === idx ? 'show' : ''}`} style={{ background: 'transparent', boxShadow: 'none', border: 'none' }}>
+                                                    <div className="notify-badge"><i className="ph-fill ph-check-circle pulse-bell"></i> VERIFIED</div>
+                                                    <img src={data.logoImage} alt="Brand Logo" style={{ width: '80%', height: 'auto', objectFit: 'contain', filter: 'drop-shadow(0 0 20px rgba(255,255,255,0.2))' }} />
+                                                    <div className="ad-title" style={{ marginTop: 20 }}><span>{data.company || "OFFICIAL PARTNER"}</span></div>
+                                                </div>
+                                            );
+                                        }
+
+                                        // STANDARD AD CARD
+                                        const ad = data[key] || {};
+                                        const badge = ad.badge || (idx === 0 ? "SYSTEM ALERT" : idx === 1 ? "CONNECT" : "URGENT");
+                                        const t1 = ad.title1 || (idx === 0 ? "DISCOVER" : idx === 1 ? "DIRECT" : "BOOK");
+                                        const t2 = ad.title2 || (idx === 0 ? "MY WORK" : idx === 1 ? "ACCESS" : "CALL");
+                                        const btnLabel = ad.btnLabel || (idx === 0 ? "VIEW PORTFOLIO" : idx === 1 ? "TEXT ME NOW" : "CALL OFFICE");
+                                        const link = ad.link || "#";
+
+                                        const icons = ["ph-briefcase", "ph-chat-circle-text", "ph-phone-call", "ph-star", "ph-gift"];
+                                        const colors = ["#ffffff", "var(--gold)", "var(--accent)", "#ff0055", "#00ff88"];
+                                        const icon = icons[idx % icons.length];
+                                        const iconColor = colors[idx % colors.length];
+
+                                        return (
+                                            <div key={key} className={`ad-card ${activeAd === idx ? 'show' : ''}`}>
+                                                <div className="notify-badge"><i className={`ph-fill ${idx === 0 ? 'ph-bell' : 'ph-lightning'} pulse-bell`}></i> {badge}</div>
+                                                <div className="ad-title">{t1}<br /><span>{t2}</span></div>
+                                                <i className={`ph-fill ${icon} ad-icon-lg`} style={{ color: iconColor }}></i>
+                                                <a href={link} target="_blank" className="urgent-btn">{btnLabel}</a>
+                                            </div>
+                                        )
+                                    })}
+                                </div>
+                            </div>
+
+                            {/* VIEW 2: GRID */}
+                            <div className={`view-pane ${activeTab === 'v-grid' ? 'active' : ''}`} style={{ overflowY: 'auto', paddingBottom: 20 }}>
+                                <div className="velocity-container">
+                                    <div className="velocity-track">
+                                        {[1, 2, 3, 4].map(k => (
+                                            <div key={k} className="flex gap-4">
+                                                {data.phone && <a href={`tel:${data.phone}`} className="soc-pill" style={{ borderColor: '#00ff88', color: '#fff' }}><i className="ph-fill ph-phone" style={{ color: '#00ff88' }}></i> Call</a>}
+                                                {data.phone && <a href={`sms:${data.phone}`} className="soc-pill" style={{ borderColor: '#00d2ff', color: '#fff' }}><i className="ph-fill ph-chat-circle-text" style={{ color: '#00d2ff' }}></i> SMS</a>}
+                                                {data.email && <a href={`mailto:${data.email}`} className="soc-pill" style={{ borderColor: '#ffa500', color: '#fff' }}><i className="ph-fill ph-envelope" style={{ color: '#ffa500' }}></i> Email</a>}
+                                                {data.social_instagram && <a href={data.social_instagram} target="_blank" className="soc-pill" style={{ borderColor: '#E1306C' }}><i className="ph-fill ph-instagram-logo"></i> Instagram</a>}
+                                                {data.social_facebook && <a href={data.social_facebook} target="_blank" className="soc-pill" style={{ borderColor: '#1877F2' }}><i className="ph-fill ph-facebook-logo"></i> Facebook</a>}
+                                                {data.social_linkedin && <a href={data.social_linkedin} target="_blank" className="soc-pill" style={{ borderColor: '#0077B5' }}><i className="ph-fill ph-linkedin-logo"></i> LinkedIn</a>}
+                                                {data.social_tiktok && <a href={data.social_tiktok} target="_blank" className="soc-pill" style={{ borderColor: '#fff' }}><i className="ph-fill ph-tiktok-logo"></i> TikTok</a>}
+                                                {data.social_threads && <a href={data.social_threads} target="_blank" className="soc-pill" style={{ borderColor: '#fff' }}><i className="ph-fill ph-at"></i> Threads</a>}
+                                                {data.social_x && <a href={data.social_x} target="_blank" className="soc-pill"><i className="ph-fill ph-x-logo"></i> X</a>}
+                                                {data.social_snapchat && <a href={data.social_snapchat} target="_blank" className="soc-pill" style={{ borderColor: '#FFFC00', color: '#FFFC00' }}><i className="ph-fill ph-snapchat-logo"></i> Snap</a>}
+                                                {!data.phone && !data.email && !data.website && !data.social_instagram && (
+                                                    <span className="soc-pill" style={{ opacity: 0.5, borderColor: 'rgba(255,255,255,0.2)' }}>TAPOS IMPULSO • CONNECT</span>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* DYNAMIC SERVICE BUTTONS */}
+                                {[1, 2, 3, 4].map((srv) => {
+                                    const srvKey = `srv${srv}`; // Construct key: srv1, srv2...
+                                    const btnData = data[srvKey] || {}; // Access correct key
+                                    const defaultLabels = { 1: 'Visit Website', 2: 'My Offerings', 3: 'WhatsApp', 4: 'More Info' };
+                                    const defaultIcons = { 1: 'ph-globe', 2: 'ph-briefcase', 3: 'ph-whatsapp-logo', 4: 'ph-info' };
+                                    const isWhatsApp = srv === 3; // Special check for button 3
+
+                                    return (
+                                        <a
+                                            key={srv}
+                                            href={btnData?.link || '#'}
+                                            target="_blank"
+                                            onClick={(e) => {
+                                                if (!btnData?.link || btnData.link === '#') {
+                                                    e.preventDefault();
+                                                }
+                                            }}
+                                            className={`service-btn glass-panel ${(!btnData?.link || btnData.link === '#') ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                        >
+                                            <div className="icon-box" style={{
+                                                background: isWhatsApp ? 'rgba(37, 211, 102, 0.1)' : undefined,
+                                                borderColor: isWhatsApp ? 'rgba(37, 211, 102, 0.3)' : undefined
+                                            }}>
+                                                <i className={`ph-fill ${isWhatsApp ? 'ph-whatsapp-logo' : (btnData?.icon || defaultIcons[srv as keyof typeof defaultIcons])}`} style={{
+                                                    color: isWhatsApp ? '#25D366' : undefined
+                                                }}></i>
+                                            </div>
+                                            <div className="text-content">
+                                                <h3>{btnData?.title || defaultLabels[srv as keyof typeof defaultLabels]}</h3>
+                                                <p>{btnData?.subtitle || 'Tap to view'}</p>
+                                            </div>
+                                            <div className="arrow-box">
+                                                <i className="ph-bold ph-arrow-right"></i>
+                                            </div>
+                                        </a>
+                                    );
+                                })}
+
+                                {/* PERMANENT REFERRAL BUTTON (BUTTON 5) */}
+                                <a
+                                    href={`https://tapos360.com/create?ref=${slug}`}
+                                    target="_blank"
+                                    className="service-btn glass-panel"
+                                    style={{
+                                        border: '1px dashed rgba(0, 243, 255, 0.3)',
+                                        background: 'rgba(0, 243, 255, 0.03)'
+                                    }}
+                                >
+                                    <div className="icon-box" style={{ background: 'rgba(0, 243, 255, 0.1)', borderColor: 'rgba(0, 243, 255, 0.3)' }}>
+                                        <i className="ph-fill ph-crown" style={{ color: '#00F3FF' }}></i>
+                                    </div>
+                                    <div className="text-content">
+                                        <h3 style={{ color: '#00F3FF' }}>Get Your Own</h3>
+                                        <p>Create a card like this</p>
+                                    </div>
+                                    <div className="arrow-box">
+                                        <i className="ph-bold ph-plus" style={{ color: '#00F3FF' }}></i>
+                                    </div>
+                                </a>
+                            </div>
+
+                            {/* VIEW 3: VIDEO */}
+                            <div className={`view-pane justify-center ${activeTab === 'v-star' ? 'active' : ''}`}>
+                                <div className="video-frame">
+                                    <iframe src={`https://www.youtube.com/embed/${data.youtubeId || 'dQw4w9WgXcQ'}`} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>
+                                </div>
+                            </div>
+
+                            {/* VIEW 4: QR */}
+                            <div className={`view-pane justify-center items-center ${activeTab === 'v-qr' ? 'active' : ''}`}>
+                                <div className="bg-white p-6 rounded-2xl">
+                                    <img src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://tapos360.com/${slug}`} alt="QR Code" />
+                                </div>
+                            </div>
+
+                            {/* VIEW 5: SCANNER */}
+                            <div className={`view-pane items-center ${activeTab === 'v-scan' ? 'active' : ''}`} style={{ overflowY: 'auto' }}>
+                                <div className="w-full h-full p-4 flex flex-col gap-4">
+                                    <div className="text-center mb-2">
+                                        <h2 className="font-syncopate text-neon-blue text-xl font-bold">LEAD SCANNER</h2>
+                                        <p className="text-xs text-white/50">AI OPTICAL RECOGNITION ONLINE</p>
+                                    </div>
+
+                                    {!scanResult ? (
+                                        <>
+                                            {/* CAMERA TRIGGER */}
+                                            <div className="flex justify-center py-6">
+                                                <label className="scan-btn relative group">
+                                                    {scanning ? <Loader2 className="animate-spin text-black" /> : <i className="ph-fill ph-camera text-2xl text-black"></i>}
+                                                    <input type="file" accept="image/*" capture="environment"
+                                                        onChange={(e) => e.target.files && processImage(e.target.files[0])}
+                                                        className="hidden" disabled={scanning} />
+                                                </label>
+                                            </div>
+                                            <p className="text-center text-xs text-white/40 mb-4">Tap Camera to Scan Business Card</p>
+
+                                            {/* LIST */}
+                                            <div className="flex-1 overflow-auto space-y-2">
+                                                <div className="flex justify-between items-center mb-2">
+                                                    <span className="text-xs font-bold text-white uppercase">Saved Leads ({scannedContacts.length})</span>
+                                                    <button onClick={downloadCSV} className="text-[10px] bg-green-500/20 text-green-400 px-2 py-1 rounded border border-green-500/30">
+                                                        EXPORT CSV
+                                                    </button>
+                                                </div>
+                                                {scannedContacts.map((lead, i) => (
+                                                    <div key={i} className="scan-list-item">
+                                                        <div className="font-bold text-white text-sm">{lead.name}</div>
+                                                        <div className="text-xs text-gray-400">{lead.email}</div>
+                                                        <div className="text-xs text-gray-400">{lead.phone}</div>
+                                                    </div>
+                                                ))}
+                                                {scannedContacts.length === 0 && <div className="text-center text-xs text-white/20 py-4">No leads saved yet.</div>}
+                                            </div>
+                                        </>
+                                    ) : (
+                                        /* EDIT RESULT FORM */
+                                        <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3 animate-in fade-in">
+                                            <h3 className="text-sm font-bold text-gold uppercase">Confirm Details</h3>
+
+                                            <div>
+                                                <label className="text-[10px] text-gray-400 uppercase">Name</label>
+                                                <input type="text" value={scanResult.name} onChange={e => setScanResult({ ...scanResult, name: e.target.value })}
+                                                    className="w-full bg-black/50 border border-white/20 rounded p-2 text-sm text-white focus:border-accent outline-none" />
+                                            </div>
+                                            <div>
+                                                <label className="text-[10px] text-gray-400 uppercase">Email</label>
+                                                <input type="text" value={scanResult.email} onChange={e => setScanResult({ ...scanResult, email: e.target.value })}
+                                                    className="w-full bg-black/50 border border-white/20 rounded p-2 text-sm text-white focus:border-accent outline-none" />
+                                            </div>
+                                            <div>
+                                                <label className="text-[10px] text-gray-400 uppercase">Phone</label>
+                                                <input type="text" value={scanResult.phone} onChange={e => setScanResult({ ...scanResult, phone: e.target.value })}
+                                                    className="w-full bg-black/50 border border-white/20 rounded p-2 text-sm text-white focus:border-accent outline-none" />
+                                            </div>
+
+                                            <div className="flex gap-2 mt-4">
+                                                <button onClick={() => setScanResult(null)} className="flex-1 bg-white/10 p-2 rounded text-xs font-bold text-white uppercase">Cancel</button>
+                                                <button onClick={saveLead} className="flex-1 bg-neon-blue text-black p-2 rounded text-xs font-bold uppercase shadow-[0_0_15px_rgba(0,243,255,0.4)]">Save Lead</button>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                        </div>
+
+                        {/* DOCK */}
+                        <div className="dock-zone">
+                            <nav className="dock">
+                                <div className={`d-icon ${activeTab === 'v-home' ? 'active' : ''}`} onClick={() => setActiveTab('v-home')}>
+                                    <i className="ph-fill ph-house"></i>
+                                </div>
+                                <div className={`d-icon ${activeTab === 'v-grid' ? 'active' : ''}`} onClick={() => setActiveTab('v-grid')}>
+                                    <i className="ph-fill ph-squares-four"></i>
+                                    {activeTab !== 'v-grid' && <div className="notify-dot" style={{ right: -2, top: 0 }}></div>}
+                                </div>
+
+                                {/* SCANNER */}
+                                <div className={`d-icon ${activeTab === 'v-scan' ? 'active' : ''}`} onClick={() => setActiveTab('v-scan')}>
+                                    <i className="ph-fill ph-camera"></i>
+                                </div>
+
+                                <div className={`d-icon ${activeTab === 'v-star' ? 'active' : ''}`} onClick={() => setActiveTab('v-star')}>
+                                    <i className="ph-fill ph-star"></i>
+                                </div>
+                                <div className={`d-icon ${activeTab === 'v-qr' ? 'active' : ''}`} onClick={() => setActiveTab('v-qr')}>
+                                    <i className="ph-fill ph-qr-code"></i>
+                                </div>
+
+                                {/* SAVE VCF */}
+                                <div className="d-icon save" onClick={handleSaveContact}>
+                                    <i className="ph-bold ph-download-simple"></i>
+                                </div>
+                            </nav>
+                            <div className="footer-legal" style={{ opacity: 0.5, fontSize: '10px', textAlign: 'center' }}>
+                                Copyright © 2026 TapOS Impulsó. All Rights Reserved.
+                            </div>
+                        </div>
+
                     </div>
 
                 </div>
 
+                {isOwner && (
+                    <a href={`/editor?id=${cardId || ''}`} className="fixed top-4 right-4 z-[9999] bg-neon-blue text-black px-4 py-2 rounded-full font-bold shadow-[0_0_20px_rgba(0,243,255,0.5)] flex items-center gap-2 text-xs uppercase tracking-wider hover:scale-105 transition animate-in fade-in slide-in-from-top-4">
+                        <Edit size={14} /> Edit Profile
+                    </a>
+                )}
             </div>
-
-            {isOwner && (
-                <a href={`/editor?id=${cardId || ''}`} className="fixed top-4 right-4 z-[9999] bg-neon-blue text-black px-4 py-2 rounded-full font-bold shadow-[0_0_20px_rgba(0,243,255,0.5)] flex items-center gap-2 text-xs uppercase tracking-wider hover:scale-105 transition animate-in fade-in slide-in-from-top-4">
-                    <Edit size={14} /> Edit Profile
-                </a>
-            )}
         </>
     );
 }
