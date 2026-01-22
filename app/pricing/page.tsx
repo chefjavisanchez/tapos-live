@@ -74,7 +74,7 @@ export default function PricingPage() {
                             </div>
 
                             <button
-                                onClick={() => router.push('/login?view=sign_up&plan=independent')}
+                                onClick={() => window.location.href = 'https://buy.stripe.com/8x2aEW92W5MIcVz62r3gk08'}
                                 className="w-full py-4 bg-white text-black font-bold uppercase tracking-widest rounded-xl hover:bg-neon-blue hover:scale-[1.02] transition-all shadow-[0_0_20px_rgba(255,255,255,0.2)]"
                             >
                                 Activate Now
@@ -128,7 +128,7 @@ export default function PricingPage() {
                             </div>
 
                             <button
-                                onClick={() => router.push('/login?view=sign_up&plan=corporate')}
+                                onClick={() => window.location.href = 'https://buy.stripe.com/8x2eVcdjc4IE6xb3Uj3gk09'}
                                 className="w-full py-4 bg-transparent border border-white/20 text-white font-bold uppercase tracking-widest rounded-xl hover:bg-white hover:text-black hover:scale-[1.02] transition-all"
                             >
                                 Start Corporate Setup
