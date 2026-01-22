@@ -32,9 +32,11 @@ export default function RewardsPage() {
     const [copied, setCopied] = useState(false);
     const [planType, setPlanType] = useState('independent');
     const [primaryCard, setPrimaryCard] = useState<any>(null);
+    const [mounted, setMounted] = useState(false);
     const router = useRouter();
 
     useEffect(() => {
+        setMounted(true);
         const fetchReferrals = async () => {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) {
@@ -111,7 +113,7 @@ export default function RewardsPage() {
 
             {/* MAIN CONTENT Area */}
             <div className="flex-1 p-8 lg:p-12 overflow-y-auto">
-                {loading ? (
+                {(!mounted || loading) ? (
                     <div className="flex items-center justify-center h-full text-neon-blue"><Loader2 className="animate-spin" size={48} /></div>
                 ) : (
                     <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">

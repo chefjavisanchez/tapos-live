@@ -14,9 +14,11 @@ export default function ProfilePage() {
     const [message, setMessage] = useState('');
     const [isAdmin, setIsAdmin] = useState(false);
     const [planType, setPlanType] = useState('independent');
+    const [mounted, setMounted] = useState(false);
     const router = useRouter();
 
     useEffect(() => {
+        setMounted(true);
         const checkAccess = async () => {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) {
@@ -56,7 +58,7 @@ export default function ProfilePage() {
         else setMessage('Password updated successfully!');
     };
 
-    if (loading) return <div className="min-h-screen bg-black flex items-center justify-center text-white">Loading...</div>;
+    if (!mounted || loading) return <div className="min-h-screen bg-black flex items-center justify-center text-white">Loading...</div>;
 
     // LOCKED VIEW
     if (!card || card.content.subscription !== 'active') {
@@ -108,7 +110,7 @@ export default function ProfilePage() {
                             <CheckCircle className="text-green-400" />
                             <div>
                                 <h3 className="font-bold text-green-400">Account Active</h3>
-                                <p className="text-xs text-white/50">TapOS Member Since {new Date(card.created_at).toLocaleDateString()}</p>
+                                <p className="text-xs text-white/50">TapOS Member Since {card?.created_at ? new Date(card.created_at).toLocaleDateString() : '...'}</p>
                             </div>
                         </div>
 

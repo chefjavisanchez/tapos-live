@@ -14,8 +14,10 @@ export default function ShopPage() {
     const [selectedCardId, setSelectedCardId] = useState<string>('');
     const [isAdmin, setIsAdmin] = useState(false);
     const [planType, setPlanType] = useState('independent');
+    const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
+        setMounted(true);
         const fetchCards = async () => {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) {
@@ -77,7 +79,7 @@ export default function ShopPage() {
         }
     };
 
-    if (loading) {
+    if (!mounted || loading) {
         return <div className="min-h-screen bg-black flex items-center justify-center text-white"><Loader2 className="animate-spin" /></div>;
     }
 

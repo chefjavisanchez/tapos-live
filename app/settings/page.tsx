@@ -14,9 +14,11 @@ export default function SettingsPage() {
     const [saving, setSaving] = useState(false);
     const [isAdmin, setIsAdmin] = useState(false);
     const [planType, setPlanType] = useState('independent');
+    const [mounted, setMounted] = useState(false);
     const router = useRouter();
 
     useEffect(() => {
+        setMounted(true);
         const checkAccess = async () => {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) {
@@ -75,7 +77,7 @@ export default function SettingsPage() {
         setSaving(false);
     };
 
-    if (loading) return <div className="min-h-screen bg-black flex items-center justify-center text-white">Loading...</div>;
+    if (!mounted || loading) return <div className="min-h-screen bg-black flex items-center justify-center text-white">Loading...</div>;
 
     // LOCKED VIEW
     if (!card || card.content.subscription !== 'active') {
@@ -135,7 +137,7 @@ export default function SettingsPage() {
                                 </div>
                             </div>
                             <button disabled className="px-4 py-2 bg-white/5 border border-white/10 rounded text-xs text-white/30 uppercase cursor-not-allowed">
-                                Paid on {new Date(card.created_at).toLocaleDateString()}
+                                Paid on {card.created_at ? new Date(card.created_at).toLocaleDateString() : '...'}
                             </button>
                         </div>
 
