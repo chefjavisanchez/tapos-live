@@ -460,9 +460,24 @@ export default function CardEngine({ data, slug, ownerId, cardId }: CardEnginePr
     // HANDLERS
 
     useEffect(() => {
+        // 1. Load Local Storage (Scanning History)
         const saved = localStorage.getItem('tapos_leads');
-        if (saved) setScannedContacts(JSON.parse(saved));
-    }, []);
+        let localLeads = saved ? JSON.parse(saved) : [];
+
+        // 2. Load Cloud Leads (If they exist in the card data)
+        // Since the API saves leads to 'content.leads', and 'data' IS the content,
+        // we might already have them here.
+        const cloudLeads = data.leads || [];
+
+        // 3. Merge (deduplicate by date or email to be safe, but simple concat for now)
+        // We prioritize Cloud leads for the Owner view
+        const allLeads = [...localLeads, ...cloudLeads];
+
+        // Remove duplicates based on date string if necessary, simplistic approach:
+        const uniqueLeads = allLeads.filter((v, i, a) => a.findIndex(t => (t.date === v.date)) === i);
+
+        setScannedContacts(uniqueLeads);
+    }, [data.leads]);
 
     // Calculate valid ads
     const allAds = ['ad1', 'ad2', 'ad3', 'ad4', 'ad5'];
