@@ -390,11 +390,11 @@ export default function LandingPage() {
                         </div>
                     </div>
 
-                    <div className="mt-20 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 text-xs text-white/20">
+                    <div className="mt-20 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 text-xs text-white/20 uppercase tracking-widest font-bold">
                         <p>© 2026 IMPULSO TECHNOLOGY GROUP. ALL RIGHTS RESERVED.</p>
                         <div className="flex gap-8">
-                            <a href="#" className="hover:text-white transition">Privacy Policy</a>
-                            <a href="#" className="hover:text-white transition">Terms of Service</a>
+                            <a href="/privacy" className="hover:text-white transition">Privacy Policy</a>
+                            <a href="/terms" className="hover:text-white transition">Terms of Service</a>
                             <a href="mailto:javi@tapygo.com" className="hover:text-white transition">Support</a>
                         </div>
                     </div>
