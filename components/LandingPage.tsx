@@ -5,6 +5,7 @@ import { Rocket, Zap, Shield, Globe, ArrowRight, Share2, Trees, Smartphone } fro
 import { useRouter } from 'next/navigation';
 
 import NetworkingOS from './NetworkingOS';
+import PricingSection from './PricingSection';
 
 export default function LandingPage() {
     const router = useRouter();
@@ -148,7 +149,7 @@ export default function LandingPage() {
             <NetworkingOS />
 
             {/* FEATURES GRID */}
-            < section className="py-32 px-6 max-w-7xl mx-auto" >
+            <section className="py-32 px-6 max-w-7xl mx-auto">
                 <h2 className="text-3xl md:text-5xl font-bold font-syncopate text-center mb-20">
                     WHY <span className="text-neon-blue">UPGRADE?</span>
                 </h2>
@@ -188,10 +189,13 @@ export default function LandingPage() {
                         </p>
                     </div>
                 </div>
-            </section >
+            </section>
+
+            {/* PRICING SECTION */}
+            <PricingSection />
 
             {/* INTERACTIVE DEMO CTA */}
-            < section className="py-20 px-6" >
+            <section className="py-20 px-6">
                 <div className="max-w-5xl mx-auto rounded-[3rem] bg-gradient-to-b from-gray-900 to-black border border-white/10 p-12 md:p-24 text-center relative overflow-hidden">
                     <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
                     <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-neon-blue/5 blur-[100px]"></div>
@@ -212,12 +216,12 @@ export default function LandingPage() {
                         START NOW
                     </button>
                 </div>
-            </section >
+            </section>
 
             {/* FOOTER */}
-            < footer className="py-12 border-t border-white/5 text-center text-white/30 text-sm" >
+            <footer className="py-12 border-t border-white/5 text-center text-white/30 text-sm">
                 <p className="text-white/30">Copyright &copy; 2026 TapOS Impulsó. All Rights Reserved.</p>
-            </footer >
+            </footer>
 
             <style jsx>{`
                 @keyframes marquee {
