@@ -3,8 +3,9 @@
 import { useEffect, useState, useMemo } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
-import { Shield, CheckCircle2, XCircle, Mail, User, Clock, Loader2, Lock, ShieldCheck, LogOut, Trash2 } from 'lucide-react';
+import { Shield, CheckCircle2, XCircle, Mail, User, Clock, Loader2, Lock, ShieldCheck, LogOut, Trash2, ExternalLink } from 'lucide-react';
 import DashboardSidebar from '@/components/DashboardSidebar';
+import { isAdmin as checkIsAdmin } from '@/lib/admin-config';
 
 export default function AdminDashboard() {
     const router = useRouter();
@@ -27,12 +28,10 @@ export default function AdminDashboard() {
                 return router.push('/login');
             }
 
-            // PROACTIVE REFRESH
             const { data: { session: freshSession }, error: refreshError } = await supabase.auth.refreshSession();
             const activeSession = freshSession || session;
 
-            const allowedAdmins = ['javi@tapygo.com', 'chefjavisanchez@gmail.com'];
-            if (!allowedAdmins.includes(activeSession.user.email || '')) {
+            if (!checkIsAdmin(activeSession.user.email)) {
                 setError(`ACCESS DENIED: You are logged in as ${activeSession.user.email}. Authorization required.`);
                 setLoading(false);
                 return;
@@ -180,6 +179,36 @@ export default function AdminDashboard() {
 
         } catch (err: any) {
             alert('❌ ERROR: ' + err.message);
+            setLoading(false);
+        }
+    };
+
+    const handleLoginAs = async (userId: string) => {
+        if (!confirm('LOGIN AS USER?\n\nThis will take you to their private dashboard. You will need to log back in as Admin later.')) return;
+
+        try {
+            setLoading(true);
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) return router.push('/login');
+
+            const res = await fetch('/api/admin/impersonate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${session.access_token}`
+                },
+                body: JSON.stringify({ userId })
+            });
+
+            const data = await res.json();
+            if (data.success && data.magicLink) {
+                window.location.href = data.magicLink;
+            } else {
+                alert('Error generating login session: ' + (data.error || 'Unknown error'));
+                setLoading(false);
+            }
+        } catch (err: any) {
+            alert('Failed to connect: ' + err.message);
             setLoading(false);
         }
     };
@@ -414,6 +443,13 @@ export default function AdminDashboard() {
                                                                 title="Rescue Account (Change Email/Password)"
                                                             >
                                                                 <Lock size={12} /> RESCUE
+                                                            </button>
+                                                            <button
+                                                                onClick={() => handleLoginAs(userDetails.id || card.user_id)}
+                                                                className="px-2 py-1 bg-neon-blue/10 hover:bg-neon-blue text-neon-blue hover:text-black border border-neon-blue/50 rounded text-xs font-bold transition flex items-center gap-1"
+                                                                title="Login as User (Impersonate)"
+                                                            >
+                                                                <ExternalLink size={12} /> ENTER
                                                             </button>
                                                         </div>
                                                     )}

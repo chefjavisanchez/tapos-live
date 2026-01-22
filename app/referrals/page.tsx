@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Terminal, CreditCard, User, Settings, LogOut, LayoutGrid, Loader2, Shield, Gift, AlertTriangle, CheckCircle2, ChevronRight, Copy } from "lucide-react";
 import { useRouter } from 'next/navigation';
+import { isAdmin as checkIsAdmin } from '@/lib/admin-config';
 import Link from 'next/link';
 import DashboardSidebar from '@/components/DashboardSidebar';
 
@@ -46,8 +47,7 @@ export default function RewardsPage() {
 
             // Plan & Admin Check
             setPlanType(user.user_metadata?.plan || 'independent');
-            const email = user.email?.toLowerCase().trim() || '';
-            if (['javi@tapygo.com', 'chefjavisanchez@gmail.com'].includes(email)) setIsAdmin(true);
+            if (checkIsAdmin(user.email)) setIsAdmin(true);
 
             // 1. Get User's Slug (Primary Card)
             const { data: myCard } = await supabase

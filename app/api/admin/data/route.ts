@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { isAdmin } from '@/lib/admin-config';
 
 export const dynamic = 'force-dynamic';
 
@@ -24,10 +25,8 @@ export async function GET(req: Request) {
         return NextResponse.json({ error: `Auth Failed: ${authError?.message || 'No User'}` }, { status: 401 });
     }
 
-    // 2. SECURITY CHECK: EMAIL LOCK
-    const allowedAdmins = ['javi@tapygo.com', 'chefjavisanchez@gmail.com'];
-
-    if (!allowedAdmins.includes(user.email || '')) {
+    // 2. SECURITY CHECK: SHARED CONFIG
+    if (!isAdmin(user.email)) {
         console.warn(`⚠️ Unauthorized Admin Access Attempt by: ${user.email}`);
         return NextResponse.json({ error: 'Forbidden: Admins Only' }, { status: 403 });
     }

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { isAdmin } from '@/lib/admin-config';
 
 export const dynamic = 'force-dynamic';
 
@@ -25,7 +26,7 @@ async function handleCreate(req: Request) {
     );
     const { data: { user }, error: authErrorCheck } = await supabaseCheck.auth.getUser(token);
 
-    if (authErrorCheck || !user || !['javi@tapygo.com', 'chefjavisanchez@gmail.com'].includes(user.email || '')) {
+    if (authErrorCheck || !user || !isAdmin(user.email)) {
         return NextResponse.json({ error: 'Access Denied' }, { status: 403 });
     }
 

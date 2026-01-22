@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
+import { isAdmin as checkIsAdmin } from '@/lib/admin-config';
 import Link from 'next/link';
 import { Settings, Lock, CreditCard, ShieldCheck, ArrowLeft, Loader2 } from 'lucide-react';
 import DashboardSidebar from '@/components/DashboardSidebar';
@@ -42,8 +43,7 @@ export default function SettingsPage() {
 
             // Plan & Admin Check
             setPlanType(user.user_metadata?.plan || 'independent');
-            const email = user.email?.toLowerCase().trim() || '';
-            if (['javi@tapygo.com', 'chefjavisanchez@gmail.com'].includes(email)) {
+            if (checkIsAdmin(user.email)) {
                 setIsAdmin(true);
             }
 

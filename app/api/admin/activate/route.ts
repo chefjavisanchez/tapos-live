@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { isAdmin } from '@/lib/admin-config';
 
 export const dynamic = 'force-dynamic';
 
@@ -29,8 +30,7 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: 'Forbidden: Invalid Token' }, { status: 403 });
         }
 
-        const allowedAdmins = ['javi@tapygo.com', 'chefjavisanchez@gmail.com'];
-        if (!allowedAdmins.includes(user.email || '')) {
+        if (!isAdmin(user.email)) {
             return NextResponse.json({ error: 'Forbidden: Admin Access Only' }, { status: 403 });
         }
 

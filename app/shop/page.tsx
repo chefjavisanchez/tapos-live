@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { ShoppingBag, Loader2, ArrowLeft, CheckCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { isAdmin as checkIsAdmin } from '@/lib/admin-config';
 import DashboardSidebar from '@/components/DashboardSidebar';
 
 export default function ShopPage() {
@@ -38,8 +39,7 @@ export default function ShopPage() {
 
             // Plan & Admin Check
             setPlanType(user.user_metadata?.plan || 'independent');
-            const email = user.email?.toLowerCase().trim() || '';
-            if (['javi@tapygo.com', 'chefjavisanchez@gmail.com'].includes(email)) {
+            if (checkIsAdmin(user.email)) {
                 setIsAdmin(true);
             }
 

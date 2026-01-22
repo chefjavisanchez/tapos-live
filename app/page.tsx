@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Terminal, CreditCard, User, Settings, LogOut, LayoutGrid, Loader2, Shield, Gift, ShoppingBag, Eye, Share2, UserPlus, Users } from "lucide-react";
 import { useRouter } from 'next/navigation';
+import { isAdmin as checkIsAdmin } from '@/lib/admin-config';
 
 import LandingPage from '@/components/LandingPage'; // Import Landing Page
 import DashboardSidebar from '@/components/DashboardSidebar'; // Import Sidebar
@@ -45,10 +46,7 @@ export default function Home() {
             const plan = user.user_metadata?.plan || 'independent';
             setPlanType(plan);
 
-            const email = user.email?.toLowerCase().trim() || '';
-            const allowedAdmins = ['javi@tapygo.com', 'chefjavisanchez@gmail.com'];
-
-            if (allowedAdmins.includes(email)) {
+            if (checkIsAdmin(user.email)) {
                 setIsAdmin(true);
             }
 
