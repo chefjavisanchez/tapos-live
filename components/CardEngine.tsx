@@ -582,16 +582,34 @@ export default function CardEngine({ data, slug, ownerId, cardId }: CardEnginePr
 
     if (!data) return <div className="text-white text-center mt-20">Card Protocol Not Found.</div>;
 
-    const handleExchangeSubmit = (formData: { name: string; email: string; phone: string }) => {
-        // 1. Save their info locally (simulated lead capture)
+    const handleExchangeSubmit = async (formData: { name: string; email: string; phone: string }) => {
+        // 1. Send to Server (Supabase + GHL Trigger)
+        try {
+            await fetch('/api/card/capture', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    cardId,
+                    ownerId,
+                    name: formData.name,
+                    email: formData.email,
+                    phone: formData.phone,
+                    note: 'Exchanged via TapOS Card'
+                })
+            });
+        } catch (e) {
+            console.error("Cloud Save Failed", e);
+        }
+
+        // 2. Save locally as backup
         const newLead = { ...formData, date: new Date().toISOString(), notes: 'Exchanged via TapOS' };
         const saved = JSON.parse(localStorage.getItem('tapos_leads') || '[]');
         localStorage.setItem('tapos_leads', JSON.stringify([...saved, newLead]));
 
-        // 2. Download our VCF
+        // 3. Download our VCF
         downloadVcf();
 
-        // 3. Close & Reset
+        // 4. Close & Reset
         alert(`Shared! You received ${data.fullName}'s card and we saved your info.`);
         setExchangeMode(false);
     };
