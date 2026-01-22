@@ -5,7 +5,7 @@ import { Rocket, Zap, Shield, Globe, ArrowRight, Share2, Trees, Smartphone } fro
 import { useRouter } from 'next/navigation';
 
 import NetworkingOS from './NetworkingOS';
-import PricingSection from './PricingSection';
+
 
 export default function LandingPage() {
     const router = useRouter();
@@ -191,8 +191,7 @@ export default function LandingPage() {
                 </div>
             </section>
 
-            {/* PRICING SECTION */}
-            <PricingSection />
+
 
             {/* INTERACTIVE DEMO CTA */}
             <section className="py-20 px-6">
