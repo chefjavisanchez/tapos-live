@@ -12,7 +12,7 @@ export async function POST(req: Request) {
 }
 
 async function handleCreate(req: Request) {
-    console.log("Creating dummy corporate account...");
+    console.log("Creating corporate account...");
 
     // 1. Verify Admin Session
     const authHeader = req.headers.get('Authorization');
@@ -29,13 +29,21 @@ async function handleCreate(req: Request) {
         return NextResponse.json({ error: 'Access Denied' }, { status: 403 });
     }
 
+    // 2. Parse Data
+    let body: any = {};
+    if (req.method === 'POST') {
+        try { body = await req.json(); } catch (e) { }
+    }
+
+    const testEmail = body.email || `corporate-${Math.floor(Math.random() * 1000)}@test.com`;
+    const testName = body.fullName || 'Corporate Test Account';
+    const quantity = body.quantity || 25;
+    const password = body.password || 'Password123!';
+
     const supabaseAdmin = createClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
-
-    const testEmail = `corporate-${Math.floor(Math.random() * 1000)}@test.com`;
-    const testName = 'Corporate Test Account';
 
     try {
         if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
@@ -45,13 +53,13 @@ async function handleCreate(req: Request) {
         // 1. Create Auth User
         const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
             email: testEmail,
-            password: 'Password123!',
+            password: password,
             email_confirm: true,
             user_metadata: {
                 full_name: testName,
                 plan: 'corporate',
-                quantity: 25,
-                shipping_address: '789 Business Ave, Tech Park, 54321, USA'
+                quantity: Number(quantity),
+                shipping_address: body.address || '789 Business Ave, Tech Park, 54321, USA'
             }
         });
 

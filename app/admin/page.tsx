@@ -184,6 +184,53 @@ export default function AdminDashboard() {
         }
     };
 
+    const handleCreateCorporate = async () => {
+        const fullName = prompt('Enterprise / Customer Full Name:');
+        if (!fullName) return;
+
+        const email = prompt('Admin Email Address:');
+        if (!email) return;
+
+        const quantity = prompt('Number of Licenses (Quantity):', '25');
+        if (!quantity) return;
+
+        const address = prompt('Shipping Address:', 'Pending Selection');
+        if (!address) return;
+
+        if (!confirm(`Create Corporate Account for ${fullName} (${quantity} slots)?`)) return;
+
+        try {
+            setLoading(true);
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) return router.push('/login');
+
+            const res = await fetch('/api/admin/create-dummy-corporate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${session.access_token}`
+                },
+                body: JSON.stringify({
+                    email,
+                    fullName,
+                    quantity: parseInt(quantity),
+                    address
+                })
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert('Success! Account Created.\nEmail: ' + email + '\nPassword: Password123!');
+                checkAuthAndFetch();
+            } else {
+                alert('Error: ' + data.error);
+                setLoading(false);
+            }
+        } catch (err: any) {
+            alert('Failed to connect: ' + err.message);
+            setLoading(false);
+        }
+    };
+
     if (!mounted || loading) {
         return (
             <div className="min-h-screen bg-black flex items-center justify-center text-neon-blue">
@@ -229,32 +276,10 @@ export default function AdminDashboard() {
                         </div>
                         <div className="ml-auto flex items-center gap-4">
                             <button
-                                onClick={async () => {
-                                    if (!confirm('Create dummy corporate test account?')) return;
-                                    try {
-                                        const { data: { session } } = await supabase.auth.getSession();
-                                        if (!session) return router.push('/login');
-
-                                        const res = await fetch('/api/admin/create-dummy-corporate', {
-                                            method: 'POST',
-                                            headers: {
-                                                'Authorization': `Bearer ${session.access_token}`
-                                            }
-                                        });
-                                        const data = await res.json();
-                                        if (data.success) {
-                                            alert('Success! Created account: ' + data.email);
-                                            window.location.reload(); // Hard refresh to show new data
-                                        } else {
-                                            alert('Error: ' + data.error);
-                                        }
-                                    } catch (err: any) {
-                                        alert('Failed to connect: ' + err.message);
-                                    }
-                                }}
+                                onClick={handleCreateCorporate}
                                 className="bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/50 text-purple-300 px-4 py-2 rounded-lg text-xs font-bold transition flex items-center gap-2"
                             >
-                                <User size={14} /> CREATE CORP TEST
+                                <User size={14} /> CREATE CORPORATE
                             </button>
                             <div className="bg-white/5 px-4 py-2 rounded-lg border border-white/10 text-xs">
                                 TOTAL USERS: <span className="text-neon-blue text-lg font-bold ml-2">{cards.length}</span>
