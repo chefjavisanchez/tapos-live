@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Terminal, CreditCard, User, Settings, LogOut, LayoutGrid, Loader2, Shield, Gift, ShoppingBag, Eye, Share2, UserPlus } from "lucide-react";
+import { Terminal, CreditCard, User, Settings, LogOut, LayoutGrid, Loader2, Shield, Gift, ShoppingBag, Eye, Share2, UserPlus, Users } from "lucide-react";
 import { useRouter } from 'next/navigation';
 
 import LandingPage from '@/components/LandingPage'; // Import Landing Page
@@ -11,8 +11,15 @@ export default function Home() {
     const [cards, setCards] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [isAdmin, setIsAdmin] = useState(false);
-    const [isAuthenticated, setIsAuthenticated] = useState(false); // NEW STATE
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+    // NEW CORPORATE STATES
+    const [appUser, setAppUser] = useState<any>(null);
+    const [planType, setPlanType] = useState('independent');
+    const [activeTab, setActiveTab] = useState<'dashboard' | 'team'>('dashboard');
+    const [teamMembers, setTeamMembers] = useState<any[]>([]);
+
     const router = useRouter();
 
     useEffect(() => {
@@ -20,15 +27,17 @@ export default function Home() {
             const { data: { user } } = await supabase.auth.getUser();
 
             if (!user) {
-                // If no user, we are just on the Landing Page. Stop here.
                 setLoading(false);
                 return;
             }
 
-            // If user exists, we are authenticated
             setIsAuthenticated(true);
+            setAppUser(user);
 
-            // ROBUST CHECK admin logic...
+            // Plan Check
+            const plan = user.user_metadata?.plan || 'independent';
+            setPlanType(plan);
+
             const email = user.email?.toLowerCase().trim() || '';
             const allowedAdmins = ['javi@tapygo.com', 'chefjavisanchez@gmail.com'];
 
@@ -36,7 +45,7 @@ export default function Home() {
                 setIsAdmin(true);
             }
 
-            const { data, error } = await supabase
+            const { data } = await supabase
                 .from('cards')
                 .select('*')
                 .eq('user_id', user.id)
@@ -51,11 +60,9 @@ export default function Home() {
 
     const handleSignOut = async () => {
         await supabase.auth.signOut();
-        // Instead of push login, we just reload or reset state to show landing
         window.location.href = '/';
     };
 
-    // 1. LOADING STATE (Prevent Glitch/Flash)
     if (loading) {
         return (
             <div className="min-h-screen bg-black flex items-center justify-center">
@@ -64,17 +71,16 @@ export default function Home() {
         );
     }
 
-    // 2. SHOW LANDING PAGE IF NOT LOGGED IN
     if (!isAuthenticated) {
         return <LandingPage />;
     }
 
     return (
-        <main className="flex min-h-screen bg-space-900 bg-cyber-grid bg-[length:40px_40px]">
+        <main className="flex min-h-screen bg-black bg-cyber-grid bg-[length:40px_40px]">
 
             {/* MOBILE MENU OVERLAY */}
             {mobileMenuOpen && (
-                <div className="fixed inset-0 z-50 bg-[#050510] flex flex-col p-6 animate-in slide-in-from-left duration-200 overflow-y-auto custom-scrollbar">
+                <div className="fixed inset-0 z-50 bg-[#050510] flex flex-col p-6 animate-in slide-in-from-left duration-200 overflow-y-auto">
                     <div className="flex justify-between items-center mb-8">
                         <div className="flex items-center gap-2">
                             <Terminal className="text-neon-blue w-6 h-6" />
@@ -86,75 +92,14 @@ export default function Home() {
                     </div>
 
                     <nav className="flex flex-col gap-4 text-lg">
-                        <NavItem href="/" icon={<LayoutGrid size={24} />} label="Dashboard" onClick={() => setMobileMenuOpen(false)} />
-                        <NavItem href="/" icon={<CreditCard size={24} />} label="My Cards" onClick={() => setMobileMenuOpen(false)} />
-                        <NavItem href="/profile" icon={<User size={24} />} label="Profile" onClick={() => setMobileMenuOpen(false)} />
-                        <NavItem href="/referrals" icon={<Gift size={24} />} label="Rewards" onClick={() => setMobileMenuOpen(false)} />
-                        <NavItem href="/shop" icon={<ShoppingBag size={24} />} label="Hardware Store" onClick={() => setMobileMenuOpen(false)} />
-                        <NavItem href="/settings" icon={<Settings size={24} />} label="Settings" onClick={() => setMobileMenuOpen(false)} />
-                        {isAdmin && <NavItem href="/admin" icon={<Shield size={24} />} label="God Mode" onClick={() => setMobileMenuOpen(false)} />}
+                        <NavItem icon={<LayoutGrid size={24} />} label="Dashboard" active={activeTab === 'dashboard'} onClick={() => { setActiveTab('dashboard'); setMobileMenuOpen(false); }} />
+                        {planType === 'corporate' && (
+                            <NavItem icon={<UserPlus size={24} />} label="Team Control" active={activeTab === 'team'} onClick={() => { setActiveTab('team'); setMobileMenuOpen(false); }} />
+                        )}
+                        <NavItem href="/profile" icon={<User size={24} />} label="Profile" />
+                        <NavItem href="/referrals" icon={<Gift size={24} />} label="Rewards" />
+                        {isAdmin && <NavItem href="/admin" icon={<Shield size={24} />} label="God Mode" />}
                     </nav>
-
-                    {/* MOBILE ANALYTICS BLOCK */}
-                    {cards.length > 0 && (
-                        <div className="mt-8 mb-4 relative overflow-hidden rounded-2xl border border-neon-blue/20 bg-gradient-to-br from-gray-900 to-black p-5 shadow-2xl shrink-0">
-
-                            {/* Shine Effect */}
-                            <div className="absolute inset-0 bg-gradient-to-tr from-neon-blue/5 to-transparent opacity-50 pointer-events-none" />
-
-                            <div className="relative z-10">
-                                <div className="flex items-center justify-between mb-4">
-                                    <h4 className="text-[10px] uppercase font-bold text-neon-blue tracking-widest flex items-center gap-2">
-                                        <span className="w-1.5 h-1.5 rounded-full bg-neon-blue animate-pulse"></span>
-                                        Overview
-                                    </h4>
-                                    <div className="px-2 py-0.5 rounded bg-neon-blue/10 border border-neon-blue/20 text-[9px] font-bold text-neon-blue">
-                                        LIVE
-                                    </div>
-                                </div>
-
-                                <div className="grid grid-cols-2 gap-2 mb-6">
-                                    {/* VIEWS */}
-                                    <div className="bg-black/40 rounded-lg p-2 border border-white/5 text-center">
-                                        <span className="text-[9px] uppercase text-white/40 block mb-1">Views</span>
-                                        <span className="text-lg font-bold font-rajdhani text-white">
-                                            {cards[0].content?.analytics?.views || 0}
-                                        </span>
-                                    </div>
-
-                                    {/* SAVES */}
-                                    <div className="bg-black/40 rounded-lg p-2 border border-white/5 text-center">
-                                        <span className="text-[9px] uppercase text-white/40 block mb-1">Saves</span>
-                                        <span className="text-lg font-bold font-rajdhani text-neon-green" style={{ color: '#4ade80' }}>
-                                            {cards[0].content?.analytics?.saves || 0}
-                                        </span>
-                                    </div>
-                                </div>
-
-                                <div className="grid grid-cols-2 gap-2">
-                                    <button onClick={() => {
-                                        if (navigator.share) {
-                                            navigator.share({
-                                                title: cards[0].content.fullName,
-                                                url: window.location.origin + '/' + cards[0].slug
-                                            })
-                                        } else {
-                                            navigator.clipboard.writeText(window.location.origin + '/' + cards[0].slug);
-                                            alert('Link Copied!');
-                                        }
-                                    }} className="flex flex-col items-center justify-center gap-1 p-3 bg-neon-blue hover:bg-white text-black rounded-xl font-bold text-[10px] uppercase tracking-wider transition-all shadow-[0_0_10px_rgba(0,243,255,0.2)] hover:shadow-[0_0_15px_rgba(255,255,255,0.4)]">
-                                        <Share2 size={16} />
-                                        Share
-                                    </button>
-
-                                    <a href={`/${cards[0].slug}`} target="_blank" className="flex flex-col items-center justify-center gap-1 p-3 bg-white/5 hover:bg-white/10 text-white hover:text-white rounded-xl border border-white/10 hover:border-white/30 font-bold text-[10px] uppercase tracking-wider transition-all">
-                                        <Eye size={16} />
-                                        Preview
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    )}
 
                     <div className="mt-auto border-t border-white/10 pt-6">
                         <button onClick={handleSignOut} className="flex items-center gap-3 text-white/50 hover:text-white">
@@ -166,21 +111,22 @@ export default function Home() {
             )}
 
             {/* SIDEBAR (Desktop) */}
-            <aside className="w-64 border-r border-white/10 glass-panel flex flex-col p-6 max-md:hidden sticky top-0 h-screen overflow-y-auto custom-scrollbar">
+            <aside className="w-64 border-r border-white/10 bg-black/40 backdrop-blur-xl flex flex-col p-6 max-md:hidden sticky top-0 h-screen">
                 <div className="flex items-center gap-3 mb-10 shrink-0">
-                    <div className="w-10 h-10 rounded-full bg-neon-blue neon-glow flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-full bg-neon-blue neon-glow flex items-center justify-center border border-neon-blue/50">
                         <Terminal className="text-black w-6 h-6" />
                     </div>
-                    <h1 className="font-syncopate text-xl tracking-tighter">TAP<span className="text-neon-blue">OS</span></h1>
+                    <h1 className="font-syncopate text-xl tracking-tighter uppercase">TAP<span className="text-neon-blue font-black">OS</span></h1>
                 </div>
 
-                <nav className="flex flex-col gap-2 flex-grow shrink-0">
-                    <NavItem href="/" icon={<LayoutGrid size={20} />} label="Dashboard" active />
-                    <NavItem href="/" icon={<CreditCard size={20} />} label="My Cards" />
+                <nav className="flex flex-col gap-2 flex-grow">
+                    <NavItem icon={<LayoutGrid size={20} />} label="Dashboard" active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} />
+                    {planType === 'corporate' && (
+                        <NavItem icon={<UserPlus size={20} />} label="Team Control" active={activeTab === 'team'} onClick={() => setActiveTab('team')} />
+                    )}
                     <NavItem href="/profile" icon={<User size={20} />} label="Profile" />
                     <NavItem href="/referrals" icon={<Gift size={20} />} label="Rewards" />
-                    <NavItem href="/shop" icon={<ShoppingBag size={20} />} label="Hardware Store" />
-                    <NavItem href="/settings" icon={<Settings size={20} />} label="Settings" />
+                    <NavItem href="/shop" icon={<ShoppingBag size={20} />} label="Store" />
                     {isAdmin && (
                         <div className="pt-4 mt-4 border-t border-white/10">
                             <NavItem href="/admin" icon={<Shield size={20} />} label="God Mode" />
@@ -188,68 +134,7 @@ export default function Home() {
                     )}
                 </nav>
 
-                {/* SIDEBAR ANALYTICS - PREMIUM REWARDS STYLE */}
-                {cards.length > 0 && (
-                    <div className="my-6 relative overflow-hidden rounded-2xl border border-neon-blue/20 bg-gradient-to-br from-gray-900 to-black p-5 shadow-2xl shrink-0">
-
-                        {/* Shine Effect */}
-                        <div className="absolute inset-0 bg-gradient-to-tr from-neon-blue/5 to-transparent opacity-50 pointer-events-none" />
-
-                        <div className="relative z-10">
-                            <div className="flex items-center justify-between mb-4">
-                                <h4 className="text-[10px] uppercase font-bold text-neon-blue tracking-widest flex items-center gap-2">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-neon-blue animate-pulse"></span>
-                                    Overview
-                                </h4>
-                                <div className="px-2 py-0.5 rounded bg-neon-blue/10 border border-neon-blue/20 text-[9px] font-bold text-neon-blue">
-                                    LIVE
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-2 mb-6">
-                                {/* VIEWS */}
-                                <div className="bg-black/40 rounded-lg p-2 border border-white/5 text-center">
-                                    <span className="text-[9px] uppercase text-white/40 block mb-1">Views</span>
-                                    <span className="text-lg font-bold font-rajdhani text-white">
-                                        {cards[0].content?.analytics?.views || 0}
-                                    </span>
-                                </div>
-
-                                {/* SAVES */}
-                                <div className="bg-black/40 rounded-lg p-2 border border-white/5 text-center">
-                                    <span className="text-[9px] uppercase text-white/40 block mb-1">Saves</span>
-                                    <span className="text-lg font-bold font-rajdhani text-neon-green" style={{ color: '#4ade80' }}>
-                                        {cards[0].content?.analytics?.saves || 0}
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-2">
-                                <button onClick={() => {
-                                    if (navigator.share) {
-                                        navigator.share({
-                                            title: cards[0].content.fullName,
-                                            url: window.location.origin + '/' + cards[0].slug
-                                        })
-                                    } else {
-                                        navigator.clipboard.writeText(window.location.origin + '/' + cards[0].slug);
-                                        alert('Link Copied!');
-                                    }
-                                }} className="flex flex-col items-center justify-center gap-1 p-3 bg-neon-blue hover:bg-white text-black rounded-xl font-bold text-[10px] uppercase tracking-wider transition-all shadow-[0_0_10px_rgba(0,243,255,0.2)] hover:shadow-[0_0_15px_rgba(255,255,255,0.4)]">
-                                    <Share2 size={16} />
-                                    Share
-                                </button>
-
-                                <a href={`/${cards[0].slug}`} target="_blank" className="flex flex-col items-center justify-center gap-1 p-3 bg-white/5 hover:bg-white/10 text-white hover:text-white rounded-xl border border-white/10 hover:border-white/30 font-bold text-[10px] uppercase tracking-wider transition-all">
-                                    <Eye size={16} />
-                                    Preview
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                <div className="mt-auto pt-6 border-t border-white/10 shrink-0">
+                <div className="mt-auto pt-6 border-t border-white/10">
                     <button onClick={handleSignOut} className="flex items-center gap-3 text-white/50 hover:text-white transition-colors duration-200">
                         <LogOut size={20} />
                         <span>Sign Out</span>
@@ -260,93 +145,145 @@ export default function Home() {
             {/* MAIN CONTENT */}
             <div className="flex-1 p-8 overflow-y-auto">
 
-                {/* MOBILE HEADER (Visible on small screens only) */}
+                {/* MOBILE HEADER */}
                 <div className="md:hidden flex justify-between items-center mb-8 pb-4 border-b border-white/10">
                     <div className="flex items-center gap-2">
-                        <button onClick={() => setMobileMenuOpen(true)} className="p-2 -ml-2 text-white">
-                            <LayoutGrid size={28} />
+                        <button onClick={() => setMobileMenuOpen(true)} className="p-2 text-white">
+                            <LayoutGrid size={24} />
                         </button>
-                        <Terminal className="text-neon-blue w-6 h-6 ml-2" />
-                        <h1 className="font-syncopate text-lg tracking-tighter">TAP<span className="text-neon-blue">OS</span></h1>
+                        <h1 className="font-syncopate text-lg tracking-tighter uppercase ml-2">TAP<span className="text-neon-blue">OS</span></h1>
                     </div>
-
-                    <div className="flex items-center gap-2">
-                        {isAdmin && (
-                            <a href="/admin" className="p-2 bg-neon-blue/20 rounded-lg text-neon-blue hover:text-white border border-neon-blue/50">
-                                <Shield size={20} />
-                            </a>
-                        )}
-                        <button onClick={handleSignOut} className="p-2 bg-white/5 rounded-lg text-white/70 hover:text-white">
-                            <LogOut size={20} />
-                        </button>
-                    </div>
-                </div>
-
-                {/* HEADER */}
-                <header className="flex justify-between items-center mb-10">
-                    <div>
-                        <h1 className="text-4xl font-bold mb-2 font-syncopate">WELCOME TO <span className="text-neon-blue">TAPOS IMPULSO</span></h1>
-                        <p className="text-white/50">System Operational. All systems go.</p>
-                    </div>
-                    {/* ONLY SHOW CREATE BUTTON IF NO CARDS EXIST */}
-                    {cards.length === 0 && (
-                        <a href="/create" className="bg-neon-blue hover:bg-white text-black px-6 py-3 rounded-lg font-bold uppercase text-sm tracking-wider transition-all shadow-[0_0_20px_rgba(0,243,255,0.4)] hover:shadow-[0_0_30px_rgba(255,255,255,0.6)]">
-                            Create New Card
+                    {isAdmin && (
+                        <a href="/admin" className="p-2 bg-neon-blue/20 rounded-lg text-neon-blue">
+                            <Shield size={20} />
                         </a>
                     )}
-                </header>
+                </div>
 
-                {/* CARDS GRID */}
-                {loading ? (
-                    <div className="flex items-center justify-center h-64">
-                        <Loader2 className="animate-spin text-neon-blue w-12 h-12" />
+                {activeTab === 'dashboard' ? (
+                    <div className="animate-in fade-in duration-700">
+                        {/* HEADER */}
+                        <header className="flex justify-between items-center mb-10">
+                            <div>
+                                <h1 className="text-4xl font-black mb-2 font-syncopate uppercase">OPERATIONAL STATUS: <span className="text-neon-blue">GO</span></h1>
+                                <p className="text-white/50 font-medium">Welcome back, {appUser?.user_metadata?.full_name || 'Operator'}.</p>
+                            </div>
+                            {cards.length === 0 && (
+                                <a href="/create" className="bg-neon-blue hover:bg-white text-black px-8 py-3 rounded-xl font-bold uppercase text-sm tracking-widest transition-all shadow-[0_0_20px_rgba(0,243,255,0.3)]">
+                                    Create New Card
+                                </a>
+                            )}
+                        </header>
+
+                        {/* CARDS GRID */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                            {cards.map((card) => (
+                                <div key={card.id} className="relative group rounded-[2rem] bg-black border border-white/10 hover:border-neon-blue/50 p-6 transition-all duration-300 overflow-hidden">
+                                    <div className="absolute top-0 right-0 w-32 h-32 bg-neon-blue/5 blur-[40px] group-hover:bg-neon-blue/10 transition-all"></div>
+
+                                    <div className="relative z-10">
+                                        <div className="flex justify-between items-start mb-6">
+                                            <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
+                                                <CreditCard className="text-neon-blue" size={28} />
+                                            </div>
+                                            <span className={`px-3 py-1 text-[10px] font-black rounded-full border ${card.content?.subscription === 'active' ? 'bg-green-500/10 text-green-400 border-green-500/20' : 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20'}`}>
+                                                {card.content?.subscription === 'active' ? 'ACTIVE' : 'PENDING'}
+                                            </span>
+                                        </div>
+
+                                        <h3 className="text-2xl font-bold mb-1 font-rajdhani text-white">{card.title}</h3>
+                                        <p className="text-white/40 text-sm mb-8 font-mono">tapos360.com/{card.slug}</p>
+
+                                        <div className="flex gap-2">
+                                            <a href={`/editor?id=${card.id}`} className="flex-1 py-3 bg-neon-blue text-black font-bold rounded-xl text-center text-xs uppercase tracking-widest transition hover:bg-white">Edit</a>
+                                            <a href={`/${card.slug}`} target="_blank" className="flex-1 py-3 bg-white/5 text-white font-bold rounded-xl border border-white/10 text-center text-xs uppercase tracking-widest transition hover:bg-white/10">Preview</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+
+                            {cards.length === 0 && (
+                                <a href="/create" className="relative group rounded-[2rem] border-2 border-dashed border-white/10 hover:border-neon-blue/50 bg-white/5 flex flex-col items-center justify-center p-10 transition-all min-h-[280px]">
+                                    <div className="w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-neon-blue group-hover:border-neon-blue transition-all">
+                                        <UserPlus className="text-white/40 group-hover:text-black" size={32} />
+                                    </div>
+                                    <span className="text-white/50 font-black uppercase tracking-widest text-sm group-hover:text-white">Initialize Your Profile</span>
+                                </a>
+                            )}
+                        </div>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                        <header className="mb-10">
+                            <h1 className="text-4xl font-black mb-2 font-syncopate uppercase">TEAM <span className="text-purple-400">CONTROL</span></h1>
+                            <p className="text-white/50 font-medium">Manage your corporate accounts and distribution.</p>
+                        </header>
 
-                        {/* REAL CARDS FROM DB */}
-                        {cards.map((card) => (
-                            <div key={card.id} className="glass-panel p-6 rounded-2xl group hover:border-neon-blue/50 transition duration-300">
-                                <div className="flex justify-between items-start mb-4">
-                                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-gray-800 to-black border border-white/10 flex items-center justify-center">
-                                        <CreditCard className="text-neon-blue" />
-                                    </div>
-                                    <span className={`px-3 py-1 text-xs rounded-full border ${card.content.subscription === 'active' ? 'bg-green-500/10 text-green-400 border-green-500/20' : 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20'}`}>
-                                        {card.content.subscription === 'active' ? 'ACTIVE' : 'LOCKED'}
-                                    </span>
+                        <div className="rounded-[2.5rem] bg-black border border-white/10 overflow-hidden shadow-2xl">
+                            <div className="p-10 border-b border-white/10 flex justify-between items-center bg-white/5">
+                                <div>
+                                    <h3 className="text-xl font-bold text-white">Corporate Roster</h3>
+                                    <p className="text-sm text-white/40 font-medium">Active members under your enterprise license.</p>
                                 </div>
-                                <h3 className="text-xl font-bold mb-1 font-rajdhani">{card.title}</h3>
-                                <p className="text-white/40 text-sm mb-6">tapos360.com/{card.slug}</p>
-                                <div className="flex gap-2">
-                                    <a href={`/editor?id=${card.id}`} className="flex-1 py-3 bg-neon-blue/10 hover:bg-neon-blue hover:text-black border border-neon-blue/20 rounded text-center text-sm font-bold uppercase tracking-wider transition">Edit</a>
-                                    <a href={`/${card.slug}`} target="_blank" className="flex-1 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded text-center text-sm font-medium transition">View</a>
+                                <div className="flex items-center gap-4">
+                                    <div className="text-right">
+                                        <div className="text-[10px] text-white/40 uppercase font-black">Slots Used</div>
+                                        <div className="text-xl font-bold font-rajdhani text-purple-400">0 / {appUser?.user_metadata?.quantity || '...'}</div>
+                                    </div>
+                                    <button className="bg-purple-500 hover:bg-white text-black px-8 py-3 rounded-xl font-bold text-xs uppercase tracking-widest transition shadow-[0_0_20px_rgba(168,85,247,0.3)]">
+                                        Invite Member
+                                    </button>
                                 </div>
                             </div>
-                        ))}
 
-                        {/* ADD NEW PLACEHOLDER */}
-                        {cards.length === 0 && (
-                            <a href="/create" className="glass-panel p-6 rounded-2xl flex flex-col items-center justify-center border-dashed border-white/20 hover:border-neon-blue hover:bg-neon-blue/5 transition cursor-pointer min-h-[220px]">
-                                <div className="w-14 h-14 rounded-full bg-white/5 flex items-center justify-center mb-4 group-hover:scale-110 transition">
-                                    <span className="text-3xl text-white/50 group-hover:text-neon-blue">+</span>
-                                </div>
-                                <span className="text-white/50 group-hover:text-white font-medium uppercase tracking-widest text-sm">Initialize Project</span>
-                            </a>
-                        )}
-
+                            <div className="p-24 text-center">
+                                <Users size={64} className="text-white/5 mx-auto mb-6" />
+                                <h3 className="text-2xl font-bold mb-2 text-white/80">Deployment Ready</h3>
+                                <p className="text-white/40 max-w-sm mx-auto mb-10 leading-relaxed font-medium">No members have been added to your corporate cloud yet. Invite team members to grant them access to their TapOS profiles.</p>
+                                <button className="inline-flex items-center gap-3 text-purple-400 font-black uppercase tracking-tighter text-sm hover:text-white transition">
+                                    <Share2 size={16} /> DOWNLOAD ONBOARDING LINK
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 )}
-
             </div>
         </main>
     );
 }
 
-function NavItem({ icon, label, active = false, href, onClick }: { icon: any, label: string, active?: boolean, href: string, onClick?: () => void }) {
-    return (
-        <a href={href} onClick={onClick} className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all duration-200 ${active ? 'bg-neon-blue/10 text-neon-blue border border-neon-blue/20' : 'text-white/60 hover:text-white hover:bg-white/5'}`}>
+function NavItem({
+    icon,
+    label,
+    active = false,
+    href,
+    onClick
+}: {
+    icon: any,
+    label: string,
+    active?: boolean,
+    href?: string,
+    onClick?: () => void
+}) {
+    const content = (
+        <>
             {icon}
-            <span className="font-medium">{label}</span>
+            <span className="font-bold uppercase text-[11px] tracking-widest">{label}</span>
+        </>
+    );
+
+    const baseClass = `flex items-center gap-3 p-4 rounded-xl cursor-pointer transition-all duration-300 ${active
+            ? 'bg-white text-black shadow-[0_0_20px_rgba(255,255,255,0.2)]'
+            : 'text-white/50 hover:text-white hover:bg-white/5'
+        }`;
+
+    if (onClick) {
+        return <button onClick={onClick} className={baseClass}>{content}</button>;
+    }
+
+    return (
+        <a href={href} className={baseClass}>
+            {content}
         </a>
-    )
+    );
 }

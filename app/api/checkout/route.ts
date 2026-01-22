@@ -95,7 +95,7 @@ export async function POST(req: NextRequest) {
                 quantity: quantity,
             });
 
-            successUrl += '&plan=corporate';
+            successUrl += `&plan=corporate&quantity=${quantity}`;
         }
 
         const session = await stripe.checkout.sessions.create({

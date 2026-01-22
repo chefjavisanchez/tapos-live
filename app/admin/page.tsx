@@ -241,50 +241,61 @@ export default function AdminDashboard() {
                             <tbody className="divide-y divide-white/5">
                                 {cards.map((card) => {
                                     const content = card.content || {};
-                                    const isActive = content.subscription === 'active';
+                                    const userDetails = card.userDetails || {};
+                                    const metadata = userDetails.metadata || {};
+
+                                    const isActive = content.subscription === 'active' || metadata.plan_status === 'active';
                                     const refCount = (card as any).referralCount || 0;
                                     const isWinner = refCount >= 5;
-                                    const email = content.email || 'No Email';
-                                    const name = content.fullName || card.title || 'Unknown';
+                                    const email = userDetails.email || content.email || 'No Email';
+                                    const name = metadata.full_name || content.fullName || card.title || 'Unknown';
+                                    const plan = metadata.plan || 'independent';
 
                                     return (
                                         <tr key={card.id} className="hover:bg-white/5 transition">
                                             <td className="p-4">
-                                                {isActive ? (
-                                                    <span className="inline-flex items-center gap-1 bg-green-500/10 text-green-400 px-2 py-1 rounded text-xs border border-green-500/20">
-                                                        <CheckCircle size={12} /> ACTIVE
+                                                <div className="flex flex-col gap-2">
+                                                    {isActive ? (
+                                                        <span className="inline-flex items-center gap-1 bg-green-500/10 text-green-400 px-2 py-1 rounded text-[10px] font-bold border border-green-500/20">
+                                                            <CheckCircle size={10} /> ACTIVE
+                                                        </span>
+                                                    ) : (
+                                                        <span className="inline-flex items-center gap-1 bg-yellow-500/10 text-yellow-400 px-2 py-1 rounded text-[10px] font-bold border border-yellow-500/20">
+                                                            <Clock size={10} /> PENDING
+                                                        </span>
+                                                    )}
+                                                    <span className={`inline-flex px-2 py-0.5 rounded text-[9px] font-black uppercase border ${plan === 'corporate' ? 'bg-purple-500/10 text-purple-400 border-purple-500/20' : 'bg-blue-500/10 text-blue-400 border-blue-500/20'}`}>
+                                                        {plan} {plan === 'corporate' && <span className="ml-1 text-[10px] text-white">x{metadata.quantity || 1}</span>}
                                                     </span>
-                                                ) : (
-                                                    <span className="inline-flex items-center gap-1 bg-yellow-500/10 text-yellow-400 px-2 py-1 rounded text-xs border border-yellow-500/20">
-                                                        <XCircle size={12} /> LOCKED
-                                                    </span>
-                                                )}
+                                                </div>
                                             </td>
                                             <td className="p-4">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="w-8 h-8 rounded-full bg-white/10 overflow-hidden">
-                                                        {content.profileImage && <img src={content.profileImage} className="w-full h-full object-cover" />}
+                                                    <div className="w-8 h-8 rounded-full bg-white/10 overflow-hidden flex items-center justify-center">
+                                                        {content.profileImage ? <img src={content.profileImage} className="w-full h-full object-cover" /> : <User size={16} className="text-white/20" />}
                                                     </div>
                                                     <div>
-                                                        <div className="font-bold text-white">{name}</div>
-                                                        <div className="text-xs text-gray-500 font-mono">{card.id}</div>
+                                                        <div className="font-bold text-white mb-0.5">{name}</div>
+                                                        <div className="text-[10px] text-gray-500 font-mono flex items-center gap-1">
+                                                            <Shield size={10} /> {card.id.slice(0, 8)}...
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </td>
                                             <td className="p-4">
                                                 <div className="space-y-1">
-                                                    <div className="flex items-center gap-2 text-white/80">
+                                                    <div className="flex items-center gap-2 text-white/80 font-bold text-xs truncate max-w-[180px]">
                                                         <Mail size={12} className="text-neon-blue" /> {email}
                                                     </div>
-                                                    {content.phone && (
-                                                        <div className="text-xs text-gray-500 pl-5">{content.phone}</div>
-                                                    )}
-                                                    {content.shipping && content.shipping.address && (
-                                                        <div className="mt-2 text-[10px] text-gray-400 border-t border-white/10 pt-1 pl-1">
-                                                            <div className="font-bold text-neon-blue mb-0.5">📍 SHIPPING ADDR:</div>
-                                                            <div className="text-white">{content.shipping.address}</div>
-                                                            <div>{content.shipping.city}, {content.shipping.state} {content.shipping.zip}</div>
-                                                            <div>{content.shipping.country}</div>
+
+                                                    {metadata.shipping_address && (
+                                                        <div className="mt-2 p-2 rounded bg-white/5 border border-white/5">
+                                                            <div className="text-[9px] font-black text-neon-blue uppercase mb-1 flex items-center gap-1">
+                                                                <Clock size={10} /> SHIPPING DETAILS
+                                                            </div>
+                                                            <div className="text-[11px] leading-tight text-white/70 italic">
+                                                                {metadata.shipping_address}
+                                                            </div>
                                                         </div>
                                                     )}
                                                 </div>

@@ -10,6 +10,7 @@ const ActivationContent = () => {
     const router = useRouter();
     const sessionId = searchParams.get('session_id');
     const plan = searchParams.get('plan');
+    const quantity = searchParams.get('quantity');
 
     const [loading, setLoading] = useState(false);
     const [step, setStep] = useState(1);
@@ -44,6 +45,7 @@ const ActivationContent = () => {
                         full_name: formData.fullName,
                         shipping_address: `${formData.address}, ${formData.city}, ${formData.zip}, ${formData.country}`,
                         plan: plan || 'independent',
+                        quantity: parseInt(quantity || '1'),
                         stripe_session_id: sessionId
                     }
                 }

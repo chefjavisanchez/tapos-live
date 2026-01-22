@@ -38,6 +38,7 @@ export async function GET(req: Request) {
         process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
 
+    // Fetch Cards
     const { data: cards, error: dbError } = await adminDb
         .from('cards')
         .select('*')
@@ -47,5 +48,27 @@ export async function GET(req: Request) {
         return NextResponse.json({ error: dbError.message }, { status: 500 });
     }
 
-    return NextResponse.json(cards);
+    // Fetch Users (Auth)
+    const { data: authUsers, error: usersError } = await adminDb.auth.admin.listUsers();
+
+    if (usersError) {
+        console.error("Fetch Users Error:", usersError);
+        // Fallback to cards only if users can't be fetched
+        return NextResponse.json(cards);
+    }
+
+    // Join Data
+    const combinedData = cards.map(card => {
+        const userMatch = authUsers.users.find(u => u.id === card.user_id);
+        return {
+            ...card,
+            userDetails: userMatch ? {
+                email: userMatch.email,
+                metadata: userMatch.user_metadata,
+                lastSignIn: userMatch.last_sign_in_at
+            } : null
+        };
+    });
+
+    return NextResponse.json(combinedData);
 }
