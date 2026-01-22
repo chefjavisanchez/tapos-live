@@ -1,12 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
-import { Shield, CheckCircle, XCircle, Mail, User, Clock, Loader2, Lock, ShieldCheck, LogOut, Trash2 } from 'lucide-react';
+import { Shield, CheckCircle2, XCircle, Mail, User, Clock, Loader2, Lock, ShieldCheck, LogOut, Trash2 } from 'lucide-react';
 import DashboardSidebar from '@/components/DashboardSidebar';
-
-export const dynamic = 'force-dynamic';
 
 export default function AdminDashboard() {
     const router = useRouter();
@@ -283,17 +281,19 @@ export default function AdminDashboard() {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-white/5">
-                                    {cards.map((card) => {
-                                        const content = card.content || {};
-                                        const userDetails = card.userDetails || {};
-                                        const metadata = userDetails.metadata || {};
+                                    {(cards || []).map((card) => {
+                                        if (!card || typeof card !== 'object') return null;
 
-                                        const isActive = content.subscription === 'active' || metadata.plan_status === 'active';
-                                        const refCount = (card as any).referralCount || 0;
+                                        const content = (card.content && typeof card.content === 'object') ? card.content : {};
+                                        const userDetails = (card.userDetails && typeof card.userDetails === 'object') ? card.userDetails : {};
+                                        const metadata = (userDetails.metadata && typeof userDetails.metadata === 'object') ? userDetails.metadata : {};
+
+                                        const isActive = (content.subscription === 'active') || (metadata.plan_status === 'active');
+                                        const refCount = Number((card as any).referralCount || 0);
                                         const isWinner = refCount >= 5;
-                                        const email = userDetails.email || content.email || 'No Email';
-                                        const name = metadata.full_name || content.fullName || card.title || 'Unknown';
-                                        const plan = metadata.plan || 'independent';
+                                        const email = String(userDetails.email || content.email || 'No Email');
+                                        const name = String(metadata.full_name || content.fullName || card.title || 'Unknown');
+                                        const plan = String(metadata.plan || 'independent');
 
                                         return (
                                             <tr key={card.id} className="hover:bg-white/5 transition">
@@ -301,7 +301,7 @@ export default function AdminDashboard() {
                                                     <div className="flex flex-col gap-2">
                                                         {isActive ? (
                                                             <span className="inline-flex items-center gap-1 bg-green-500/10 text-green-400 px-2 py-1 rounded text-[10px] font-bold border border-green-500/20">
-                                                                <CheckCircle size={10} /> ACTIVE
+                                                                <CheckCircle2 size={10} /> ACTIVE
                                                             </span>
                                                         ) : (
                                                             <span className="inline-flex items-center gap-1 bg-yellow-500/10 text-yellow-400 px-2 py-1 rounded text-[10px] font-bold border border-yellow-500/20">
@@ -309,19 +309,19 @@ export default function AdminDashboard() {
                                                             </span>
                                                         )}
                                                         <span className={`inline-flex px-2 py-0.5 rounded text-[9px] font-black uppercase border ${plan === 'corporate' ? 'bg-purple-500/10 text-purple-400 border-purple-500/20' : 'bg-blue-500/10 text-blue-400 border-blue-500/20'}`}>
-                                                            {plan} {plan === 'corporate' && <span className="ml-1 text-[10px] text-white">x{metadata.quantity || 1}</span>}
+                                                            {plan} {plan === 'corporate' && <span className="ml-1 text-[10px] text-white">x{Number(metadata.quantity || 1)}</span>}
                                                         </span>
                                                     </div>
                                                 </td>
                                                 <td className="p-4">
                                                     <div className="flex items-center gap-3">
                                                         <div className="w-8 h-8 rounded-full bg-white/10 overflow-hidden flex items-center justify-center">
-                                                            {content.profileImage ? <img src={content.profileImage} className="w-full h-full object-cover" /> : <User size={16} className="text-white/20" />}
+                                                            {typeof content.profileImage === 'string' ? <img src={content.profileImage} className="w-full h-full object-cover" /> : <User size={16} className="text-white/20" />}
                                                         </div>
                                                         <div>
                                                             <div className="font-bold text-white mb-0.5">{name}</div>
                                                             <div className="text-[10px] text-gray-500 font-mono flex items-center gap-1">
-                                                                <Shield size={10} /> {card.id.slice(0, 8)}...
+                                                                <Shield size={10} /> {String(card.id).slice(0, 8)}...
                                                             </div>
                                                         </div>
                                                     </div>
@@ -332,7 +332,7 @@ export default function AdminDashboard() {
                                                             <Mail size={12} className="text-neon-blue" /> {email}
                                                         </div>
 
-                                                        {metadata.shipping_address && (
+                                                        {typeof metadata.shipping_address === 'string' && metadata.shipping_address.trim() && (
                                                             <div className="mt-2 p-2 rounded bg-white/5 border border-white/5">
                                                                 <div className="text-[9px] font-black text-neon-blue uppercase mb-1 flex items-center gap-1">
                                                                     <Clock size={10} /> SHIPPING DETAILS
@@ -359,9 +359,9 @@ export default function AdminDashboard() {
                                                 <td className="p-4 text-gray-500 text-xs">
                                                     <div className="flex items-center gap-2">
                                                         <Clock size={12} />
-                                                        {card.created_at ? new Date(card.created_at).toLocaleDateString() : 'N/A'}
+                                                        {card.created_at && !isNaN(new Date(card.created_at).getTime()) ? new Date(card.created_at).toLocaleDateString() : 'N/A'}
                                                     </div>
-                                                    <div>{card.created_at ? new Date(card.created_at).toLocaleTimeString() : ''}</div>
+                                                    <div>{card.created_at && !isNaN(new Date(card.created_at).getTime()) ? new Date(card.created_at).toLocaleTimeString() : ''}</div>
                                                 </td>
                                                 <td className="p-4">
                                                     {!isActive ? (
