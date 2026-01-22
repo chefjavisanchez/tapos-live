@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { Check, Shield, Loader2, ArrowRight } from 'lucide-react';
 
-export default function ActivationPage() {
+const ActivationContent = () => {
     const searchParams = useSearchParams();
     const router = useRouter();
     const sessionId = searchParams.get('session_id');
@@ -201,5 +201,17 @@ export default function ActivationPage() {
                 </p>
             </div>
         </div>
+    );
+}
+
+export default function ActivationPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-black flex items-center justify-center">
+                <Loader2 className="animate-spin text-neon-blue w-8 h-8" />
+            </div>
+        }>
+            <ActivationContent />
+        </Suspense>
     );
 }
