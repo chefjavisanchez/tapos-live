@@ -140,7 +140,7 @@ export default function PricingPage() {
 
                 <div className="mt-20 text-center">
                     <p className="text-white/40 text-sm mb-4">NEED ENTERPRISE IMPLEMENTATION?</p>
-                    <a href="mailto:sales@tapos360.com" className="inline-flex items-center gap-2 text-neon-blue hover:text-white transition font-bold uppercase tracking-widest text-sm">
+                    <a href="mailto:javi@tapygo.com" className="inline-flex items-center gap-2 text-neon-blue hover:text-white transition font-bold uppercase tracking-widest text-sm">
                         Contact Sales Team <ArrowRight size={16} />
                     </a>
                 </div>
