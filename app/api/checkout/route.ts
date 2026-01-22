@@ -27,17 +27,16 @@ export async function POST(req: NextRequest) {
             successUrl += '&plan=independent';
         }
         else if (plan === 'corporate') {
-            // Volume Discount Logic
-            // If users > 10, reduce Setup Fee from $75 to $15 per user
-            const setupPricePerUnit = quantity > 10 ? 1500 : 7500;
+            // Setup Fee is fixed at $75 per user
+            const setupPricePerUnit = 7500; // $75.00
 
-            // 1. Dynamic Setup Fee
+            // 1. Setup Fee
             lineItems.push({
                 price_data: {
                     currency: 'usd',
                     product_data: {
                         name: 'TapOS Corporate Setup',
-                        description: quantity > 10 ? 'Volume Discount Applied ($15/user)' : 'Standard Setup ($75/user)',
+                        description: 'Setup and hardware fee per user',
                     },
                     unit_amount: setupPricePerUnit,
                 },

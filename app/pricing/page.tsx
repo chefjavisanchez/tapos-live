@@ -164,15 +164,15 @@ export default function PricingPage() {
                                         <div className="text-right">
                                             <div className="text-xs text-white/50 uppercase font-bold">Total First Payment</div>
                                             <div className="text-lg font-bold text-purple-400">
-                                                {/* Logic handles Setup ($75 or $15) + Shipping + 1st Month License ($10, $8, or $6) */}
+                                                {/* Fixed $75 Setup + Shipping + Tiered License */}
                                                 ${(
-                                                    ((corporateQty > 10 ? 15 : 75) * corporateQty) + // Setup
+                                                    (75 * corporateQty) + // Setup (Fixed)
                                                     (corporateQty >= 21 ? (corporateQty > 100 ? 59.99 : 39.99) : 19.99) + // Shipping
                                                     ((corporateQty <= 20 ? 10 : corporateQty <= 100 ? 8 : 6) * corporateQty) // 1st Month License
                                                 ).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                                             </div>
                                             <div className="text-[10px] text-white/30">
-                                                Includes {corporateQty > 10 ? <span className="text-green-400 font-bold">Setup ($15/ea)</span> : 'Setup ($75/ea)'} + License + Shipping
+                                                Includes $75/ea Setup + License + Shipping
                                             </div>
                                         </div>
                                     </div>
