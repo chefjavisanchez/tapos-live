@@ -6,18 +6,26 @@ import { Check, Shield, Zap, Users, Building2, BarChart3, ArrowRight, Terminal }
 
 export default function PricingPage() {
     const router = useRouter();
-    const [corporateQty, setCorporateQty] = useState(5);
+    const [corporateQty, setCorporateQty] = useState<number | string>(5);
     const [loading, setLoading] = useState(false);
 
     const handleCheckout = async (plan: 'independent' | 'corporate') => {
         setLoading(true);
+        const qtyRaw = plan === 'corporate' ? (typeof corporateQty === 'string' ? parseInt(corporateQty) || 0 : corporateQty) : 1;
+
+        if (plan === 'corporate' && qtyRaw < 5) {
+            alert('Corporate setup requires a minimum of 5 users.');
+            setLoading(false);
+            return;
+        }
+
         try {
             const response = await fetch('/api/checkout', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     plan,
-                    quantity: plan === 'corporate' ? corporateQty : 1
+                    quantity: qtyRaw
                 })
             });
 
@@ -151,28 +159,55 @@ export default function PricingPage() {
                                 </div>
 
                                 {/* Quantity Selector */}
-                                <div className="bg-black/40 p-4 rounded-xl border border-white/10">
-                                    <label className="text-xs text-white/50 font-bold uppercase block mb-2">Number of Users (Min 5)</label>
-                                    <div className="flex items-center gap-4">
-                                        <input
-                                            type="number"
-                                            min="5"
-                                            value={corporateQty}
-                                            onChange={(e) => setCorporateQty(parseInt(e.target.value) || 5)}
-                                            className="w-full bg-transparent border-b border-white/20 text-white font-rajdhani font-bold text-2xl focus:outline-none focus:border-purple-500"
-                                        />
+                                <div className="bg-black/40 p-4 rounded-xl border border-white/10 group-hover:border-purple-500/30 transition-colors">
+                                    <label className="text-[10px] text-white/40 uppercase font-black tracking-widest block mb-4">Quantity: Number of Operators</label>
+                                    <div className="flex items-center justify-between gap-4">
+                                        <div className="flex items-center bg-white/5 rounded-lg border border-white/10 p-1">
+                                            <button
+                                                onClick={() => setCorporateQty(prev => Math.max(1, (typeof prev === 'string' ? parseInt(prev) || 0 : prev) - 1))}
+                                                className="w-10 h-10 flex items-center justify-center hover:bg-white/10 rounded-md transition-colors text-white/60 hover:text-white"
+                                            >
+                                                -
+                                            </button>
+                                            <input
+                                                type="number"
+                                                value={corporateQty}
+                                                onChange={(e) => {
+                                                    const val = e.target.value;
+                                                    if (val === '') {
+                                                        setCorporateQty('');
+                                                    } else {
+                                                        setCorporateQty(parseInt(val));
+                                                    }
+                                                }}
+                                                className="w-16 bg-transparent text-center text-white font-rajdhani font-bold text-2xl focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                            />
+                                            <button
+                                                onClick={() => setCorporateQty(prev => (typeof prev === 'string' ? parseInt(prev) || 0 : prev) + 1)}
+                                                className="w-10 h-10 flex items-center justify-center hover:bg-white/10 rounded-md transition-colors text-white/60 hover:text-white"
+                                            >
+                                                +
+                                            </button>
+                                        </div>
+
                                         <div className="text-right">
-                                            <div className="text-xs text-white/50 uppercase font-bold">Total First Payment</div>
-                                            <div className="text-lg font-bold text-purple-400">
+                                            <div className="text-[10px] text-white/40 uppercase font-black tracking-widest">Total First Payment</div>
+                                            <div className="text-2xl font-bold text-purple-400 font-rajdhani">
                                                 {/* Fixed $75 Setup + Shipping + Tiered License */}
-                                                ${(
-                                                    (75 * corporateQty) + // Setup (Fixed)
-                                                    (corporateQty >= 21 ? (corporateQty > 100 ? 59.99 : 39.99) : 19.99) + // Shipping
-                                                    ((corporateQty <= 20 ? 10 : corporateQty <= 100 ? 8 : 6) * corporateQty) // 1st Month License
-                                                ).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                                ${(() => {
+                                                    const qty = typeof corporateQty === 'string' ? parseInt(corporateQty) || 0 : corporateQty;
+                                                    return (
+                                                        (75 * qty) +
+                                                        (qty === 0 ? 0 : (qty >= 21 ? (qty > 100 ? 59.99 : 39.99) : 19.99)) +
+                                                        ((qty <= 20 ? 10 : qty <= 100 ? 8 : 6) * qty)
+                                                    ).toLocaleString(undefined, { minimumFractionDigits: 2 });
+                                                })()}
                                             </div>
-                                            <div className="text-[10px] text-white/30">
-                                                Includes $75/ea Setup + License + Shipping
+                                            <div className="text-[10px] text-white/30 truncate max-w-[140px]">
+                                                {typeof corporateQty === 'number' && corporateQty < 5 ?
+                                                    <span className="text-amber-500 font-bold">Min 5 required</span> :
+                                                    '$75/ea Setup + License'
+                                                }
                                             </div>
                                         </div>
                                     </div>
