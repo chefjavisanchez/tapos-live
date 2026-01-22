@@ -1,10 +1,37 @@
 'use client';
 
-import { Check, Shield, Zap, Users, Building2, BarChart3, ArrowRight, Terminal } from 'lucide-react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Check, Shield, Zap, Users, Building2, BarChart3, ArrowRight, Terminal } from 'lucide-react';
 
 export default function PricingPage() {
     const router = useRouter();
+    const [corporateQty, setCorporateQty] = useState(5);
+    const [loading, setLoading] = useState(false);
+
+    const handleCheckout = async (plan: 'independent' | 'corporate') => {
+        setLoading(true);
+        try {
+            const response = await fetch('/api/checkout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    plan,
+                    quantity: plan === 'corporate' ? corporateQty : 1
+                })
+            });
+
+            const data = await response.json();
+            if (data.url) {
+                window.location.href = data.url;
+            } else {
+                throw new Error(data.error || 'Checkout failed');
+            }
+        } catch (err: any) {
+            alert('Checkout Error: ' + err.message);
+            setLoading(false);
+        }
+    };
 
     return (
         <div className="min-h-screen bg-[#050510] text-white font-sans overflow-x-hidden selection:bg-neon-blue selection:text-black">
@@ -33,51 +60,48 @@ export default function PricingPage() {
 
                 <div className="text-center mb-16 max-w-3xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-1000">
                     <h1 className="text-4xl md:text-6xl font-black font-syncopate mb-6">
-                        CHOOSE YOUR <span className="text-neon-blue">PROTOCOL</span>
+                        CHOOSE YOUR <span className="text-neon-blue">WEAPON</span>
                     </h1>
                     <p className="text-xl text-white/60 leading-relaxed">
-                        Whether you are a solo visionary or leading a high-performance team, TapOS delivers the infrastructure you need to dominate.
+                        Whether you are a solo operator or running a global fleet, we have the infrastructure you need to dominate.
                     </p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
 
                     {/* INDEPENDENT PLAN */}
-                    <div className="relative group rounded-[2.5rem] bg-black/40 border border-white/10 hover:border-neon-blue/50 overflow-hidden transition-all duration-300">
-                        <div className="absolute top-0 right-0 p-8 opacity-20 group-hover:opacity-100 transition duration-500">
-                            <Zap className="w-24 h-24 text-neon-blue -rotate-12 transform translate-x-8 -translate-y-8" />
-                        </div>
+                    <div className="relative group rounded-[2.5rem] bg-black border border-white/10 hover:border-neon-blue/50 overflow-hidden transition-all duration-300">
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-neon-blue/10 blur-[80px]"></div>
 
                         <div className="p-10 relative z-10 h-full flex flex-col">
                             <div className="mb-8">
                                 <h3 className="text-2xl font-bold font-syncopate mb-2">INDEPENDENT</h3>
-                                <p className="text-white/50 text-sm uppercase tracking-widest font-bold">For Solo Owners</p>
+                                <p className="text-white/50 text-sm uppercase tracking-widest font-bold">For Solo Operators</p>
                             </div>
 
                             <div className="mb-10">
                                 <div className="flex items-baseline gap-2">
-                                    <span className="text-5xl font-bold font-rajdhani">$99</span>
-                                    <span className="text-xl text-white/50 font-bold uppercase">/ Lifetime</span>
+                                    <span className="text-5xl font-bold font-rajdhani">$109.99</span>
                                 </div>
-                                <p className="text-green-400 text-sm mt-3 font-bold flex items-center gap-2">
-                                    <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
-                                    ONE-TIME PAYMENT
+                                <p className="text-neon-blue text-sm mt-3 font-bold">
+                                    LIFETIME ACCESS (Includes Shipping)
                                 </p>
                             </div>
 
-                            <div className="space-y-4 mb-10 flex-grow">
-                                <FeatureItem text="Lifetime Digital Profile Access" />
-                                <FeatureItem text="Physical PVC Card Hardware Kit" />
-                                <FeatureItem text="AI Lead Scanner (CSV Export)" />
-                                <FeatureItem text="Programmable Rewards (500 pts)" />
-                                <FeatureItem text="TapOS Partner Rights (15% Comm)" />
+                            <div className="space-y-4 mb-8 flex-grow">
+                                <FeatureItem text="Physical PVC Card Included" />
+                                <FeatureItem text="TapOS Cloud Dashboard" />
+                                <FeatureItem text="AI Lead Scanner (Unlimited)" />
+                                <FeatureItem text="Programmable Actions & Rewards" />
+                                <FeatureItem text="Partner Rights (Resell & Earn)" />
                             </div>
 
                             <button
-                                onClick={() => window.location.href = 'https://buy.stripe.com/8x2aEW92W5MIcVz62r3gk08'}
-                                className="w-full py-4 bg-white text-black font-bold uppercase tracking-widest rounded-xl hover:bg-neon-blue hover:scale-[1.02] transition-all shadow-[0_0_20px_rgba(255,255,255,0.2)]"
+                                onClick={() => handleCheckout('independent')}
+                                disabled={loading}
+                                className="w-full py-4 bg-white text-black font-bold uppercase tracking-widest rounded-xl hover:bg-neon-blue hover:scale-[1.02] transition-all shadow-[0_0_20px_rgba(255,255,255,0.2)] disabled:opacity-50"
                             >
-                                Activate Now
+                                {loading ? 'Processing...' : 'Activate Now'}
                             </button>
                         </div>
                     </div>
@@ -95,10 +119,10 @@ export default function PricingPage() {
                             <div className="mb-10">
                                 <div className="flex items-baseline gap-2">
                                     <span className="text-5xl font-bold font-rajdhani">$75</span>
-                                    <span className="text-xl text-white/50 font-bold uppercase">/ Setup</span>
+                                    <span className="text-xl text-white/50 font-bold uppercase">/ User</span>
                                 </div>
                                 <p className="text-purple-400 text-sm mt-3 font-bold">
-                                    + Monthly License / User
+                                    + Monthly License & Shipping
                                 </p>
                             </div>
 
@@ -109,7 +133,7 @@ export default function PricingPage() {
                                 <FeatureItem text="Team Analytics & Lead Tracking" />
 
                                 <div className="mt-6 p-4 rounded-xl bg-white/5 border border-white/10">
-                                    <p className="text-xs text-white/40 uppercase font-bold mb-3">Volume Licensing</p>
+                                    <p className="text-xs text-white/40 uppercase font-bold mb-3">Volume Licensing (Monthly)</p>
                                     <div className="space-y-2 text-sm">
                                         <div className="flex justify-between text-white/70">
                                             <span>5 - 20 Users</span>
@@ -125,13 +149,35 @@ export default function PricingPage() {
                                         </div>
                                     </div>
                                 </div>
+
+                                {/* Quantity Selector */}
+                                <div className="bg-black/40 p-4 rounded-xl border border-white/10">
+                                    <label className="text-xs text-white/50 font-bold uppercase block mb-2">Number of Users (Min 5)</label>
+                                    <div className="flex items-center gap-4">
+                                        <input
+                                            type="number"
+                                            min="5"
+                                            value={corporateQty}
+                                            onChange={(e) => setCorporateQty(parseInt(e.target.value) || 5)}
+                                            className="w-full bg-transparent border-b border-white/20 text-white font-rajdhani font-bold text-2xl focus:outline-none focus:border-purple-500"
+                                        />
+                                        <div className="text-right">
+                                            <div className="text-xs text-white/50">Estimated Setup</div>
+                                            <div className="text-lg font-bold text-purple-400">
+                                                ${(75 * corporateQty + (corporateQty >= 21 ? (corporateQty > 100 ? 59.99 : 39.99) : 19.99)).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                            </div>
+                                            <div className="text-[10px] text-white/30">+ Shipping</div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                             <button
-                                onClick={() => window.location.href = 'https://buy.stripe.com/8x2eVcdjc4IE6xb3Uj3gk09'}
-                                className="w-full py-4 bg-transparent border border-white/20 text-white font-bold uppercase tracking-widest rounded-xl hover:bg-white hover:text-black hover:scale-[1.02] transition-all"
+                                onClick={() => handleCheckout('corporate')}
+                                disabled={loading}
+                                className="w-full py-4 bg-transparent border border-white/20 text-white font-bold uppercase tracking-widest rounded-xl hover:bg-white hover:text-black hover:scale-[1.02] transition-all disabled:opacity-50"
                             >
-                                Start Corporate Setup
+                                {loading ? 'Processing...' : 'Start Corporate Setup'}
                             </button>
                         </div>
                     </div>
