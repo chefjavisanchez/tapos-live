@@ -1,9 +1,30 @@
 'use client';
 
-import { Terminal, LayoutGrid, User, Gift, ShoppingBag, Shield, Settings, CreditCard, LogOut, Eye, Share2 } from "lucide-react";
+import { Terminal, LayoutGrid, User, Users, Gift, ShoppingBag, Shield, Settings, CreditCard, LogOut, Eye, Share2 } from "lucide-react";
 import { useRouter, usePathname } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { useState, useEffect } from 'react';
+
+const NavItem = ({ icon, label, href, active, onClick, router }: { icon: any, label: string, href?: string, active?: boolean, onClick?: () => void, router: any }) => {
+    const content = (
+        <>
+            {icon}
+            <span className="font-bold uppercase text-[11px] tracking-widest">{label}</span>
+        </>
+    );
+
+    const baseClass = `flex items-center gap-3 p-4 rounded-xl cursor-pointer transition-all duration-300 ${active
+        ? 'bg-white text-black shadow-[0_0_20px_rgba(255,255,255,0.2)]'
+        : 'text-white/50 hover:text-white hover:bg-white/5'
+        }`;
+
+    if (onClick) return <button onClick={onClick} className={baseClass}>{content}</button>;
+    return (
+        <button onClick={() => router.push(href || '/')} className={baseClass}>
+            {content}
+        </button>
+    );
+};
 
 export default function DashboardSidebar({
     isAdmin,
@@ -28,27 +49,6 @@ export default function DashboardSidebar({
 
     const isDashboard = pathname === '/';
 
-    const NavItem = ({ icon, label, href, active, onClick }: { icon: any, label: string, href?: string, active?: boolean, onClick?: () => void }) => {
-        const content = (
-            <>
-                {icon}
-                <span className="font-bold uppercase text-[11px] tracking-widest">{label}</span>
-            </>
-        );
-
-        const baseClass = `flex items-center gap-3 p-4 rounded-xl cursor-pointer transition-all duration-300 ${active
-            ? 'bg-white text-black shadow-[0_0_20px_rgba(255,255,255,0.2)]'
-            : 'text-white/50 hover:text-white hover:bg-white/5'
-            }`;
-
-        if (onClick) return <button onClick={onClick} className={baseClass}>{content}</button>;
-        return (
-            <button onClick={() => router.push(href || '/')} className={baseClass}>
-                {content}
-            </button>
-        );
-    };
-
     return (
         <aside className="w-72 border-r border-white/10 bg-black/40 backdrop-blur-xl flex flex-col p-6 max-md:hidden sticky top-0 h-screen overflow-hidden">
             <div className="flex items-center gap-3 mb-10 shrink-0">
@@ -64,6 +64,7 @@ export default function DashboardSidebar({
                     label="Dashboard"
                     active={isDashboard && activeTab === 'dashboard'}
                     onClick={isDashboard ? () => setActiveTab?.('dashboard') : () => router.push('/')}
+                    router={router}
                 />
                 <NavItem
                     icon={<CreditCard size={20} />}
@@ -72,11 +73,11 @@ export default function DashboardSidebar({
                     onClick={() => {
                         if (isDashboard) {
                             setActiveTab?.('dashboard');
-                            // Scroll to cards grid logic could go here
                         } else {
                             router.push('/');
                         }
                     }}
+                    router={router}
                 />
 
                 {planType === 'corporate' && (
@@ -88,17 +89,18 @@ export default function DashboardSidebar({
                             if (isDashboard) setActiveTab?.('team');
                             else router.push('/?tab=team');
                         }}
+                        router={router}
                     />
                 )}
 
-                <NavItem href="/profile" icon={<User size={20} />} label="Profile" active={pathname === '/profile'} />
-                <NavItem href="/referrals" icon={<Gift size={20} />} label="Rewards" active={pathname === '/referrals'} />
-                <NavItem href="/shop" icon={<ShoppingBag size={20} />} label="Hardware Store" active={pathname === '/shop'} />
-                <NavItem href="/settings" icon={<Settings size={20} />} label="Settings" active={pathname === '/settings'} />
+                <NavItem href="/profile" icon={<User size={20} />} label="Profile" active={pathname === '/profile'} router={router} />
+                <NavItem href="/referrals" icon={<Gift size={20} />} label="Rewards" active={pathname === '/referrals'} router={router} />
+                <NavItem href="/shop" icon={<ShoppingBag size={20} />} label="Hardware Store" active={pathname === '/shop'} router={router} />
+                <NavItem href="/settings" icon={<Settings size={20} />} label="Settings" active={pathname === '/settings'} router={router} />
 
                 {isAdmin && (
                     <div className="pt-4 mt-4 border-t border-white/10">
-                        <NavItem href="/admin" icon={<Shield size={20} />} label="God Mode" active={pathname === '/admin'} />
+                        <NavItem href="/admin" icon={<Shield size={20} />} label="God Mode" active={pathname === '/admin'} router={router} />
                     </div>
                 )}
             </nav>
@@ -147,10 +149,4 @@ export default function DashboardSidebar({
     );
 }
 
-function Users({ size, className }: { size?: number, className?: string }) {
-    return (
-        <svg xmlns="http://www.w3.org/2000/svg" width={size || 24} height={size || 24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" />
-        </svg>
-    )
-}
+

@@ -60,11 +60,12 @@ export default function AdminDashboard() {
             // CALCULATE REFERRAL STATS
             const counts: { [key: string]: number } = {};
             data.forEach((c: any) => {
+                if (!c) return;
                 const ref = c.content?.referrer;
                 if (ref) counts[ref] = (counts[ref] || 0) + 1;
             });
 
-            const dataWithStats = data.map((c: any) => ({
+            const dataWithStats = data.filter((item: any) => item !== null).map((c: any) => ({
                 ...c,
                 referralCount: counts[c.slug] || 0
             }));
