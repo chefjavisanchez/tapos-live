@@ -54,11 +54,11 @@ export default function LandingPage() {
                     <div className="hidden md:flex items-center gap-8 text-sm font-medium text-white/70">
                         <a href="#features" className="hover:text-neon-blue transition">Features</a>
                         <a href="#demo" className="hover:text-neon-blue transition">Live Demo</a>
-                        <a href="#pricing" className="hover:text-neon-blue transition">Pricing</a>
+                        <a href="/pricing" className="hover:text-neon-blue transition">Pricing</a>
                     </div>
                     <div className="flex items-center gap-4">
                         <a href="/login" className="text-sm font-bold hover:text-white transition text-white/70">LOGIN</a>
-                        <a href="/login?view=sign_up" className="bg-neon-blue hover:bg-white text-black px-5 py-2 rounded-full font-bold text-xs uppercase tracking-widest transition-all shadow-[0_0_15px_rgba(0,243,255,0.3)] hover:shadow-[0_0_25px_rgba(255,255,255,0.5)]">
+                        <a href="/pricing" className="bg-neon-blue hover:bg-white text-black px-5 py-2 rounded-full font-bold text-xs uppercase tracking-widest transition-all shadow-[0_0_15px_rgba(0,243,255,0.3)] hover:shadow-[0_0_25px_rgba(255,255,255,0.5)]">
                             GET IMPULSO
                         </a>
                     </div>
@@ -131,7 +131,7 @@ export default function LandingPage() {
                     </div>
 
                     <div className="tg-cta-bottom z-40">
-                        <a href="/login?view=sign_up" className="tg-btn-large">GET IMPULSÓ</a>
+                        <a href="/pricing" className="tg-btn-large">GET IMPULSÓ</a>
                     </div>
 
                 </div>
@@ -264,7 +264,7 @@ export default function LandingPage() {
                             <Users className="text-blue-400 w-8 h-8" />
                         </div>
                         <h3 className="text-xl font-bold mb-4">Reusable Assets</h3>
-                        <p className="text-white/50 text-sm leading-relaxed">
+                        <p className="text-white/60 text-base leading-relaxed">
                             Manage your entire sales force with unique /ID licenses. If an employee leaves, simply reassign the /1, /2, or /3 ID to the new hire. The hardware stays; the data is yours.
                         </p>
                     </div>
@@ -275,7 +275,7 @@ export default function LandingPage() {
                             <BarChart3 className="text-teal-400 w-8 h-8" />
                         </div>
                         <h3 className="text-xl font-bold mb-4">The Master Dashboard</h3>
-                        <p className="text-white/50 text-sm leading-relaxed">
+                        <p className="text-white/60 text-base leading-relaxed">
                             Track every tap. See exactly which team members are generating the most leads and how many prospects are downloading your contact info in real-time.
                         </p>
                     </div>
@@ -286,7 +286,7 @@ export default function LandingPage() {
                             <Building2 className="text-indigo-400 w-8 h-8" />
                         </div>
                         <h3 className="text-xl font-bold mb-4">Corporate Branding</h3>
-                        <p className="text-white/50 text-sm leading-relaxed">
+                        <p className="text-white/60 text-base leading-relaxed">
                             Every card features your company logo and the TapOS Impulso watermark—projecting authority and innovation.
                         </p>
                     </div>
@@ -315,7 +315,7 @@ export default function LandingPage() {
                     </p>
 
                     <button
-                        onClick={() => router.push('/login')}
+                        onClick={() => router.push('/pricing')}
                         className="relative z-10 px-12 py-6 bg-white text-black font-black text-xl rounded-full hover:scale-105 transition duration-300 shadow-[0_10px_40px_rgba(255,255,255,0.2)]"
                     >
                         START NOW

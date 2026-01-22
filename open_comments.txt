@@ -1,0 +1,38 @@
+15:      --gold: #00f3ff; /* OVERRIDE: NEON BLUE */
+46:      max-width: 480px; /* Mobile width constraint for desktop view */
+53:  /* HEADER */
+129:  /* MARQUEE */
+156:  /* VIEWPORT & TABS */
+167:      display: none; /* Hidden by default */
+179:  /* AD CARDS */
+213:  /* UPDATED SCREEN SIZES FOR ADS */
+243:  /* VELOCITY & BUTTONS */
+273:  /* DOCK */
+284:  /* VIDEO */
+291:  /* SCANNER STYLES */
+309:  /* HIDE NEXT.JS ERROR OVERLAY & TOASTS */
+405:      /* FIX: Explicitly color the name H1 to adapt to light mode */
+411:          width: 92%; /* WIDER */
+417:          /* FIX: CENTERING LOGIC */
+421:          /* ------------------ */
+426:          padding: 20px; /* LESS PADDING = MORE TEXT SPACE */
+442:      /* Invert text colors mostly, but keep specific colored elements */
+450:      /* Invert icons in light mode if needed */
+605:            {/* Exchange Modal Placeholder */}
+616:                    {/* HEADER */}
+650:                    {/* MARQUEE */}
+662:                    {/* VIEWPORT */}
+665:                        {/* VIEW 1: HOME */}
+705:                        {/* VIEW 2: GRID */}
+729:                            {/* DYNAMIC SERVICE BUTTONS */}
+768:                            {/* PERMANENT REFERRAL BUTTON (BUTTON 5) */}
+791:                        {/* VIEW 3: VIDEO */}
+798:                        {/* VIEW 4: QR */}
+805:                        {/* VIEW 5: SCANNER */}
+815:                                        {/* CAMERA TRIGGER */}
+819:                                                <input type="file" accept="image/*" capture="environment"
+826:                                        {/* LIST */}
+845:                                    /* EDIT RESULT FORM */
+876:                    {/* DOCK */}
+887:                            {/* SCANNER */}
+899:                            {/* SAVE VCF */}
