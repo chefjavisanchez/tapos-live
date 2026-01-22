@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Rocket, Zap, Shield, Globe, ArrowRight, Share2, Trees, Smartphone, ScanEye, Tv, MessageSquareText, Video, LayoutGrid } from 'lucide-react';
+import { Rocket, Zap, Shield, Globe, ArrowRight, Share2, Trees, Smartphone, ScanEye, Tv, MessageSquareText, Video, LayoutGrid, Users, BarChart3, Building2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 import NetworkingOS from './NetworkingOS';
@@ -239,6 +239,56 @@ export default function LandingPage() {
                             />
 
                         </div>
+                    </div>
+
+                </div>
+            </section>
+
+            {/* CORPORATE ADVANTAGE SECTION */}
+            <section className="py-24 px-6 max-w-7xl mx-auto bg-[#0A0A15] border-y border-white/5 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-1/2 h-full bg-neon-blue/5 blur-[120px] pointer-events-none"></div>
+
+                <div className="relative z-10 text-center mb-16">
+                    <h2 className="text-3xl md:text-5xl font-bold font-syncopate mb-4">
+                        The Corporate <span className="text-neon-blue">Advantage</span>
+                    </h2>
+                    <p className="text-white/50 text-xl tracking-wide uppercase font-bold text-sm">(B2B Strategy)</p>
+                    <p className="text-white/60 mt-4 max-w-2xl mx-auto">Infrastructure for High-Performance Teams</p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative z-10">
+
+                    {/* Feature 1 */}
+                    <div className="p-8 rounded-3xl bg-white/5 border border-white/10 hover:border-white/20 transition group text-center">
+                        <div className="w-16 h-16 mx-auto rounded-full bg-blue-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition">
+                            <Users className="text-blue-400 w-8 h-8" />
+                        </div>
+                        <h3 className="text-xl font-bold mb-4">Reusable Assets</h3>
+                        <p className="text-white/50 text-sm leading-relaxed">
+                            Manage your entire sales force with unique /ID licenses. If an employee leaves, simply reassign the /1, /2, or /3 ID to the new hire. The hardware stays; the data is yours.
+                        </p>
+                    </div>
+
+                    {/* Feature 2 */}
+                    <div className="p-8 rounded-3xl bg-white/5 border border-white/10 hover:border-white/20 transition group text-center">
+                        <div className="w-16 h-16 mx-auto rounded-full bg-teal-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition">
+                            <BarChart3 className="text-teal-400 w-8 h-8" />
+                        </div>
+                        <h3 className="text-xl font-bold mb-4">The Master Dashboard</h3>
+                        <p className="text-white/50 text-sm leading-relaxed">
+                            Track every tap. See exactly which team members are generating the most leads and how many prospects are downloading your contact info in real-time.
+                        </p>
+                    </div>
+
+                    {/* Feature 3 */}
+                    <div className="p-8 rounded-3xl bg-white/5 border border-white/10 hover:border-white/20 transition group text-center">
+                        <div className="w-16 h-16 mx-auto rounded-full bg-indigo-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition">
+                            <Building2 className="text-indigo-400 w-8 h-8" />
+                        </div>
+                        <h3 className="text-xl font-bold mb-4">Corporate Branding</h3>
+                        <p className="text-white/50 text-sm leading-relaxed">
+                            Every card features your company logo and the TapOS Impulso watermark—projecting authority and innovation.
+                        </p>
                     </div>
 
                 </div>
