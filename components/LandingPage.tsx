@@ -46,10 +46,13 @@ export default function LandingPage() {
             <nav className="fixed top-0 left-0 right-0 z-50 bg-[#050510]/80 backdrop-blur-md border-b border-white/5">
                 <div className="container mx-auto px-6 h-20 flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                        <div className="w-10 h-10 rounded-full bg-neon-blue/20 neon-glow flex items-center justify-center border border-neon-blue/50">
-                            <Rocket className="text-neon-blue w-6 h-6" />
+                        <div className="flex flex-col leading-none">
+                            <span className="font-syncopate font-black text-xl tracking-tighter">
+                                <span className="text-white">TAP</span>
+                                <span className="text-neon-blue">OS</span>
+                            </span>
+                            <span className="text-[8px] font-black tracking-[0.2em] text-white/50 italic ml-0.5">IMPULSÓ</span>
                         </div>
-                        <span className="font-syncopate font-bold text-xl tracking-tighter">IMPUL<span className="text-neon-blue">SO</span></span>
                     </div>
                     <div className="hidden md:flex items-center gap-8 text-sm font-medium text-white/70">
                         <a href="#features" className="hover:text-neon-blue transition">Features</a>
@@ -71,17 +74,26 @@ export default function LandingPage() {
                     <div className="glow-circle"></div>
 
                     <div className="tg-hero-content animate-in fade-in slide-in-from-bottom-4 duration-1000">
-                        <div className="flex flex-col items-center mb-8">
-                            <div className="w-24 h-24 rounded-3xl bg-neon-blue/10 border border-neon-blue/30 flex items-center justify-center mb-4 neon-glow relative">
-                                <Rocket className="text-neon-blue w-12 h-12 -rotate-45" />
-                                <div className="absolute -top-2 -right-2 bg-white text-black text-[10px] font-black px-2 py-0.5 rounded italic">NEW</div>
+                        <div className="flex flex-col items-center mb-10">
+                            {/* Visual Logo Recreation from Image */}
+                            <div className="relative mb-4 flex flex-col items-center">
+                                <div className="flex items-center gap-0">
+                                    <span className="text-5xl md:text-8xl font-black italic tracking-tighter text-[#4da8da]">Tap</span>
+                                    <div className="relative">
+                                        <span className="text-5xl md:text-8xl font-black italic tracking-tighter text-[#f7941d]">OS</span>
+                                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                            <Rocket className="text-[#050510] w-1/2 h-1/2 rotate-[15deg] translate-y-[-5%]" fill="#f7941d" />
+                                        </div>
+                                        <span className="absolute -top-1 -right-4 md:-right-6 text-[10px] md:text-xs font-bold text-[#f7941d]">360</span>
+                                    </div>
+                                </div>
+                                <div className="w-full flex justify-center mt-[-10px] md:mt-[-15px]">
+                                    <span className="text-2xl md:text-5xl font-black italic tracking-[0.1em] text-white/90 drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]">Impulsó</span>
+                                </div>
                             </div>
-                            <h2 className="font-syncopate font-black text-4xl md:text-6xl tracking-tighter">
-                                IMPUL<span className="text-neon-blue">SO</span>
-                            </h2>
                         </div>
                         <h1 className="font-syncopate">THE NETWORKING GAME<br />HAS CHANGED. <span className="text-neon-blue">FOREVER.</span></h1>
-                        <p>Stop wasting money on paper business cards that end up in the trash. Switch to Impulso. The last card you will ever need.</p>
+                        <p>Stop wasting money on paper business cards that end up in the trash. Switch to Impulsó. The last card you will ever need.</p>
                     </div>
 
                     <div className={`tg-visuals-container ${focusedPhone !== null ? 'has-focus' : ''}`} id="tg-phone-container">
@@ -383,16 +395,17 @@ export default function LandingPage() {
             <footer className="py-20 border-t border-white/5 bg-[#030308]">
                 <div className="container mx-auto px-6">
                     <div className="flex flex-col md:flex-row justify-between items-center gap-12">
-                        <div className="flex flex-col items-center md:items-start gap-4">
-                            <div className="flex items-center gap-2">
-                                <Rocket className="text-neon-blue" size={24} />
-                                <span className="font-syncopate font-bold text-2xl tracking-tighter">IMPUL<span className="text-neon-blue">SO</span></span>
+                        <div className="flex flex-col items-center md:items-start gap-0">
+                            <div className="flex items-center gap-0 leading-none">
+                                <span className="font-syncopate font-black text-2xl tracking-tighter text-white">TAP</span>
+                                <span className="font-syncopate font-black text-2xl tracking-tighter text-neon-blue">OS</span>
                             </div>
-                            <p className="text-white/30 text-sm max-w-xs text-center md:text-left">
-                                The world's first AI-powered networking operating system.
-                                Beyond business cards. Beyond expectations.
-                            </p>
+                            <span className="text-[10px] font-black tracking-[0.2em] text-white/30 italic">IMPULSÓ</span>
                         </div>
+                        <p className="text-white/30 text-sm max-w-xs text-center md:text-left">
+                            The world's first AI-powered networking operating system.
+                            Beyond business cards. Beyond expectations.
+                        </p>
 
                         <div className="flex flex-wrap justify-center gap-12 text-sm font-bold uppercase tracking-widest text-white/50">
                             <a href="#features" className="hover:text-neon-blue transition">Features</a>
