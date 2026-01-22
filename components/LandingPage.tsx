@@ -47,14 +47,14 @@ export default function LandingPage() {
                 <div className="container mx-auto px-6 h-20 flex items-center justify-between">
                     <div className="flex items-center gap-2">
                         <div className="w-10 h-10 rounded-full bg-neon-blue/20 neon-glow flex items-center justify-center border border-neon-blue/50">
-                            <span className="text-neon-blue font-bold text-xl">T</span>
+                            <Rocket className="text-neon-blue w-6 h-6" />
                         </div>
-                        <span className="font-syncopate font-bold text-xl tracking-tighter">TAP<span className="text-neon-blue">OS</span></span>
+                        <span className="font-syncopate font-bold text-xl tracking-tighter">IMPUL<span className="text-neon-blue">SO</span></span>
                     </div>
                     <div className="hidden md:flex items-center gap-8 text-sm font-medium text-white/70">
                         <a href="#features" className="hover:text-neon-blue transition">Features</a>
-                        <a href="#demo" className="hover:text-neon-blue transition">Live Demo</a>
-                        <a href="/pricing" className="hover:text-neon-blue transition">Pricing</a>
+                        <a href="#benefits" className="hover:text-neon-blue transition">Benefits</a>
+                        <a href="#faq" className="hover:text-neon-blue transition">FAQ</a>
                     </div>
                     <div className="flex items-center gap-4">
                         <a href="/login" className="text-sm font-bold hover:text-white transition text-white/70">LOGIN</a>
@@ -71,9 +71,17 @@ export default function LandingPage() {
                     <div className="glow-circle"></div>
 
                     <div className="tg-hero-content animate-in fade-in slide-in-from-bottom-4 duration-1000">
-                        <img src="/logo.png" alt="TapOS" className="h-24 mb-6 drop-shadow-[0_0_15px_rgba(0,243,255,0.5)]" />
+                        <div className="flex flex-col items-center mb-8">
+                            <div className="w-24 h-24 rounded-3xl bg-neon-blue/10 border border-neon-blue/30 flex items-center justify-center mb-4 neon-glow relative">
+                                <Rocket className="text-neon-blue w-12 h-12 -rotate-45" />
+                                <div className="absolute -top-2 -right-2 bg-white text-black text-[10px] font-black px-2 py-0.5 rounded italic">NEW</div>
+                            </div>
+                            <h2 className="font-syncopate font-black text-4xl md:text-6xl tracking-tighter">
+                                IMPUL<span className="text-neon-blue">SO</span>
+                            </h2>
+                        </div>
                         <h1 className="font-syncopate">THE NETWORKING GAME<br />HAS CHANGED. <span className="text-neon-blue">FOREVER.</span></h1>
-                        <p>Stop wasting money on paper business cards that end up in the trash. Switch to TapOS Impulso. The last card you will ever need.</p>
+                        <p>Stop wasting money on paper business cards that end up in the trash. Switch to Impulso. The last card you will ever need.</p>
                     </div>
 
                     <div className={`tg-visuals-container ${focusedPhone !== null ? 'has-focus' : ''}`} id="tg-phone-container">
@@ -146,8 +154,8 @@ export default function LandingPage() {
             </div >
 
             {/* NEW CORE VALUES & FEATURES SECTION */}
-            <section className="py-24 px-6 max-w-7xl mx-auto">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+            <section id="features" className="py-24 px-6 max-w-7xl mx-auto">
+                <div id="benefits" className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
 
                     {/* COLUMN 1: CORE VALUE PROPS */}
                     <div className="space-y-12">
@@ -287,7 +295,7 @@ export default function LandingPage() {
                         </div>
                         <h3 className="text-xl font-bold mb-4">Corporate Branding</h3>
                         <p className="text-white/60 text-base leading-relaxed">
-                            Every card features your company logo and the TapOS Impulso watermark—projecting authority and innovation.
+                            Every card features your company logo and the Impulso watermark—projecting authority and innovation.
                         </p>
                     </div>
 
@@ -297,35 +305,112 @@ export default function LandingPage() {
             {/* AI ASSISTANT */}
             <NetworkingOS />
 
+            {/* FAQ SECTION */}
+            <section id="faq" className="py-24 px-6 max-w-4xl mx-auto">
+                <h2 className="text-4xl md:text-5xl font-black font-syncopate text-center mb-16">
+                    FREQUENTLY <br />
+                    <span className="text-neon-blue">QUESTIONS</span>
+                </h2>
+
+                <div className="space-y-6">
+                    <FAQItem
+                        question="How does Impulso work?"
+                        answer="Impulso uses NFC (Near Field Communication) technology to share your digital profile. Just tap your Impulso card to any modern smartphone, and your contact info, social links, and media will instantly appear — no app required."
+                    />
+                    <FAQItem
+                        question="Does the other person need an app?"
+                        answer="No! That's the magic. The receiver doesn't need to download anything. It works natively on most iPhones and Android devices just like Apple Pay or Google Pay."
+                    />
+                    <FAQItem
+                        question="Can I update my information later?"
+                        answer="Yes, absolutely. You have 'God Mode' control over your data. Update your phone number, social links, or even your company logo at any time from your private dashboard, and your card stays updated instantly."
+                    />
+                    <FAQItem
+                        question="Is my data secure?"
+                        answer="Security is our priority. We use advanced encryption to protect your data, and you have full control over what information you choose to share publicly."
+                    />
+                    <FAQItem
+                        question="What if I lose my card?"
+                        answer="If you lose your card, you can instantly 'Freeze' your profile from your dashboard so no one can access it. You can then order a replacement card and link it to your existing account."
+                    />
+                </div>
+            </section>
+
 
 
             {/* INTERACTIVE DEMO CTA */}
-            <section className="py-20 px-6">
-                <div className="max-w-5xl mx-auto rounded-[3rem] bg-gradient-to-b from-gray-900 to-black border border-white/10 p-12 md:p-24 text-center relative overflow-hidden">
+            <section className="py-24 px-6">
+                <div className="max-w-6xl mx-auto rounded-[4rem] bg-gradient-to-br from-gray-900 to-[#050510] border border-neon-blue/20 p-12 md:p-24 text-center relative overflow-hidden group">
                     <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-neon-blue/5 blur-[100px]"></div>
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-neon-blue/10 blur-[120px] group-hover:bg-neon-blue/20 transition-all duration-1000"></div>
 
-                    <h2 className="relative text-4xl md:text-6xl font-black font-syncopate mb-8 tracking-tighter">
-                        READY TO <br />
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-neon-blue to-white">LAUNCH?</span>
-                    </h2>
+                    <div className="relative z-10">
+                        <div className="inline-flex items-center gap-2 bg-neon-blue/10 border border-neon-blue/20 px-4 py-2 rounded-full text-neon-blue text-xs font-black tracking-widest uppercase mb-8">
+                            <Rocket size={14} className="animate-bounce" /> Destination: Success
+                        </div>
 
-                    <p className="relative text-xl text-white/60 mb-12 max-w-2xl mx-auto">
-                        Join thousands of professionals who have already upgraded their networking game.
-                    </p>
+                        <h2 className="text-5xl md:text-8xl font-black font-syncopate mb-8 tracking-tighter leading-none">
+                            READY FOR <br />
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-neon-blue via-white to-neon-blue bg-[length:200%_auto] animate-gradient">LIFTOFF?</span>
+                        </h2>
 
-                    <button
-                        onClick={() => router.push('/pricing')}
-                        className="relative z-10 px-12 py-6 bg-white text-black font-black text-xl rounded-full hover:scale-105 transition duration-300 shadow-[0_10px_40px_rgba(255,255,255,0.2)]"
-                    >
-                        START NOW
-                    </button>
+                        <p className="text-xl text-white/50 mb-12 max-w-2xl mx-auto leading-relaxed">
+                            Stop handing out trash. Start building your digital empire with the world's most advanced networking operating system.
+                        </p>
+
+                        <div className="flex flex-col md:flex-row items-center justify-center gap-6">
+                            <button
+                                onClick={() => router.push('/pricing')}
+                                className="px-12 py-6 bg-neon-blue text-black font-black text-xl rounded-full hover:scale-110 transition duration-500 shadow-[0_0_30px_rgba(0,243,255,0.5)] group"
+                            >
+                                <span className="flex items-center gap-3 italic">
+                                    INITIATE IMPULSO <ArrowRight className="group-hover:translate-x-2 transition" />
+                                </span>
+                            </button>
+                            <p className="text-white/30 text-xs font-bold uppercase tracking-tighter">
+                                Lifetime Access • No Monthly Fees • 2-Day Shipping
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* DECORATIVE ELEMENTS */}
+                    <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-neon-blue/10 rounded-full blur-3xl"></div>
+                    <div className="absolute -top-24 -right-24 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl"></div>
                 </div>
             </section>
 
             {/* FOOTER */}
-            <footer className="py-12 border-t border-white/5 text-center text-white/30 text-sm">
-                <p className="text-white/30">Copyright &copy; 2026 TapOS Impulsó. All Rights Reserved.</p>
+            <footer className="py-20 border-t border-white/5 bg-[#030308]">
+                <div className="container mx-auto px-6">
+                    <div className="flex flex-col md:flex-row justify-between items-center gap-12">
+                        <div className="flex flex-col items-center md:items-start gap-4">
+                            <div className="flex items-center gap-2">
+                                <Rocket className="text-neon-blue" size={24} />
+                                <span className="font-syncopate font-bold text-2xl tracking-tighter">IMPUL<span className="text-neon-blue">SO</span></span>
+                            </div>
+                            <p className="text-white/30 text-sm max-w-xs text-center md:text-left">
+                                The world's first AI-powered networking operating system.
+                                Beyond business cards. Beyond expectations.
+                            </p>
+                        </div>
+
+                        <div className="flex flex-wrap justify-center gap-12 text-sm font-bold uppercase tracking-widest text-white/50">
+                            <a href="#features" className="hover:text-neon-blue transition">Features</a>
+                            <a href="#benefits" className="hover:text-neon-blue transition">Benefits</a>
+                            <a href="#faq" className="hover:text-neon-blue transition">FAQ</a>
+                            <a href="/login" className="hover:text-neon-blue transition">Dashboard</a>
+                        </div>
+                    </div>
+
+                    <div className="mt-20 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 text-xs text-white/20">
+                        <p>© 2026 IMPULSO TECHNOLOGY GROUP. ALL RIGHTS RESERVED.</p>
+                        <div className="flex gap-8">
+                            <a href="#" className="hover:text-white transition">Privacy Policy</a>
+                            <a href="#" className="hover:text-white transition">Terms of Service</a>
+                            <a href="mailto:javi@tapygo.com" className="hover:text-white transition">Support</a>
+                        </div>
+                    </div>
+                </div>
             </footer>
 
             <style jsx>{`
@@ -353,4 +438,26 @@ function FeatureRow({ icon, title, text }: { icon: any, title: string, text: str
             </div>
         </div>
     )
+}
+
+function FAQItem({ question, answer }: { question: string, answer: string }) {
+    const [isOpen, setIsOpen] = useState(false);
+    return (
+        <div className="border border-white/10 rounded-2xl overflow-hidden bg-white/5 hover:border-neon-blue/30 transition-all duration-300">
+            <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="w-full p-6 text-left flex justify-between items-center gap-4"
+            >
+                <span className="font-bold text-lg md:text-xl text-white group-hover:text-neon-blue transition">{question}</span>
+                <div className={`shrink-0 w-8 h-8 rounded-full border border-white/20 flex items-center justify-center transition-transform duration-300 ${isOpen ? 'rotate-180 bg-neon-blue border-neon-blue text-black' : 'text-white'}`}>
+                    <Rocket size={14} className={isOpen ? '' : 'rotate-180'} />
+                </div>
+            </button>
+            <div className={`overflow-hidden transition-all duration-500 ease-in-out ${isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
+                <div className="px-6 pb-6 text-white/50 leading-relaxed border-t border-white/5 pt-4">
+                    {answer}
+                </div>
+            </div>
+        </div>
+    );
 }
