@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-    apiVersion: '2023-10-16',
+    apiVersion: '2025-12-15.clover' as any,
 });
 
 // Price IDs (from our previous steps)
@@ -27,27 +27,36 @@ export async function POST(req: NextRequest) {
             successUrl += '&plan=independent';
         }
         else if (plan === 'corporate') {
-            // 1. Setup Fee ($75 * Quantity)
+            // Volume Discount Logic
+            // If users > 10, reduce Setup Fee from $75 to $15 per user
+            const setupPricePerUnit = quantity > 10 ? 1500 : 7500;
+
+            // 1. Dynamic Setup Fee
             lineItems.push({
-                price: PRICE_CORPORATE_SETUP,
+                price_data: {
+                    currency: 'usd',
+                    product_data: {
+                        name: 'TapOS Corporate Setup',
+                        description: quantity > 10 ? 'Volume Discount Applied ($15/user)' : 'Standard Setup ($75/user)',
+                    },
+                    unit_amount: setupPricePerUnit,
+                },
                 quantity: quantity,
             });
 
-            // 2. Calculate Shipping based on Volume
+            // 2. Calculate Shipping based on Volume (Previous logic)
             let shippingAmount = 0;
             if (quantity >= 5 && quantity <= 20) {
-                shippingAmount = 1999; // $19.99
+                shippingAmount = 1999;
             } else if (quantity >= 21 && quantity <= 100) {
-                shippingAmount = 3999; // $39.99
+                shippingAmount = 3999;
             } else if (quantity > 100) {
-                shippingAmount = 5999; // $59.99
+                shippingAmount = 5999;
             } else {
-                // Default handling for < 5 users if valid? Assuming min $19.99 or per-item?
-                // User said "from 5 to 20", implying < 5 might handle differently, but let's default to basic shipping or $19.99 for now to be safe.
                 shippingAmount = 1999;
             }
 
-            // Add Shipping as a custom line item
+            // Add Shipping
             if (shippingAmount > 0) {
                 lineItems.push({
                     price_data: {
@@ -62,13 +71,38 @@ export async function POST(req: NextRequest) {
                 });
             }
 
+            // 3. Add Recurring Monthly License
+            let licensePricePerUnit = 0;
+            if (quantity <= 20) {
+                licensePricePerUnit = 1000; // $10
+            } else if (quantity <= 100) {
+                licensePricePerUnit = 800;  // $8
+            } else {
+                licensePricePerUnit = 600;  // $6
+            }
+
+            lineItems.push({
+                price_data: {
+                    currency: 'usd',
+                    product_data: {
+                        name: 'TapOS Monthly License',
+                        description: 'Recurring platform access per user',
+                    },
+                    unit_amount: licensePricePerUnit,
+                    recurring: {
+                        interval: 'month' as const,
+                    },
+                },
+                quantity: quantity,
+            });
+
             successUrl += '&plan=corporate';
         }
 
         const session = await stripe.checkout.sessions.create({
             cancel_url: 'https://tapos360.com/pricing',
             success_url: successUrl,
-            mode: 'payment',
+            mode: plan === 'corporate' ? 'subscription' : 'payment',
             line_items: lineItems,
             allow_promotion_codes: true,
         });

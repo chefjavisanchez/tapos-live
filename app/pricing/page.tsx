@@ -162,11 +162,18 @@ export default function PricingPage() {
                                             className="w-full bg-transparent border-b border-white/20 text-white font-rajdhani font-bold text-2xl focus:outline-none focus:border-purple-500"
                                         />
                                         <div className="text-right">
-                                            <div className="text-xs text-white/50">Estimated Setup</div>
+                                            <div className="text-xs text-white/50 uppercase font-bold">Total First Payment</div>
                                             <div className="text-lg font-bold text-purple-400">
-                                                ${(75 * corporateQty + (corporateQty >= 21 ? (corporateQty > 100 ? 59.99 : 39.99) : 19.99)).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                                {/* Logic handles Setup ($75 or $15) + Shipping + 1st Month License ($10, $8, or $6) */}
+                                                ${(
+                                                    ((corporateQty > 10 ? 15 : 75) * corporateQty) + // Setup
+                                                    (corporateQty >= 21 ? (corporateQty > 100 ? 59.99 : 39.99) : 19.99) + // Shipping
+                                                    ((corporateQty <= 20 ? 10 : corporateQty <= 100 ? 8 : 6) * corporateQty) // 1st Month License
+                                                ).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                                             </div>
-                                            <div className="text-[10px] text-white/30">+ Shipping</div>
+                                            <div className="text-[10px] text-white/30">
+                                                Includes {corporateQty > 10 ? <span className="text-green-400 font-bold">Setup ($15/ea)</span> : 'Setup ($75/ea)'} + License + Shipping
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
