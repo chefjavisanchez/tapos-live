@@ -48,6 +48,13 @@ export default function DashboardSidebar({
     };
 
     const isDashboard = pathname === '/';
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    if (!mounted) return <aside className="w-72 border-r border-white/10 bg-black/40 backdrop-blur-xl max-md:hidden h-screen" />;
 
     return (
         <aside className="w-72 border-r border-white/10 bg-black/40 backdrop-blur-xl flex flex-col p-6 max-md:hidden sticky top-0 h-screen overflow-hidden">

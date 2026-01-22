@@ -14,6 +14,7 @@ export default function Home() {
     const [isAdmin, setIsAdmin] = useState(false);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [mounted, setMounted] = useState(false);
 
     // NEW CORPORATE STATES
     const [appUser, setAppUser] = useState<any>(null);
@@ -22,10 +23,11 @@ export default function Home() {
     const [teamMembers, setTeamMembers] = useState<any[]>([]);
 
     const router = useRouter();
-    const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
 
     useEffect(() => {
-        const tab = searchParams?.get('tab');
+        setMounted(true);
+        const searchParams = new URLSearchParams(window.location.search);
+        const tab = searchParams.get('tab');
         if (tab === 'team') setActiveTab('team');
 
         const fetchCards = async () => {
@@ -68,7 +70,7 @@ export default function Home() {
         window.location.href = '/';
     };
 
-    if (loading) {
+    if (!mounted || loading) {
         return (
             <div className="min-h-screen bg-black flex items-center justify-center">
                 <Loader2 className="w-8 h-8 text-neon-blue animate-spin" />

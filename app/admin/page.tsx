@@ -6,13 +6,17 @@ import { useRouter } from 'next/navigation';
 import { Shield, CheckCircle, XCircle, Mail, User, Clock, Loader2, Lock, ShieldCheck, LogOut, Trash2 } from 'lucide-react';
 import DashboardSidebar from '@/components/DashboardSidebar';
 
+export const dynamic = 'force-dynamic';
+
 export default function AdminDashboard() {
     const router = useRouter();
     const [loading, setLoading] = useState(true);
     const [cards, setCards] = useState<any[]>([]);
     const [error, setError] = useState('');
+    const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
+        setMounted(true);
         checkAuthAndFetch();
     }, []);
 
@@ -78,33 +82,6 @@ export default function AdminDashboard() {
             setLoading(false);
         }
     };
-
-    if (loading) {
-        return (
-            <div className="min-h-screen bg-black flex items-center justify-center text-neon-blue">
-                <Loader2 className="animate-spin mr-2" /> VERIFYING ACCESS...
-            </div>
-        );
-    }
-
-    if (error) {
-        return (
-            <div className="min-h-screen bg-black flex flex-col items-center justify-center text-red-500 gap-4">
-                <Lock size={48} />
-                <h1 className="text-2xl font-bold">SECURITY ALERT</h1>
-                <p>{error}</p>
-                <div className="flex gap-4">
-                    <button onClick={() => router.push('/')} className="text-white underline">Return Home</button>
-                    <button onClick={async () => {
-                        await supabase.auth.signOut();
-                        router.push('/login');
-                    }} className="text-neon-blue font-bold border border-neon-blue px-4 py-2 rounded">
-                        RE-AUTHENTICATE
-                    </button>
-                </div>
-            </div>
-        );
-    }
 
     const handleActivate = async (cardId: string) => {
         if (!confirm('Are you sure you want to FORCE ACTIVATE this user?')) return;
@@ -208,6 +185,33 @@ export default function AdminDashboard() {
             setLoading(false);
         }
     };
+
+    if (!mounted || loading) {
+        return (
+            <div className="min-h-screen bg-black flex items-center justify-center text-neon-blue">
+                <Loader2 className="animate-spin mr-2" /> VERIFYING ACCESS...
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="min-h-screen bg-black flex flex-col items-center justify-center text-red-500 gap-4">
+                <Lock size={48} />
+                <h1 className="text-2xl font-bold">SECURITY ALERT</h1>
+                <p>{error}</p>
+                <div className="flex gap-4">
+                    <button onClick={() => router.push('/')} className="text-white underline">Return Home</button>
+                    <button onClick={async () => {
+                        await supabase.auth.signOut();
+                        router.push('/login');
+                    }} className="text-neon-blue font-bold border border-neon-blue px-4 py-2 rounded">
+                        RE-AUTHENTICATE
+                    </button>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="flex min-h-screen bg-black bg-cyber-grid bg-[length:40px_40px]">
@@ -355,9 +359,9 @@ export default function AdminDashboard() {
                                                 <td className="p-4 text-gray-500 text-xs">
                                                     <div className="flex items-center gap-2">
                                                         <Clock size={12} />
-                                                        {new Date(card.created_at).toLocaleDateString()}
+                                                        {card.created_at ? new Date(card.created_at).toLocaleDateString() : 'N/A'}
                                                     </div>
-                                                    <div>{new Date(card.created_at).toLocaleTimeString()}</div>
+                                                    <div>{card.created_at ? new Date(card.created_at).toLocaleTimeString() : ''}</div>
                                                 </td>
                                                 <td className="p-4">
                                                     {!isActive ? (
