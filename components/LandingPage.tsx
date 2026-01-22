@@ -391,7 +391,7 @@ export default function LandingPage() {
                     </div>
 
                     <div className="mt-20 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 text-xs text-white/20 uppercase tracking-widest font-bold">
-                        <p>© 2026 IMPULSO TECHNOLOGY GROUP. ALL RIGHTS RESERVED.</p>
+                        <p>Copyright © 2026 TapOS Impulsó. All Rights Reserved.</p>
                         <div className="flex gap-8">
                             <a href="/privacy" className="hover:text-white transition">Privacy Policy</a>
                             <a href="/terms" className="hover:text-white transition">Terms of Service</a>

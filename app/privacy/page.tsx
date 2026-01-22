@@ -85,7 +85,7 @@ export default function PrivacyPolicy() {
             </main>
 
             <footer className="py-12 border-t border-white/5 text-center text-white/20 text-xs">
-                <p>© 2026 IMPULSO TECHNOLOGY GROUP. ALL RIGHTS RESERVED.</p>
+                <p>Copyright © 2026 TapOS Impulsó. All Rights Reserved.</p>
             </footer>
         </div>
     );
