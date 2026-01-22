@@ -972,8 +972,14 @@ END:VCARD`;
                             </div>
 
                             {/* SCANNER */}
+                            {/* SCANNER */}
                             <div className={`d-icon ${activeTab === 'v-scan' ? 'active' : ''}`} onClick={() => setActiveTab('v-scan')}>
                                 <i className="ph-fill ph-camera"></i>
+                                {scannedContacts.length > 0 && (
+                                    <div className="absolute -top-2 -right-2 bg-red-500 text-white text-[9px] font-bold h-4 w-4 flex items-center justify-center rounded-full border border-black z-10 animate-bounce">
+                                        {scannedContacts.length}
+                                    </div>
+                                )}
                             </div>
 
                             <div className={`d-icon ${activeTab === 'v-star' ? 'active' : ''}`} onClick={() => setActiveTab('v-star')}>
