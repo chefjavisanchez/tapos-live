@@ -5,12 +5,15 @@ import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { User, Lock, Key, CheckCircle, ShieldAlert, ArrowLeft } from 'lucide-react';
+import DashboardSidebar from '@/components/DashboardSidebar';
 
 export default function ProfilePage() {
     const [loading, setLoading] = useState(true);
     const [card, setCard] = useState<any>(null);
     const [password, setPassword] = useState('');
     const [message, setMessage] = useState('');
+    const [isAdmin, setIsAdmin] = useState(false);
+    const [planType, setPlanType] = useState('independent');
     const router = useRouter();
 
     useEffect(() => {
@@ -19,6 +22,13 @@ export default function ProfilePage() {
             if (!user) {
                 router.push('/login');
                 return;
+            }
+
+            // Plan & Admin Check
+            setPlanType(user.user_metadata?.plan || 'independent');
+            const email = user.email?.toLowerCase().trim() || '';
+            if (['javi@tapygo.com', 'chefjavisanchez@gmail.com'].includes(email)) {
+                setIsAdmin(true);
             }
 
             // Get Card Status
@@ -68,63 +78,71 @@ export default function ProfilePage() {
 
     // ACTIVE VIEW
     return (
-        <div className="min-h-screen bg-black bg-cyber-grid p-8 text-white flex justify-center">
-            <div className="max-w-2xl w-full">
+        <div className="flex min-h-screen bg-black bg-cyber-grid bg-[length:40px_40px]">
+            <DashboardSidebar
+                isAdmin={isAdmin}
+                planType={planType}
+                userCard={card}
+            />
 
-                <Link href="/" className="inline-flex items-center text-white/50 hover:text-white mb-6 transition">
-                    <ArrowLeft className="mr-2" size={16} /> Back to Dashboard
-                </Link>
+            <div className="flex-1 p-8 overflow-y-auto">
+                <div className="max-w-2xl mx-auto">
 
-                <div className="mb-8 flex items-center gap-4">
-                    <div className="p-3 bg-neon-blue/20 rounded-xl border border-neon-blue">
-                        <User className="text-neon-blue" size={24} />
-                    </div>
-                    <div>
-                        <h1 className="text-3xl font-bold font-syncopate">USER PROFILE</h1>
-                        <p className="text-white/50">Manage your secure access credentials.</p>
-                    </div>
-                </div>
+                    <Link href="/" className="inline-flex items-center text-white/50 hover:text-white mb-6 transition">
+                        <ArrowLeft className="mr-2" size={16} /> Back to Dashboard
+                    </Link>
 
-                <div className="glass-panel border border-white/10 rounded-2xl p-8 space-y-8">
-
-                    <div className="flex items-center gap-4 p-4 bg-green-500/10 border border-green-500/30 rounded-lg">
-                        <CheckCircle className="text-green-400" />
+                    <div className="mb-8 flex items-center gap-4">
+                        <div className="p-3 bg-neon-blue/20 rounded-xl border border-neon-blue">
+                            <User className="text-neon-blue" size={24} />
+                        </div>
                         <div>
-                            <h3 className="font-bold text-green-400">Account Active</h3>
-                            <p className="text-xs text-white/50">TapOS Member Since {new Date(card.created_at).toLocaleDateString()}</p>
+                            <h1 className="text-3xl font-bold font-syncopate">USER PROFILE</h1>
+                            <p className="text-white/50">Manage your secure access credentials.</p>
                         </div>
                     </div>
 
-                    <form onSubmit={handleUpdatePassword} className="space-y-6">
-                        <div className="space-y-2">
-                            <label className="text-xs font-bold text-neon-blue uppercase">New Password</label>
-                            <div className="relative">
-                                <Key className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40 w-5 h-5" />
-                                <input
-                                    type="password"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    className="w-full bg-white/5 border border-white/10 rounded-lg py-3 pl-10 pr-4 text-white focus:outline-none focus:border-neon-blue transition"
-                                    placeholder="Enter new secure password"
-                                    required
-                                    minLength={6}
-                                />
+                    <div className="glass-panel border border-white/10 rounded-2xl p-8 space-y-8">
+
+                        <div className="flex items-center gap-4 p-4 bg-green-500/10 border border-green-500/30 rounded-lg">
+                            <CheckCircle className="text-green-400" />
+                            <div>
+                                <h3 className="font-bold text-green-400">Account Active</h3>
+                                <p className="text-xs text-white/50">TapOS Member Since {new Date(card.created_at).toLocaleDateString()}</p>
                             </div>
                         </div>
 
-                        <button
-                            className="w-full bg-neon-blue hover:bg-white text-black font-bold py-4 rounded-lg uppercase tracking-widest transition shadow-[0_0_20px_rgba(0,243,255,0.3)] hover:shadow-[0_0_30px_rgba(255,255,255,0.6)]"
-                        >
-                            Update Credentials
-                        </button>
+                        <form onSubmit={handleUpdatePassword} className="space-y-6">
+                            <div className="space-y-2">
+                                <label className="text-xs font-bold text-neon-blue uppercase">New Password</label>
+                                <div className="relative">
+                                    <Key className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40 w-5 h-5" />
+                                    <input
+                                        type="password"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        className="w-full bg-white/5 border border-white/10 rounded-lg py-3 pl-10 pr-4 text-white focus:outline-none focus:border-neon-blue transition"
+                                        placeholder="Enter new secure password"
+                                        required
+                                        minLength={6}
+                                    />
+                                </div>
+                            </div>
 
-                        {message && (
-                            <p className={`text-center text-sm font-bold ${message.includes('Error') ? 'text-red-500' : 'text-green-400'}`}>
-                                {message}
-                            </p>
-                        )}
-                    </form>
+                            <button
+                                className="w-full bg-neon-blue hover:bg-white text-black font-bold py-4 rounded-lg uppercase tracking-widest transition shadow-[0_0_20px_rgba(0,243,255,0.3)] hover:shadow-[0_0_30px_rgba(255,255,255,0.6)]"
+                            >
+                                Update Credentials
+                            </button>
 
+                            {message && (
+                                <p className={`text-center text-sm font-bold ${message.includes('Error') ? 'text-red-500' : 'text-green-400'}`}>
+                                    {message}
+                                </p>
+                            )}
+                        </form>
+
+                    </div>
                 </div>
             </div>
         </div>

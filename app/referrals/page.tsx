@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase';
 import { Terminal, CreditCard, User, Settings, LogOut, LayoutGrid, Loader2, Shield, Gift, AlertTriangle, CheckCircle2, ChevronRight, Copy } from "lucide-react";
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import DashboardSidebar from '@/components/DashboardSidebar';
 
 // REUSABLE NAV ITEM (Inlined for consistency)
 const NavItem = ({ href, icon, label, active = false }: { href: string; icon: React.ReactNode; label: string; active?: boolean }) => (
@@ -29,6 +30,8 @@ export default function RewardsPage() {
     const [referrals, setReferrals] = useState<any[]>([]);
     const [userSlug, setUserSlug] = useState('');
     const [copied, setCopied] = useState(false);
+    const [planType, setPlanType] = useState('independent');
+    const [primaryCard, setPrimaryCard] = useState<any>(null);
     const router = useRouter();
 
     useEffect(() => {
@@ -39,7 +42,8 @@ export default function RewardsPage() {
                 return;
             }
 
-            // Check Admin
+            // Plan & Admin Check
+            setPlanType(user.user_metadata?.plan || 'independent');
             const email = user.email?.toLowerCase().trim() || '';
             if (['javi@tapygo.com', 'chefjavisanchez@gmail.com'].includes(email)) setIsAdmin(true);
 
@@ -54,6 +58,7 @@ export default function RewardsPage() {
 
             if (myCard) {
                 setUserSlug(myCard.slug);
+                setPrimaryCard(myCard);
 
                 // 2. Count Referrals (Cards where referrer == mySlug)
                 // Note: referrer is in content JSONB
@@ -98,35 +103,11 @@ export default function RewardsPage() {
     return (
         <main className="flex min-h-screen bg-space-900 bg-cyber-grid bg-[length:40px_40px]">
 
-            {/* SIDEBAR (Duplicated from Dashboard) */}
-            <aside className="w-64 border-r border-white/10 glass-panel flex flex-col p-6 max-md:hidden sticky top-0 h-screen">
-                <div className="flex items-center gap-3 mb-10">
-                    <div className="w-10 h-10 rounded-full bg-neon-blue neon-glow flex items-center justify-center">
-                        <Terminal className="text-black w-6 h-6" />
-                    </div>
-                    <h1 className="font-syncopate text-xl tracking-tighter">TAP<span className="text-neon-blue">OS</span></h1>
-                </div>
-
-                <nav className="flex flex-col gap-2 flex-grow">
-                    <NavItem href="/" icon={<LayoutGrid size={20} />} label="Dashboard" />
-                    <NavItem href="/" icon={<CreditCard size={20} />} label="My Cards" />
-                    <NavItem href="/profile" icon={<User size={20} />} label="Profile" />
-                    <NavItem href="/referrals" icon={<Gift size={20} />} label="Rewards" active />
-                    <NavItem href="/settings" icon={<Settings size={20} />} label="Settings" />
-                    {isAdmin && (
-                        <div className="pt-4 mt-4 border-t border-white/10">
-                            <NavItem href="/admin" icon={<Shield size={20} />} label="God Mode" />
-                        </div>
-                    )}
-                </nav>
-
-                <div className="mt-auto pt-6 border-t border-white/10">
-                    <button onClick={handleSignOut} className="flex items-center gap-3 text-white/50 hover:text-white transition-colors duration-200">
-                        <LogOut size={20} />
-                        <span>Sign Out</span>
-                    </button>
-                </div>
-            </aside>
+            <DashboardSidebar
+                isAdmin={isAdmin}
+                planType={planType}
+                userCard={primaryCard}
+            />
 
             {/* MAIN CONTENT Area */}
             <div className="flex-1 p-8 lg:p-12 overflow-y-auto">

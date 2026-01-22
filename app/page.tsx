@@ -6,6 +6,7 @@ import { Terminal, CreditCard, User, Settings, LogOut, LayoutGrid, Loader2, Shie
 import { useRouter } from 'next/navigation';
 
 import LandingPage from '@/components/LandingPage'; // Import Landing Page
+import DashboardSidebar from '@/components/DashboardSidebar'; // Import Sidebar
 
 export default function Home() {
     const [cards, setCards] = useState<any[]>([]);
@@ -21,8 +22,12 @@ export default function Home() {
     const [teamMembers, setTeamMembers] = useState<any[]>([]);
 
     const router = useRouter();
+    const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
 
     useEffect(() => {
+        const tab = searchParams?.get('tab');
+        if (tab === 'team') setActiveTab('team');
+
         const fetchCards = async () => {
             const { data: { user } } = await supabase.auth.getUser();
 
@@ -98,6 +103,8 @@ export default function Home() {
                         )}
                         <NavItem href="/profile" icon={<User size={24} />} label="Profile" />
                         <NavItem href="/referrals" icon={<Gift size={24} />} label="Rewards" />
+                        <NavItem href="/shop" icon={<ShoppingBag size={24} />} label="Hardware Store" />
+                        <NavItem href="/settings" icon={<Settings size={24} />} label="Settings" />
                         {isAdmin && <NavItem href="/admin" icon={<Shield size={24} />} label="God Mode" />}
                     </nav>
 
@@ -111,36 +118,13 @@ export default function Home() {
             )}
 
             {/* SIDEBAR (Desktop) */}
-            <aside className="w-64 border-r border-white/10 bg-black/40 backdrop-blur-xl flex flex-col p-6 max-md:hidden sticky top-0 h-screen">
-                <div className="flex items-center gap-3 mb-10 shrink-0">
-                    <div className="w-10 h-10 rounded-full bg-neon-blue neon-glow flex items-center justify-center border border-neon-blue/50">
-                        <Terminal className="text-black w-6 h-6" />
-                    </div>
-                    <h1 className="font-syncopate text-xl tracking-tighter uppercase">TAP<span className="text-neon-blue font-black">OS</span></h1>
-                </div>
-
-                <nav className="flex flex-col gap-2 flex-grow">
-                    <NavItem icon={<LayoutGrid size={20} />} label="Dashboard" active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} />
-                    {planType === 'corporate' && (
-                        <NavItem icon={<UserPlus size={20} />} label="Team Control" active={activeTab === 'team'} onClick={() => setActiveTab('team')} />
-                    )}
-                    <NavItem href="/profile" icon={<User size={20} />} label="Profile" />
-                    <NavItem href="/referrals" icon={<Gift size={20} />} label="Rewards" />
-                    <NavItem href="/shop" icon={<ShoppingBag size={20} />} label="Store" />
-                    {isAdmin && (
-                        <div className="pt-4 mt-4 border-t border-white/10">
-                            <NavItem href="/admin" icon={<Shield size={20} />} label="God Mode" />
-                        </div>
-                    )}
-                </nav>
-
-                <div className="mt-auto pt-6 border-t border-white/10">
-                    <button onClick={handleSignOut} className="flex items-center gap-3 text-white/50 hover:text-white transition-colors duration-200">
-                        <LogOut size={20} />
-                        <span>Sign Out</span>
-                    </button>
-                </div>
-            </aside>
+            <DashboardSidebar
+                isAdmin={isAdmin}
+                planType={planType}
+                activeTab={activeTab}
+                setActiveTab={setActiveTab}
+                userCard={cards[0]}
+            />
 
             {/* MAIN CONTENT */}
             <div className="flex-1 p-8 overflow-y-auto">
@@ -273,8 +257,8 @@ function NavItem({
     );
 
     const baseClass = `flex items-center gap-3 p-4 rounded-xl cursor-pointer transition-all duration-300 ${active
-            ? 'bg-white text-black shadow-[0_0_20px_rgba(255,255,255,0.2)]'
-            : 'text-white/50 hover:text-white hover:bg-white/5'
+        ? 'bg-white text-black shadow-[0_0_20px_rgba(255,255,255,0.2)]'
+        : 'text-white/50 hover:text-white hover:bg-white/5'
         }`;
 
     if (onClick) {

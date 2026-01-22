@@ -33,6 +33,16 @@ const ActivationContent = () => {
 
     const handleRegister = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        // Explicit Validation Check
+        const requiredFields = ['fullName', 'email', 'password', 'address', 'city', 'zip'];
+        const missing = requiredFields.filter(f => !formData[f as keyof typeof formData]);
+
+        if (missing.length > 0) {
+            alert('Please fill out all required fields to activate your profile.');
+            return;
+        }
+
         setLoading(true);
 
         try {
@@ -190,10 +200,10 @@ const ActivationContent = () => {
 
                     <button
                         type="submit"
-                        disabled={loading}
-                        className="w-full py-4 bg-neon-blue hover:bg-white text-black font-bold uppercase tracking-widest rounded-xl transition-all shadow-[0_0_20px_rgba(0,243,255,0.3)] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+                        disabled={loading || !formData.fullName || !formData.email || !formData.password || !formData.address || !formData.city || !formData.zip}
+                        className="w-full py-4 bg-neon-blue hover:bg-white text-black font-bold uppercase tracking-widest rounded-xl transition-all shadow-[0_0_20px_rgba(0,243,255,0.3)] disabled:opacity-30 disabled:grayscale disabled:cursor-not-allowed flex items-center justify-center gap-3"
                     >
-                        {loading ? <Loader2 className="animate-spin" /> : <>Unlock Dashboard <ArrowRight size={18} /></>}
+                        {loading ? <Loader2 className="animate-spin" /> : <>Unlock Access <ArrowRight size={18} /></>}
                     </button>
 
                 </form>
