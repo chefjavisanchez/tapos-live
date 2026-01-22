@@ -45,13 +45,16 @@ export default function LandingPage() {
             {/* NAVIGATION */}
             <nav className="fixed top-0 left-0 right-0 z-50 bg-[#050510]/80 backdrop-blur-md border-b border-white/5">
                 <div className="container mx-auto px-6 h-20 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                        <div className="flex flex-col leading-none">
-                            <span className="font-syncopate font-black text-xl tracking-tighter">
-                                <span className="text-white">TAP</span>
-                                <span className="text-neon-blue">OS</span>
-                            </span>
-                            <span className="text-[8px] font-black tracking-[0.2em] text-white/50 italic ml-0.5">IMPULSÓ</span>
+                    <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-neon-blue/10 border border-neon-blue/30 flex items-center justify-center neon-glow">
+                            <Rocket className="text-neon-blue w-4 h-4 -rotate-45" />
+                        </div>
+                        <div className="flex flex-col leading-none italic font-black">
+                            <div className="flex items-center gap-0 tracking-tighter text-lg">
+                                <span className="text-[#4da8da]">Tap</span>
+                                <span className="text-[#f7941d]">OS</span>
+                            </div>
+                            <span className="text-[9px] tracking-[0.2em] text-white/70">IMPULSÓ</span>
                         </div>
                     </div>
                     <div className="hidden md:flex items-center gap-8 text-sm font-medium text-white/70">
@@ -74,21 +77,59 @@ export default function LandingPage() {
                     <div className="glow-circle"></div>
 
                     <div className="tg-hero-content animate-in fade-in slide-in-from-bottom-4 duration-1000">
-                        <div className="flex flex-col items-center mb-10">
-                            {/* Visual Logo Recreation from Image */}
-                            <div className="relative mb-4 flex flex-col items-center">
-                                <div className="flex items-center gap-0">
-                                    <span className="text-5xl md:text-8xl font-black italic tracking-tighter text-[#4da8da]">Tap</span>
-                                    <div className="relative">
-                                        <span className="text-5xl md:text-8xl font-black italic tracking-tighter text-[#f7941d]">OS</span>
-                                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                                            <Rocket className="text-[#050510] w-1/2 h-1/2 rotate-[15deg] translate-y-[-5%]" fill="#f7941d" />
+                        <div className="flex flex-col items-center mb-12">
+                            {/* LOGO MEGA CONTAINER */}
+                            <div className="flex items-center gap-6 md:gap-10">
+                                {/* TEXT LOGO */}
+                                <div className="flex flex-col items-center italic font-black">
+                                    <div className="flex items-center gap-0 tracking-tighter relative">
+                                        <span className="text-6xl md:text-9xl text-[#4da8da] drop-shadow-[0_0_20px_rgba(77,168,218,0.2)]">Tap</span>
+                                        <div className="relative">
+                                            <span className="text-6xl md:text-9xl text-[#f7941d]">OS</span>
+                                            {/* Rocket Silhouette inside the O */}
+                                            <div className="absolute inset-0 flex items-center justify-center p-[20%] pointer-events-none">
+                                                <Rocket className="text-[#050510] w-full h-full rotate-[15deg]" fill="#f7941d" />
+                                            </div>
+                                            {/* 360 Badge */}
+                                            <span className="absolute -top-1 -right-3 md:-right-6 bg-[#f7941d] text-[#050510] text-[8px] md:text-xs px-1.5 py-0.5 rounded font-black not-italic tracking-normal">360</span>
                                         </div>
-                                        <span className="absolute -top-1 -right-4 md:-right-6 text-[10px] md:text-xs font-bold text-[#f7941d]">360</span>
+                                    </div>
+                                    <div className="mt-[-10px] md:mt-[-25px]">
+                                        <span className="text-3xl md:text-6xl text-white/90 tracking-widest drop-shadow-xl">Impulsó</span>
                                     </div>
                                 </div>
-                                <div className="w-full flex justify-center mt-[-10px] md:mt-[-15px]">
-                                    <span className="text-2xl md:text-5xl font-black italic tracking-[0.1em] text-white/90 drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]">Impulsó</span>
+
+                                {/* ROCKET CIRCLE ICON (Image 4) */}
+                                <div className="relative w-24 h-24 md:w-40 md:h-40 shrink-0">
+                                    <svg viewBox="0 0 100 100" className="w-full h-full filter drop-shadow-[0_0_20px_rgba(0,243,255,0.4)]">
+                                        {/* Background outer segments */}
+                                        <circle cx="50" cy="50" r="45" fill="none" stroke="white" strokeWidth="0.5" strokeOpacity="0.1" />
+                                        <path d="M 50 5 A 45 45 0 0 1 95 50" fill="none" stroke="#4da8da" strokeWidth="4" strokeLinecap="round" />
+                                        <path d="M 50 95 A 45 45 0 0 1 5 50" fill="none" stroke="#f7941d" strokeWidth="4" strokeLinecap="round" />
+
+                                        {/* The shooting arrow/rocket */}
+                                        <g transform="translate(10, 10)">
+                                            <path
+                                                d="M 20 70 L 40 40 L 75 10 L 85 5 L 80 15 L 50 50 L 20 70"
+                                                fill="#4da8da"
+                                                className="animate-pulse"
+                                            />
+                                            <circle cx="20" cy="70" r="4" fill="#f7941d" />
+                                        </g>
+
+                                        {/* NFC Signal Waves in Center */}
+                                        <g transform="translate(40, 45) scale(0.6)" className="text-white/50">
+                                            <path d="M 0 10 Q 15 0 30 10" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
+                                            <path d="M -5 18 Q 15 2 35 18" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" opacity="0.7" />
+                                            <path d="M -10 26 Q 15 4 40 26" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" opacity="0.4" />
+                                        </g>
+
+                                        {/* Decorative Dots */}
+                                        <circle cx="50" cy="5" r="2" fill="#4da8da" />
+                                        <circle cx="95" cy="50" r="2" fill="#4da8da" />
+                                        <circle cx="50" cy="95" r="2" fill="#f7941d" />
+                                        <circle cx="5" cy="50" r="2" fill="#f7941d" />
+                                    </svg>
                                 </div>
                             </div>
                         </div>
@@ -395,12 +436,17 @@ export default function LandingPage() {
             <footer className="py-20 border-t border-white/5 bg-[#030308]">
                 <div className="container mx-auto px-6">
                     <div className="flex flex-col md:flex-row justify-between items-center gap-12">
-                        <div className="flex flex-col items-center md:items-start gap-0">
-                            <div className="flex items-center gap-0 leading-none">
-                                <span className="font-syncopate font-black text-2xl tracking-tighter text-white">TAP</span>
-                                <span className="font-syncopate font-black text-2xl tracking-tighter text-neon-blue">OS</span>
+                        <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-full bg-neon-blue/10 border border-neon-blue/30 flex items-center justify-center">
+                                <Rocket className="text-neon-blue w-4 h-4 -rotate-45" />
                             </div>
-                            <span className="text-[10px] font-black tracking-[0.2em] text-white/30 italic">IMPULSÓ</span>
+                            <div className="flex flex-col leading-none italic font-black">
+                                <div className="flex items-center gap-0 tracking-tighter text-lg">
+                                    <span className="text-[#4da8da]">Tap</span>
+                                    <span className="text-[#f7941d]">OS</span>
+                                </div>
+                                <span className="text-[8px] tracking-[0.2em] text-white/50">IMPULSÓ</span>
+                            </div>
                         </div>
                         <p className="text-white/30 text-sm max-w-xs text-center md:text-left">
                             The world's first AI-powered networking operating system.
