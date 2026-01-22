@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Rocket, Zap, Shield, Globe, ArrowRight, Share2, Trees, Smartphone } from 'lucide-react';
+import { Rocket, Zap, Shield, Globe, ArrowRight, Share2, Trees, Smartphone, ScanEye, Tv, MessageSquareText, Video, LayoutGrid } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 import NetworkingOS from './NetworkingOS';
@@ -145,51 +145,107 @@ export default function LandingPage() {
                 </div>
             </div >
 
-            {/* NETWORKING OS 360 */}
-            <NetworkingOS />
+            {/* NEW CORE VALUES & FEATURES SECTION */}
+            <section className="py-24 px-6 max-w-7xl mx-auto">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
 
-            {/* FEATURES GRID */}
-            <section className="py-32 px-6 max-w-7xl mx-auto">
-                <h2 className="text-3xl md:text-5xl font-bold font-syncopate text-center mb-20">
-                    WHY <span className="text-neon-blue">UPGRADE?</span>
-                </h2>
+                    {/* COLUMN 1: CORE VALUE PROPS */}
+                    <div className="space-y-12">
+                        <h2 className="text-3xl md:text-5xl font-bold font-syncopate">
+                            WHY <span className="text-neon-blue">UPGRADE?</span>
+                        </h2>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    {/* Feature 1 */}
-                    <div className="p-8 rounded-3xl bg-white/5 border border-white/10 hover:border-neon-blue/50 hover:bg-white/10 transition duration-500 group">
-                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-green-500/20 to-emerald-500/5 flex items-center justify-center mb-6 group-hover:scale-110 transition">
-                            <Trees className="text-green-400 w-8 h-8" />
+                        <div className="space-y-10">
+                            {/* Feature 1 */}
+                            <div className="flex gap-6 group">
+                                <div className="mt-1 w-12 h-12 rounded-xl bg-green-500/10 border border-green-500/20 flex items-center justify-center shrink-0 group-hover:scale-110 transition">
+                                    <Trees className="text-green-400 w-6 h-6" />
+                                </div>
+                                <div>
+                                    <h3 className="text-xl font-bold mb-3 text-white">Save Money & Trees</h3>
+                                    <p className="text-white/50 leading-relaxed">
+                                        A traditional professional spends ~$200/year on paper cards. TapOS is a one-time purchase that lasts a lifetime.
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* Feature 2 */}
+                            <div className="flex gap-6 group">
+                                <div className="mt-1 w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center shrink-0 group-hover:scale-110 transition">
+                                    <Zap className="text-purple-400 w-6 h-6" />
+                                </div>
+                                <div>
+                                    <h3 className="text-xl font-bold mb-3 text-white">Instant Impact</h3>
+                                    <p className="text-white/50 leading-relaxed">
+                                        No more typing numbers. Just tap your card to their phone and your info saves instantly. It’s magic that wins clients.
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* Feature 3 */}
+                            <div className="flex gap-6 group">
+                                <div className="mt-1 w-12 h-12 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center shrink-0 group-hover:scale-110 transition">
+                                    <Shield className="text-orange-400 w-6 h-6" />
+                                </div>
+                                <div>
+                                    <h3 className="text-xl font-bold mb-3 text-white">God Mode Control</h3>
+                                    <p className="text-white/50 leading-relaxed">
+                                        Update your details anytime from your dashboard. Your card is never outdated. Changed jobs? New phone? Update it in seconds.
+                                    </p>
+                                </div>
+                            </div>
                         </div>
-                        <h3 className="text-2xl font-bold mb-4">Save Money & Trees</h3>
-                        <p className="text-white/50 leading-relaxed">
-                            A traditional professional spends ~$200/year on paper cards. TapOS is a one-time purchase that lasts a lifetime. Plus, you save forests.
-                        </p>
                     </div>
 
-                    {/* Feature 2 */}
-                    <div className="p-8 rounded-3xl bg-white/5 border border-white/10 hover:border-purple-500/50 hover:bg-white/10 transition duration-500 group relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 blur-[50px]"></div>
-                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500/20 to-pink-500/5 flex items-center justify-center mb-6 group-hover:scale-110 transition">
-                            <Zap className="text-purple-400 w-8 h-8" />
+                    {/* COLUMN 2: EXCLUSIVE FEATURES */}
+                    <div className="p-8 md:p-10 rounded-[2.5rem] bg-gradient-to-br from-white/5 to-transparent border border-white/10 hover:border-white/20 transition duration-500">
+                        <div className="mb-10">
+                            <h3 className="text-2xl font-bold mb-2">More Than a Card.</h3>
+                            <h3 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-neon-blue to-white mb-6">
+                                It’s a Conversion Engine.
+                            </h3>
                         </div>
-                        <h3 className="text-2xl font-bold mb-4">Instant Impact</h3>
-                        <p className="text-white/50 leading-relaxed">
-                            No more typing numbers. Just tap your card to their phone and your info saves instantly. It's magic that wins clients.
-                        </p>
+
+                        <div className="space-y-8">
+
+                            <FeatureRow
+                                icon={<ScanEye className="text-neon-blue" size={20} />}
+                                title="AI Lead Scanner"
+                                text="Stop manually entering data. Capture any paper business card with our AI Optical Recognition and export it directly to a CSV spreadsheet."
+                            />
+
+                            <FeatureRow
+                                icon={<Tv className="text-neon-blue" size={20} />}
+                                title="Dynamic Ad Slots"
+                                text="Monetize your profile with 5 customizable ad spaces. Showcase your logo, flyers, or text-based promotions to everyone you meet."
+                            />
+
+                            <FeatureRow
+                                icon={<MessageSquareText className="text-neon-blue" size={20} />}
+                                title="Marquee Text Engine"
+                                text="Run a scrolling live ticker across your profile to announce your latest launch or a limited-time offer."
+                            />
+
+                            <FeatureRow
+                                icon={<Video className="text-neon-blue" size={20} />}
+                                title="Video Business Card"
+                                text="Embed your YouTube videos directly into your profile so prospects can see your work and hear your story instantly."
+                            />
+
+                            <FeatureRow
+                                icon={<LayoutGrid className="text-neon-blue" size={20} />}
+                                title="Social Impulsó Grid"
+                                text="Fast-connect buttons for WhatsApp, Instagram, LinkedIn, and custom web links—all in one place."
+                            />
+
+                        </div>
                     </div>
 
-                    {/* Feature 3 */}
-                    <div className="p-8 rounded-3xl bg-white/5 border border-white/10 hover:border-orange-500/50 hover:bg-white/10 transition duration-500 group">
-                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-500/20 to-yellow-500/5 flex items-center justify-center mb-6 group-hover:scale-110 transition">
-                            <Shield className="text-orange-400 w-8 h-8" />
-                        </div>
-                        <h3 className="text-2xl font-bold mb-4">God Mode Control</h3>
-                        <p className="text-white/50 leading-relaxed">
-                            Update your details anytime from your dashboard. Your card is never outdated. Changed jobs? New phone? Update it in seconds.
-                        </p>
-                    </div>
                 </div>
             </section>
+
+            {/* AI ASSISTANT */}
+            <NetworkingOS />
 
 
 
@@ -233,4 +289,18 @@ export default function LandingPage() {
              `}</style>
         </div >
     );
+}
+
+function FeatureRow({ icon, title, text }: { icon: any, title: string, text: string }) {
+    return (
+        <div className="flex gap-4 items-start group">
+            <div className="mt-1 w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0 group-hover:bg-neon-blue/10 group-hover:border-neon-blue/30 transition">
+                {icon}
+            </div>
+            <div>
+                <h4 className="font-bold text-white mb-1 group-hover:text-neon-blue transition">{title}</h4>
+                <p className="text-sm text-white/50 leading-relaxed">{text}</p>
+            </div>
+        </div>
+    )
 }
