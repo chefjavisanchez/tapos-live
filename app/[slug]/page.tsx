@@ -1,4 +1,4 @@
-
+import { Suspense } from 'react';
 import { Metadata } from 'next';
 import { supabase } from '@/lib/supabase';
 import CardEngine from '@/components/CardEngine';
@@ -115,5 +115,9 @@ export default async function Page({ params }: Props) {
     }
 
     // Pass data to Client Component
-    return <CardEngine data={card.content} slug={params.slug} ownerId={card.user_id} cardId={card.id} />;
+    return (
+        <Suspense fallback={<div className="min-h-screen bg-black flex items-center justify-center text-[#00F3FF]">LOADING TAPOS IDENTITY...</div>}>
+            <CardEngine data={card.content} slug={params.slug} ownerId={card.user_id} cardId={card.id} />
+        </Suspense>
+    );
 }

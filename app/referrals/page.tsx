@@ -301,24 +301,7 @@ export default function RewardsPage() {
             </div>
 
             {/* INLINE STYLE FOR SHINE EFFECT */}
-            <style jsx>{`
-                .shine-effect {
-                    position: relative;
-                }
-                .shine-effect::before {
-                    content: '';
-                    position: absolute;
-                    top: 0; left: -100%; width: 100%; height: 100%;
-                    background: linear-gradient(to right, transparent, rgba(255,255,255,0.05), transparent);
-                    transform: skewX(-20deg);
-                    animation: shine 6s infinite;
-                }
-                @keyframes shine {
-                    0% { left: -100%; }
-                    20% { left: 100%; }
-                    100% { left: 100%; }
-                }
-            `}</style>
+
 
         </main>
     );

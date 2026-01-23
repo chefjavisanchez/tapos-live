@@ -574,6 +574,12 @@ export default function CardEngine({ data, slug, ownerId, cardId }: CardEnginePr
         setScanResult(null);
     };
 
+    const clearLeads = () => {
+        if (!confirm('Are you sure you want to delete all scanned leads from this device?')) return;
+        setScannedContacts([]);
+        localStorage.removeItem('tapos_leads');
+    };
+
     const downloadCSV = () => {
         if (scannedContacts.length === 0) return alert('No leads to export.');
         const headers = ["Name", "Email", "Phone", "Notes", "Date"];
@@ -586,6 +592,14 @@ export default function CardEngine({ data, slug, ownerId, cardId }: CardEnginePr
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+
+        // Prompt to clear after download
+        setTimeout(() => {
+            if (confirm('Download started. Clear the leads board now?')) {
+                setScannedContacts([]);
+                localStorage.removeItem('tapos_leads');
+            }
+        }, 1000);
     };
 
     const handleSaveContact = () => {
@@ -914,9 +928,16 @@ END:VCARD`;
                                         <div className="flex-1 overflow-auto space-y-2">
                                             <div className="flex justify-between items-center mb-2">
                                                 <span className="text-xs font-bold text-white uppercase">Saved Leads ({scannedContacts.length})</span>
-                                                <button onClick={downloadCSV} className="text-[10px] bg-green-500/20 text-green-400 px-2 py-1 rounded border border-green-500/30">
-                                                    EXPORT CSV
-                                                </button>
+                                                <div className="flex gap-2">
+                                                    {scannedContacts.length > 0 && (
+                                                        <button onClick={clearLeads} className="text-[10px] bg-red-500/10 text-red-400 px-2 py-1 rounded border border-red-500/30 hover:bg-red-500 hover:text-white transition">
+                                                            CLEAR
+                                                        </button>
+                                                    )}
+                                                    <button onClick={downloadCSV} className="text-[10px] bg-green-500/20 text-green-400 px-2 py-1 rounded border border-green-500/30 hover:bg-green-500 hover:text-black transition">
+                                                        EXPORT CSV
+                                                    </button>
+                                                </div>
                                             </div>
                                             {scannedContacts.map((lead, i) => (
                                                 <div key={i} className="scan-list-item">
