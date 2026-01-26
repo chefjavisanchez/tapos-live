@@ -313,7 +313,27 @@ const IMPULSO_STYLES = `
       display: none !important;
       visibility: hidden !important;
       opacity: 0 !important;
+      opacity: 0 !important;
       pointer-events: none !important;
+  }
+  
+  /* IMMERSIVE MODE STYLES */
+  .header-zone, .dock-zone {
+      transition: opacity 0.5s ease, transform 0.5s ease;
+      opacity: 1;
+      transform: translateY(0);
+  }
+  
+  .ui-hidden .header-zone {
+      opacity: 0;
+      transform: translateY(-20px);
+      pointer-events: none;
+  }
+  
+  .ui-hidden .dock-zone {
+      opacity: 0;
+      transform: translateY(20px);
+      pointer-events: none;
   }
 `;
 
@@ -361,6 +381,39 @@ export default function CardEngine({ data, slug, ownerId, cardId }: CardEnginePr
     const initialView = searchParams.get('view') || 'v-home';
     const [activeTab, setActiveTab] = useState(initialView);
     const [activeAd, setActiveAd] = useState(0);
+
+    // IMMERSIVE MODE STATE
+    const [isUIHidden, setIsUIHidden] = useState(false);
+    const IDLE_TIMEOUT = 4000; // 4 seconds
+
+    useEffect(() => {
+        let timeout: NodeJS.Timeout;
+
+        const resetTimer = () => {
+            setIsUIHidden(false);
+            clearTimeout(timeout);
+            timeout = setTimeout(() => {
+                setIsUIHidden(true);
+            }, IDLE_TIMEOUT);
+        };
+
+        // Initial set
+        resetTimer();
+
+        // Listeners
+        window.addEventListener('mousemove', resetTimer);
+        window.addEventListener('touchstart', resetTimer);
+        window.addEventListener('click', resetTimer);
+        window.addEventListener('scroll', resetTimer);
+
+        return () => {
+            clearTimeout(timeout);
+            window.removeEventListener('mousemove', resetTimer);
+            window.removeEventListener('touchstart', resetTimer);
+            window.removeEventListener('click', resetTimer);
+            window.removeEventListener('scroll', resetTimer);
+        };
+    }, []);
 
     // Theme State - Default to Dark
     const [isDarkMode, setIsDarkMode] = useState(true);
@@ -712,7 +765,7 @@ END:VCARD`;
             <div className="impulso-wrapper">
                 <div className="bg-gradient-radial"></div>
 
-                <div id="tap-os-engine">
+                <div id="tap-os-engine" className={isUIHidden ? 'ui-hidden' : ''} onClick={() => setIsUIHidden(false)}>
 
                     {/* HEADER */}
                     <div className="header-zone">
