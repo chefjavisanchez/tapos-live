@@ -149,7 +149,7 @@ export default function Home() {
                         {/* HEADER */}
                         <header className="flex justify-between items-center mb-10">
                             <div>
-                                <h1 className="text-4xl font-black mb-2 font-syncopate uppercase">OPERATIONAL STATUS: <span className="text-neon-blue">GO</span></h1>
+                                <h1 className="text-4xl font-black mb-2 font-syncopate uppercase">OPERATIONAL STATUS: <span className="text-neon-blue">SYSTEM</span></h1>
                                 <p className="text-white/50 font-medium">Welcome back, {appUser?.user_metadata?.full_name || 'Operator'}.</p>
                             </div>
                             {cards.length === 0 && (

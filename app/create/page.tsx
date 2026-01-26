@@ -19,6 +19,26 @@ function CreateForm() {
         jobTitle: ''
     });
 
+    // SAFETY CHECK: Redirect if card already exists
+    useEffect(() => {
+        const checkExisting = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) return;
+
+            const { data: existingCard } = await supabase
+                .from('cards')
+                .select('id')
+                .eq('user_id', user.id)
+                .maybeSingle();
+
+            if (existingCard) {
+                // User already has a card, redirect to editor
+                router.replace(`/editor?id=${existingCard.id}`);
+            }
+        };
+        checkExisting();
+    }, []);
+
     const handleCreate = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
