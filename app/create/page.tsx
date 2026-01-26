@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, Suspense } from 'react'; // Added Suspense for searchParams
+import { useState, useEffect, Suspense } from 'react'; // Added Suspense for searchParams
 import { supabase } from '@/lib/supabase';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Sparkles, ArrowRight, CreditCard, User, AlertTriangle, Loader2 } from 'lucide-react';
