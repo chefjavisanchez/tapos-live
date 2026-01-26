@@ -454,15 +454,13 @@ export default function AdminDashboard() {
                                                         </div>
                                                     )}
 
-                                                    {/* DELETE ACTION (ONLY FOR LOCKED/INACTIVE) */}
-                                                    {!isActive && (
-                                                        <button
-                                                            onClick={() => handleDelete(card.id)}
-                                                            className="mt-2 px-3 py-1 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white border border-red-500/50 rounded text-xs font-bold transition flex items-center gap-2 w-full justify-center"
-                                                        >
-                                                            <Trash2 size={12} /> DELETE
-                                                        </button>
-                                                    )}
+                                                    {/* DELETE ACTION (ALWAYS VISIBLE) */}
+                                                    <button
+                                                        onClick={() => handleDelete(card.id)}
+                                                        className="mt-2 px-3 py-1 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white border border-red-500/50 rounded text-xs font-bold transition flex items-center gap-2 w-full justify-center"
+                                                    >
+                                                        <Trash2 size={12} /> DELETE
+                                                    </button>
                                                 </td>
                                             </tr>
                                         );
