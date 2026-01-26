@@ -171,6 +171,10 @@ function CreateForm() {
                                 onChange={(e) => setForm({ ...form, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '') })}
                                 className="w-full bg-white/5 border border-white/10 rounded-xl py-4 pl-36 pr-4 text-white focus:outline-none focus:border-neon-blue transition font-mono"
                                 placeholder="your-name"
+                                autoComplete="off"
+                                autoCorrect="off"
+                                autoCapitalize="none"
+                                spellCheck="false"
                                 required
                             />
                         </div>
