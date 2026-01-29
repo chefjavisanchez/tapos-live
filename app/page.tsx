@@ -25,10 +25,10 @@ export default function Home() {
     const [teamMembers, setTeamMembers] = useState<any[]>([]);
 
     // LEAD VIEWER STATE
-    const [leadViewerState, setLeadViewerState] = useState<{ isOpen: boolean, leads: any[], title: string }>({
+    const [leadViewerState, setLeadViewerState] = useState<{ isOpen: boolean, leads: any[], title: string, cardId?: string, ownerId?: string }>({
         isOpen: false,
         leads: [],
-        title: ''
+        title: '',
     });
 
     const router = useRouter();
@@ -265,6 +265,8 @@ export default function Home() {
                 onClose={() => setLeadViewerState(prev => ({ ...prev, isOpen: false }))}
                 leads={leadViewerState.leads}
                 cardTitle={leadViewerState.title}
+                cardId={leadViewerState.cardId}
+                ownerId={leadViewerState.ownerId}
             />
 
         </main>

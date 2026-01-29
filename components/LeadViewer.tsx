@@ -1,4 +1,4 @@
-import { X, FileSpreadsheet } from 'lucide-react';
+import { X, FileSpreadsheet, RefreshCw, Upload } from 'lucide-react';
 
 interface Lead {
     name: string;
@@ -13,10 +13,57 @@ interface Props {
     onClose: () => void;
     leads: Lead[];
     cardTitle: string;
+    cardId?: string;
+    ownerId?: string;
 }
 
-export default function LeadViewer({ isOpen, onClose, leads, cardTitle }: Props) {
+export default function LeadViewer({ isOpen, onClose, leads, cardTitle, cardId, ownerId }: Props) {
     if (!isOpen) return null;
+
+    const handleRecovery = async () => {
+        if (!cardId) return alert("Card ID missing. Cannot sync.");
+
+        // 1. Check Local Storage
+        // The previous code used 'tapos_leads' globally, not per cardId
+        const localLeadsRaw = localStorage.getItem('tapos_leads');
+        if (!localLeadsRaw) return alert("No local leads found on this device.");
+
+        const localLeads = JSON.parse(localLeadsRaw);
+        if (localLeads.length === 0) return alert("No local leads found.");
+
+        const confirmSync = confirm(`Found ${localLeads.length} leads on this device. Attempt to upload them to the private cloud?`);
+        if (!confirmSync) return;
+
+        // 2. Upload one by one (deduplication handled by simple check or just append for safety)
+        let addedCount = 0;
+        for (const lead of localLeads) {
+            // Simple check: if this lead date/name combo exists in current props, skip
+            const exists = leads.some(l => l.date === lead.date && l.name === lead.name);
+            if (exists) continue;
+
+            try {
+                await fetch('/api/card/capture', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        cardId,
+                        ownerId: ownerId || '', // optional
+                        name: lead.name,
+                        email: lead.email,
+                        phone: lead.phone,
+                        note: 'Recovered from Local Device'
+                    })
+                });
+                addedCount++;
+            } catch (e) {
+                console.error("Sync failed for lead", lead, e);
+            }
+        }
+
+        alert(`Recovery Complete: ${addedCount} new leads synced. Please refresh the page.`);
+        onClose();
+        location.reload();
+    };
 
     const downloadCSV = () => {
         if (!leads || leads.length === 0) return alert('No leads to export.');
@@ -50,6 +97,9 @@ export default function LeadViewer({ isOpen, onClose, leads, cardTitle }: Props)
                         <p className="text-white/40 text-xs">Captures for: <span className="text-neon-blue">{cardTitle}</span></p>
                     </div>
                     <div className="flex gap-2">
+                        <button onClick={handleRecovery} className="flex items-center gap-2 bg-neon-blue/10 hover:bg-neon-blue/20 text-neon-blue px-4 py-2 rounded-lg transition border border-neon-blue/20 text-xs font-bold uppercase">
+                            <RefreshCw size={16} /> Rescue from Device
+                        </button>
                         <button onClick={downloadCSV} className="flex items-center gap-2 bg-green-500/10 hover:bg-green-500 text-green-400 hover:text-white px-4 py-2 rounded-lg transition border border-green-500/20 text-xs font-bold uppercase">
                             <FileSpreadsheet size={16} /> Export CSV
                         </button>
