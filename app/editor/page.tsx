@@ -110,7 +110,10 @@ function EditorContent() {
             .update({ content: content })
             .eq('id', cardId);
 
-        if (error) alert('Error saving! Check console.');
+        if (error) {
+            console.error('Save Error:', error);
+            alert('Error saving: ' + error.message);
+        }
 
         // Refresh the iframe preview by reloading it with a cache-busting timestamp AND view persistence
         const iframe = document.getElementById('preview-frame') as HTMLIFrameElement;

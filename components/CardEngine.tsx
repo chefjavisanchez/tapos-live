@@ -7,7 +7,7 @@ import { useSearchParams } from 'next/navigation';
 import Script from 'next/script';
 
 import { Loader2, Edit } from 'lucide-react';
-import { createWorker } from 'tesseract.js';
+// import { createWorker } from 'tesseract.js'; // Dynamic Import now
 import { supabase } from '@/lib/supabase';
 
 const IMPULSO_STYLES = `
@@ -378,8 +378,39 @@ interface CardEngineProps {
 
 export default function CardEngine({ data, slug, ownerId, cardId }: CardEngineProps) {
     const searchParams = useSearchParams();
-    const initialView = searchParams.get('view') || 'v-home';
-    const [activeTab, setActiveTab] = useState(initialView);
+
+    // ANALYTICS TRACKING
+    const trackSave = () => {
+        if (!cardId) return;
+        fetch('/api/analytics', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ cardId, type: 'save' })
+        }).catch(e => console.error("Analytics Save Error", e));
+    };
+
+    useEffect(() => {
+        // VIEW ANALYTIC
+        // We use sessionStorage to prevent duplicate views in one session
+        if (cardId && !sessionStorage.getItem(`viewed_${cardId}`)) {
+            fetch('/api/analytics', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ cardId, type: 'view' })
+            }).catch(e => console.error("Analytics View Error", e));
+            sessionStorage.setItem(`viewed_${cardId}`, 'true');
+        }
+    }, [cardId]);
+
+    // HYDRATION FIX: Default to 'v-home' on server/initial render
+    const [activeTab, setActiveTab] = useState('v-home');
+
+    // Sync with URL after mount (Client Only)
+    useEffect(() => {
+        const view = searchParams.get('view');
+        if (view) setActiveTab(view);
+    }, [searchParams]);
+
     const [activeAd, setActiveAd] = useState(0);
 
     // IMMERSIVE MODE STATE
@@ -520,7 +551,7 @@ export default function CardEngine({ data, slug, ownerId, cardId }: CardEnginePr
         // 2. Load Cloud Leads (If they exist in the card data)
         // Since the API saves leads to 'content.leads', and 'data' IS the content,
         // we might already have them here.
-        const cloudLeads = data.leads || [];
+        const cloudLeads = data?.leads || [];
 
         // 3. Merge (deduplicate by date or email to be safe, but simple concat for now)
         // We prioritize Cloud leads for the Owner view
@@ -530,11 +561,11 @@ export default function CardEngine({ data, slug, ownerId, cardId }: CardEnginePr
         const uniqueLeads = allLeads.filter((v, i, a) => a.findIndex(t => (t.date === v.date)) === i);
 
         setScannedContacts(uniqueLeads);
-    }, [data.leads]);
+    }, [data?.leads]);
 
     // Calculate valid ads
     const allAds = ['ad1', 'ad2', 'ad3', 'ad4', 'ad5'];
-    const validAds = allAds.filter((key, idx) => idx === 0 || (data[key] && data[key].title1));
+    const validAds = allAds.filter((key, idx) => idx === 0 || (data?.[key] && data?.[key]?.title1));
     const adsToRender = validAds.length > 0 ? validAds : ['ad1'];
 
     // Suppress loops
@@ -570,7 +601,7 @@ export default function CardEngine({ data, slug, ownerId, cardId }: CardEnginePr
             const base64Image = await toBase64(file);
 
             // 2. Check for Turbo Mode
-            if (data.openai_api_key && data.openai_api_key.startsWith('sk-')) {
+            if (data?.openai_api_key && data?.openai_api_key.startsWith('sk-')) {
                 console.log("🚀 Using AI Turbo Scan...");
                 const res = await fetch('/api/scan', {
                     method: 'POST',
@@ -589,8 +620,10 @@ export default function CardEngine({ data, slug, ownerId, cardId }: CardEnginePr
                 });
 
             } else {
-                // 3. Fallback to Local Tesseract
-                const worker = await createWorker('eng');
+                // 3. Fallback to Local Tesseract (Dynamic Import)
+                // @ts-ignore
+                const Tesseract = await import('tesseract.js');
+                const worker = await Tesseract.createWorker('eng');
                 const ret = await worker.recognize(file);
                 const text = ret.data.text;
                 await worker.terminate();
@@ -690,6 +723,7 @@ export default function CardEngine({ data, slug, ownerId, cardId }: CardEnginePr
 
         // 3. Download our VCF
         downloadVcf();
+        trackSave(); // TRACK SAVE ANALYTIC
 
         // 4. Close & Reset
         alert(`Shared! You received ${data.fullName}'s card and we saved your info.`);
@@ -757,7 +791,7 @@ END:VCARD`;
 
             <link rel="preconnect" href="https://fonts.googleapis.com" />
             <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-            <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Rajdhani:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+            {/* REMOVED DUPLICATE FONT LINKS - Handled in layout.tsx */}
             <Script src="https://unpkg.com/@phosphor-icons/web" strategy="lazyOnload" />
 
             <style dangerouslySetInnerHTML={{ __html: IMPULSO_STYLES }} />

@@ -28,7 +28,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         };
     }
 
-    const { fullName, jobTitle, company, profileImage } = card.content;
+    const content = card.content || {};
+    const { fullName = 'Digital Identity', jobTitle = 'Professional', company = 'TapOS', profileImage } = content;
 
     return {
         title: `${fullName} | ${jobTitle} | TapOS Impulso`,

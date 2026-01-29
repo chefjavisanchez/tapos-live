@@ -23,13 +23,13 @@ export default function ExchangeModal({ visible, onClose, onExchange, onSkip, ca
 
                 <div className="text-center mb-8">
                     <div className="w-20 h-20 rounded-full border-2 border-[#00f3ff] p-1 mx-auto mb-4 relative">
-                        <img src={cardData.profileImage || "https://placehold.co/100x100"} className="w-full h-full rounded-full object-cover" />
+                        <img src={cardData?.profileImage || "https://placehold.co/100x100"} className="w-full h-full rounded-full object-cover" />
                         <div className="absolute -bottom-2 -right-2 bg-black rounded-full p-1 border border-white/20">
                             <i className="ph-fill ph-arrows-left-right text-[#00f3ff] text-xl"></i>
                         </div>
                     </div>
                     <h2 className="font-syncopate text-xl text-white font-bold uppercase leading-none mb-2">Connect & Exchange</h2>
-                    <p className="text-white/60 text-xs">Share your info to instantly get {cardData.fullName}'s Digital Card.</p>
+                    <p className="text-white/60 text-xs">Share your info to instantly get {cardData?.fullName || "this user"}'s Digital Card.</p>
                 </div>
 
                 <div className="space-y-4">

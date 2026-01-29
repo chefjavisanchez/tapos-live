@@ -8,6 +8,7 @@ import { isAdmin as checkIsAdmin } from '@/lib/admin-config';
 
 import LandingPage from '@/components/LandingPage'; // Import Landing Page
 import DashboardSidebar from '@/components/DashboardSidebar'; // Import Sidebar
+import LeadViewer from '@/components/LeadViewer'; // Import LeadViewer
 
 export default function Home() {
     const [cards, setCards] = useState<any[]>([]);
@@ -22,6 +23,13 @@ export default function Home() {
     const [planType, setPlanType] = useState('independent');
     const [activeTab, setActiveTab] = useState<'dashboard' | 'team'>('dashboard');
     const [teamMembers, setTeamMembers] = useState<any[]>([]);
+
+    // LEAD VIEWER STATE
+    const [leadViewerState, setLeadViewerState] = useState<{ isOpen: boolean, leads: any[], title: string }>({
+        isOpen: false,
+        leads: [],
+        title: ''
+    });
 
     const router = useRouter();
 
@@ -176,7 +184,25 @@ export default function Home() {
                                         </div>
 
                                         <h3 className="text-2xl font-bold mb-1 font-rajdhani text-white">{card.title}</h3>
-                                        <p className="text-white/40 text-sm mb-8 font-mono">tapos360.com/{card.slug}</p>
+                                        <p className="text-white/40 text-sm mb-4 font-mono">tapos360.com/{card.slug}</p>
+
+                                        {/* ANALYTICS STATS */}
+                                        <div className="grid grid-cols-3 gap-2 mb-6">
+                                            <div className="bg-white/5 rounded-lg p-2 text-center border border-white/5 group hover:border-neon-blue/30 transition cursor-pointer"
+                                                onClick={() => setLeadViewerState({ isOpen: true, leads: card.content?.leads || [], title: card.title || 'Card' })}
+                                            >
+                                                <div className="text-[10px] text-white/40 uppercase font-black tracking-widest group-hover:text-neon-blue">Leads</div>
+                                                <div className="text-xl font-bold text-white font-rajdhani">{(card.content?.leads || []).length}</div>
+                                            </div>
+                                            <div className="bg-white/5 rounded-lg p-2 text-center border border-white/5">
+                                                <div className="text-[10px] text-gray-400 uppercase font-black tracking-widest">Views</div>
+                                                <div className="text-xl font-bold text-blue-400 font-rajdhani">{(card.content?.analytics?.views || 0)}</div>
+                                            </div>
+                                            <div className="bg-white/5 rounded-lg p-2 text-center border border-white/5">
+                                                <div className="text-[10px] text-gray-400 uppercase font-black tracking-widest">Saves</div>
+                                                <div className="text-xl font-bold text-green-400 font-rajdhani">{(card.content?.analytics?.saves || 0)}</div>
+                                            </div>
+                                        </div>
 
                                         <div className="flex gap-2">
                                             <a href={`/editor?id=${card.id}`} className="flex-1 py-3 bg-neon-blue text-black font-bold rounded-xl text-center text-xs uppercase tracking-widest transition hover:bg-white">Edit</a>
@@ -232,6 +258,14 @@ export default function Home() {
                     </div>
                 )}
             </div>
+            {/* LEAD VIEWER MODAL */}
+            <LeadViewer
+                isOpen={leadViewerState.isOpen}
+                onClose={() => setLeadViewerState(prev => ({ ...prev, isOpen: false }))}
+                leads={leadViewerState.leads}
+                cardTitle={leadViewerState.title}
+            />
+
         </main>
     );
 }
