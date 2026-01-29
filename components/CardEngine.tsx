@@ -652,11 +652,33 @@ export default function CardEngine({ data, slug, ownerId, cardId }: CardEnginePr
         }
     };
 
-    const saveLead = () => {
+    const saveLead = async () => {
         if (!scanResult) return;
+
+        // 1. Save to Cloud (Supabase)
+        try {
+            await fetch('/api/card/capture', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    cardId,
+                    ownerId,
+                    name: scanResult.name,
+                    email: scanResult.email,
+                    phone: scanResult.phone,
+                    note: `Scanned: ${scanResult.notes}`
+                })
+            });
+        } catch (e) {
+            console.error("Cloud Save Failed (Scanner)", e);
+        }
+
+        // 2. Save locally as backup & update UI
         const newLeads = [...scannedContacts, { ...scanResult, date: new Date().toISOString() }];
         setScannedContacts(newLeads);
         localStorage.setItem('tapos_leads', JSON.stringify(newLeads));
+
+        alert("Lead Saved! Synced to your database.");
         setScanResult(null);
     };
 
