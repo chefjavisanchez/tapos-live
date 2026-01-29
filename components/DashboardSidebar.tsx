@@ -112,39 +112,6 @@ export default function DashboardSidebar({
                 )}
             </nav>
 
-            {/* STATS WIDGET */}
-            <div className="mt-8 bg-white/5 border border-white/10 rounded-2xl p-4 shrink-0 overflow-hidden relative group">
-                <div className="flex justify-between items-center mb-4">
-                    <div className="flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_#22c55e]"></span>
-                        <span className="text-[10px] font-black tracking-widest text-white/40 uppercase">Overview</span>
-                    </div>
-                    <div className="px-2 py-0.5 bg-neon-blue/20 text-neon-blue text-[9px] font-black rounded border border-neon-blue/30 uppercase">Live</div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4 mb-4">
-                    <div className="bg-black/40 p-3 rounded-xl border border-white/5">
-                        <div className="text-[9px] text-white/30 uppercase font-bold mb-1">Views</div>
-                        <div className="text-xl font-black font-rajdhani text-white">{userCard?.content?.views || 0}</div>
-                    </div>
-                    <div className="bg-black/40 p-3 rounded-xl border border-white/5">
-                        <div className="text-[9px] text-white/30 uppercase font-bold mb-1">Saves</div>
-                        <div className="text-xl font-black font-rajdhani text-neon-blue">{userCard?.content?.saves || 0}</div>
-                    </div>
-                </div>
-
-                <div className="flex gap-2">
-                    <button className="flex-1 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg transition overflow-hidden">
-                        <Share2 size={14} className="mx-auto text-white/60" />
-                    </button>
-                    <button
-                        onClick={() => userCard?.slug && window.open(`/${userCard.slug}`, '_blank')}
-                        className="flex-1 py-2 bg-neon-blue/20 hover:bg-neon-blue/30 border border-neon-blue/30 rounded-lg transition overflow-hidden"
-                    >
-                        <Eye size={14} className="mx-auto text-neon-blue" />
-                    </button>
-                </div>
-            </div>
 
             <div className="mt-6 pt-6 border-t border-white/10 shrink-0">
                 <button onClick={handleSignOut} className="flex items-center gap-3 text-white/50 hover:text-white transition-colors duration-200">

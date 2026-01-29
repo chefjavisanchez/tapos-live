@@ -188,11 +188,12 @@ export default function Home() {
 
                                         {/* ANALYTICS STATS */}
                                         <div className="grid grid-cols-3 gap-2 mb-6">
-                                            <div className="bg-white/5 rounded-lg p-2 text-center border border-white/5 group hover:border-neon-blue/30 transition cursor-pointer"
+                                            <div className="bg-white/5 rounded-lg p-2 text-center border border-white/5 group hover:border-neon-blue/50 hover:bg-white/10 transition cursor-pointer relative overflow-hidden"
                                                 onClick={() => setLeadViewerState({ isOpen: true, leads: card.content?.leads || [], title: card.title || 'Card' })}
                                             >
-                                                <div className="text-[10px] text-white/40 uppercase font-black tracking-widest group-hover:text-neon-blue">Leads</div>
-                                                <div className="text-xl font-bold text-white font-rajdhani">{(card.content?.leads || []).length}</div>
+                                                <div className="text-[10px] text-white/40 uppercase font-black tracking-widest group-hover:text-neon-blue mb-1">Leads</div>
+                                                <div className="text-xl font-bold text-white font-rajdhani mb-1">{(card.content?.leads || []).length}</div>
+                                                <div className="text-[9px] text-neon-blue opacity-0 group-hover:opacity-100 uppercase tracking-wider font-bold transition-opacity">View List</div>
                                             </div>
                                             <div className="bg-white/5 rounded-lg p-2 text-center border border-white/5">
                                                 <div className="text-[10px] text-gray-400 uppercase font-black tracking-widest">Views</div>
