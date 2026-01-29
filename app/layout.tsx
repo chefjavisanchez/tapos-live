@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { Inter, Syncopate, Rajdhani } from "next/font/google";
 import "./globals.css";
+import "@phosphor-icons/web/regular";
+import "@phosphor-icons/web/fill";
+import "@phosphor-icons/web/bold";
 
 const inter = Inter({ subsets: ["latin"], variable: '--font-inter' });
 const syncopate = Syncopate({ weight: "700", subsets: ["latin"], variable: '--font-syncopate' });
@@ -72,7 +75,7 @@ export default function RootLayout({
     return (
         <html lang="en">
             <head>
-                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+                {/* REMOVED EXTERNAL FONTS - Using local/Next fonts */}
             </head>
             <body className={`${inter.variable} ${syncopate.variable} ${rajdhani.variable} bg-black text-white antialiased`}>{children}</body>
         </html>

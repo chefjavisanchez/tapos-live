@@ -10,6 +10,14 @@ import { Loader2, Edit } from 'lucide-react';
 // import { createWorker } from 'tesseract.js'; // Dynamic Import now
 import { supabase } from '@/lib/supabase';
 
+// CRITICAL FIX: React Error 31 Protection
+// This function ensures we never render an object as a React Child
+const safeStr = (val: any): string => {
+    if (typeof val === 'string') return val;
+    if (typeof val === 'number') return String(val);
+    return ''; // Return empty string if object, null, or undefined
+};
+
 const IMPULSO_STYLES = `
   :root {
       --gold: #00f3ff; /* OVERRIDE: NEON BLUE */
@@ -583,7 +591,7 @@ export default function CardEngine({ data, slug, ownerId, cardId }: CardEnginePr
         if (activeTab !== 'v-home') return;
         const interval = setInterval(() => {
             setActiveAd(prev => (prev + 1) % adsToRender.length);
-        }, 5000);
+        }, 3000);
         return () => clearInterval(interval);
     }, [activeTab, adsToRender.length]);
 
@@ -814,7 +822,7 @@ END:VCARD`;
             <link rel="preconnect" href="https://fonts.googleapis.com" />
             <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
             {/* REMOVED DUPLICATE FONT LINKS - Handled in layout.tsx */}
-            <Script src="https://unpkg.com/@phosphor-icons/web" strategy="lazyOnload" />
+            {/* REMOVED EXTERNAL SCRIPT - Handled via local package in layout.tsx */}
 
             <style dangerouslySetInnerHTML={{ __html: IMPULSO_STYLES }} />
             <style dangerouslySetInnerHTML={{ __html: dynamicStyles }} />
@@ -831,8 +839,8 @@ END:VCARD`;
                                 <div className="online-dot"></div>
                             </div>
                             <div className="char-info">
-                                <h1>{data.fullName}</h1>
-                                <span>{data.jobTitle}</span>
+                                <h1>{safeStr(data.fullName)}</h1>
+                                <span>{safeStr(data.jobTitle)}</span>
                             </div>
                         </div>
 
@@ -862,8 +870,8 @@ END:VCARD`;
                         <div className="marquee-content">
                             {[1, 2, 3, 4].map(k => (
                                 <span key={k}>
-                                    <span className="m-item">{data.marqueeText || `🚀 ${data.company || "TAPOS SYSTEM"} LAUNCHED`}</span><span className="m-item">•</span>
-                                    <span className="m-item">{data.marqueeText ? "" : `CONNECT WITH ${data.fullName}`}</span><span className="m-item">•</span>
+                                    <span className="m-item">{safeStr(data.marqueeText) || `🚀 ${safeStr(data.company) || "TAPOS SYSTEM"} LAUNCHED`}</span><span className="m-item">•</span>
+                                    <span className="m-item">{data.marqueeText ? "" : `CONNECT WITH ${safeStr(data.fullName)}`}</span><span className="m-item">•</span>
                                 </span>
                             ))}
                         </div>
@@ -882,7 +890,7 @@ END:VCARD`;
                                             <div key={key} className={`ad-card ${activeAd === idx ? 'show' : ''}`} style={{ background: 'transparent', boxShadow: 'none', border: 'none' }}>
                                                 <div className="notify-badge"><i className="ph-fill ph-check-circle pulse-bell"></i> VERIFIED</div>
                                                 <img src={data.logoImage} alt="Brand Logo" style={{ width: '80%', height: 'auto', objectFit: 'contain', filter: 'drop-shadow(0 0 20px rgba(255,255,255,0.2))' }} />
-                                                <div className="ad-title" style={{ marginTop: 20 }}><span>{data.company || "OFFICIAL PARTNER"}</span></div>
+                                                <div className="ad-title" style={{ marginTop: 20 }}><span>{safeStr(data.company) || "OFFICIAL PARTNER"}</span></div>
                                             </div>
                                         );
                                     }
@@ -902,10 +910,10 @@ END:VCARD`;
 
                                     return (
                                         <div key={key} className={`ad-card ${activeAd === idx ? 'show' : ''}`}>
-                                            <div className="notify-badge"><i className={`ph-fill ${idx === 0 ? 'ph-bell' : 'ph-lightning'} pulse-bell`}></i> {badge}</div>
-                                            <div className="ad-title">{t1}<br /><span>{t2}</span></div>
+                                            <div className="notify-badge"><i className={`ph-fill ${idx === 0 ? 'ph-bell' : 'ph-lightning'} pulse-bell`}></i> {safeStr(badge)}</div>
+                                            <div className="ad-title">{safeStr(t1)}<br /><span>{safeStr(t2)}</span></div>
                                             <i className={`ph-fill ${icon} ad-icon-lg`} style={{ color: iconColor }}></i>
-                                            <a href={link} target="_blank" className="urgent-btn">{btnLabel}</a>
+                                            <a href={link} target="_blank" className="urgent-btn">{safeStr(btnLabel)}</a>
                                         </div>
                                     )
                                 })}
@@ -965,8 +973,8 @@ END:VCARD`;
                                             }}></i>
                                         </div>
                                         <div className="text-content">
-                                            <h3>{btnData?.title || defaultLabels[srv as keyof typeof defaultLabels]}</h3>
-                                            <p>{btnData?.subtitle || 'Tap to view'}</p>
+                                            <h3>{safeStr(btnData?.title) || defaultLabels[srv as keyof typeof defaultLabels]}</h3>
+                                            <p>{safeStr(btnData?.subtitle) || 'Tap to view'}</p>
                                         </div>
                                         <div className="arrow-box">
                                             <i className="ph-bold ph-arrow-right"></i>
