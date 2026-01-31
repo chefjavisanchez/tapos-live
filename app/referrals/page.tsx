@@ -84,7 +84,7 @@ export default function RewardsPage() {
 
     const copyToClipboard = () => {
         if (!userSlug) return;
-        navigator.clipboard.writeText(`https://tapos360.com/create?ref=${userSlug}`);
+        navigator.clipboard.writeText(`https://tapos360.com/?ref=${userSlug}`);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
     };
@@ -263,7 +263,7 @@ export default function RewardsPage() {
                                     <div className="text-xs text-neon-blue font-bold uppercase mb-2">Your Referral Link</div>
                                     <div className="flex gap-2">
                                         <div className="flex-1 bg-black/50 border border-white/20 rounded-lg px-4 py-3 text-sm text-white/80 font-mono truncate">
-                                            https://tapos360.com/create?ref={userSlug}
+                                            https://tapos360.com/?ref={userSlug}
                                         </div>
                                         <button
                                             onClick={copyToClipboard}
