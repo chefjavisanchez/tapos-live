@@ -33,10 +33,18 @@ export default function Home() {
 
     const router = useRouter();
 
+    const [showLanding, setShowLanding] = useState(false);
+
     useEffect(() => {
         setMounted(true);
         const searchParams = new URLSearchParams(window.location.search);
         const tab = searchParams.get('tab');
+        const refParam = searchParams.get('ref');
+
+        if (refParam) {
+            setShowLanding(true);
+        }
+
         if (tab === 'team') setActiveTab('team');
 
         const fetchCards = async () => {
@@ -84,7 +92,7 @@ export default function Home() {
         );
     }
 
-    if (!isAuthenticated) {
+    if (!isAuthenticated || showLanding) {
         return <LandingPage />;
     }
 
