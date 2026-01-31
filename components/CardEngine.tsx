@@ -985,7 +985,7 @@ END:VCARD`;
 
                             {/* PERMANENT REFERRAL BUTTON (BUTTON 5) */}
                             <a
-                                href={`https://tapos360.com/create?ref=${slug}`}
+                                href={`/?ref=${slug}`}
                                 target="_blank"
                                 className="service-btn glass-panel"
                                 style={{

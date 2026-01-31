@@ -25,6 +25,16 @@ export default function LandingPage() {
         return () => document.removeEventListener('click', handleClickOutside);
     }, [focusedPhone]);
 
+    // Capture Referral Code
+    useEffect(() => {
+        const searchParams = new URLSearchParams(window.location.search);
+        const ref = searchParams.get('ref');
+        if (ref) {
+            localStorage.setItem('tapos_referral_code', ref);
+            console.log('Referral Captured:', ref);
+        }
+    }, []);
+
     const handlePhoneClick = (index: number, e: React.MouseEvent) => {
         e.stopPropagation();
         if (focusedPhone === index) {

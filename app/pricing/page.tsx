@@ -25,7 +25,8 @@ export default function PricingPage() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     plan,
-                    quantity: qtyRaw
+                    quantity: qtyRaw,
+                    referralCode: localStorage.getItem('tapos_referral_code') || undefined
                 })
             });
 
