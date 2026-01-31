@@ -14,7 +14,7 @@ const PRICE_CORPORATE_SETUP = 'price_1SsCxWAqqte3JdvPraeb1r0w';
 
 export async function POST(req: NextRequest) {
     try {
-        const { plan, quantity = 1 } = await req.json();
+        const { plan, quantity = 1, referralCode } = await req.json();
 
         let lineItems = [];
         let successUrl = 'https://tapos360.com/activate?session_id={CHECKOUT_SESSION_ID}';
@@ -104,6 +104,11 @@ export async function POST(req: NextRequest) {
             mode: plan === 'corporate' ? 'subscription' : 'payment',
             line_items: lineItems,
             allow_promotion_codes: true,
+            metadata: {
+                referral_code: referralCode || null,
+                plan_type: plan,
+                quantity: quantity
+            }
         });
 
         return NextResponse.json({ url: session.url });
