@@ -56,7 +56,8 @@ const ActivationContent = () => {
                         shipping_address: `${formData.address}, ${formData.city}, ${formData.zip}, ${formData.country}`,
                         plan: plan || 'independent',
                         quantity: parseInt(quantity || '1'),
-                        stripe_session_id: sessionId
+                        stripe_session_id: sessionId,
+                        referrer: localStorage.getItem('tapos_referral_code') || null
                     }
                 }
             });
