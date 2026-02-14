@@ -103,6 +103,7 @@ export default function PricingPage() {
                                 <FeatureItem text="AI Lead Scanner (Unlimited)" />
                                 <FeatureItem text="Programmable Actions & Rewards" />
                                 <FeatureItem text="Partner Rights (Resell & Earn)" />
+                                <FeatureItem text="Quick-Start Guide: Pre-Register Profile, Lead Capture & YouTube Setup" />
                             </div>
 
                             <button
