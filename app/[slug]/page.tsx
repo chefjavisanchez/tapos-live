@@ -115,10 +115,19 @@ export default async function Page({ params }: Props) {
         );
     }
 
+    // 4. FETCH LEADS FOR SYNC
+    const { data: leadsData } = await supabase
+        .from('leads')
+        .select('*')
+        .eq('card_id', card.id)
+        .order('created_at', { ascending: false });
+
+    const remoteLeads = leadsData || [];
+
     // Pass data to Client Component
     return (
         <Suspense fallback={<div className="min-h-screen bg-black flex items-center justify-center text-[#00F3FF]">LOADING TAPOS IDENTITY...</div>}>
-            <CardEngine data={card.content} slug={params.slug} ownerId={card.user_id} cardId={card.id} />
+            <CardEngine data={card.content} slug={params.slug} ownerId={card.user_id} cardId={card.id} remoteLeads={remoteLeads} />
         </Suspense>
     );
 }

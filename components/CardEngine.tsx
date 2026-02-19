@@ -382,9 +382,10 @@ interface CardEngineProps {
     slug: string;
     ownerId?: string;
     cardId?: string;
+    remoteLeads?: any[];
 }
 
-export default function CardEngine({ data, slug, ownerId, cardId }: CardEngineProps) {
+export default function CardEngine({ data, slug, ownerId, cardId, remoteLeads = [] }: CardEngineProps) {
     const searchParams = useSearchParams();
 
     // ANALYTICS TRACKING
@@ -557,15 +558,24 @@ export default function CardEngine({ data, slug, ownerId, cardId }: CardEnginePr
         const saved = localStorage.getItem('tapos_leads');
         const localLeads = saved ? JSON.parse(saved) : [];
 
-        // We no longer merge cloud leads here; the Lead Manager Dashboard is the central 
-        // source of truth for all leads. This local scanner state acts as a temporary 
-        // buffer for the device that resets when exported.
+        // 2. Load Cloud SQL Leads
+        const cloudLeads = remoteLeads || [];
 
-        // Remove duplicates based on date string if necessary, simplistic approach:
-        const uniqueLeads = localLeads.filter((v: any, i: number, a: any) => a.findIndex((t: any) => (t.date === v.date)) === i);
+        // 3. Merge and deduplicate
+        const allLeads = [...localLeads, ...cloudLeads];
+
+        // Unique by combining phone and email checks, fallback to date to avoid duplicating identical leads 
+        // that exist in both local storage and cloud database.
+        const uniqueLeads = allLeads.filter((v: any, i: number, a: any) =>
+            a.findIndex((t: any) =>
+                (t.email && t.email === v.email) ||
+                (t.phone && t.phone === v.phone) ||
+                (t.date && t.date === v.date)
+            ) === i
+        );
 
         setScannedContacts(uniqueLeads);
-    }, []);
+    }, [remoteLeads]);
 
     // Calculate valid ads
     const allAds = ['ad1', 'ad2', 'ad3', 'ad4', 'ad5'];
