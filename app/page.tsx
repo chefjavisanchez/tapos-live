@@ -13,6 +13,7 @@ import LeadsManager from '@/components/LeadsManager'; // Import LeadsManager
 
 export default function Home() {
     const [cards, setCards] = useState<any[]>([]);
+    const [leads, setLeads] = useState<any[]>([]); // New Leads State
     const [loading, setLoading] = useState(true);
     const [isAdmin, setIsAdmin] = useState(false);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -74,7 +75,18 @@ export default function Home() {
                 .eq('user_id', user.id)
                 .order('created_at', { ascending: false });
 
+
             if (data) setCards(data);
+
+            // FETCH LEADS (SQL)
+            const { data: leadsData } = await supabase
+                .from('leads')
+                .select('*')
+                .eq('owner_id', user.id)
+                .order('created_at', { ascending: false });
+
+            if (leadsData) setLeads(leadsData);
+
             setLoading(false);
         };
 
@@ -240,7 +252,7 @@ export default function Home() {
                         </div>
                     </div>
                 ) : activeTab === 'leads' ? (
-                    <LeadsManager cards={cards} />
+                    <LeadsManager cards={cards} leads={leads} /> // Pass leads directly
                 ) : (
                     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                         <header className="mb-10">

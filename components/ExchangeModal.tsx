@@ -7,9 +7,10 @@ interface ExchangeModalProps {
     onExchange: (data: { name: string; email: string; phone: string }) => void;
     onSkip: () => void;
     cardData: any;
+    isSubmitted?: boolean;
 }
 
-export default function ExchangeModal({ visible, onClose, onExchange, onSkip, cardData }: ExchangeModalProps) {
+export default function ExchangeModal({ visible, onClose, onExchange, onSkip, cardData, isSubmitted }: ExchangeModalProps) {
     const [formData, setFormData] = useState({ name: '', email: '', phone: '' });
 
     if (!visible) return null;
@@ -21,62 +22,74 @@ export default function ExchangeModal({ visible, onClose, onExchange, onSkip, ca
                     <i className="ph-bold ph-x text-2xl"></i>
                 </button>
 
-                <div className="text-center mb-8">
-                    <div className="w-20 h-20 rounded-full border-2 border-[#00f3ff] p-1 mx-auto mb-4 relative">
-                        <img src={cardData?.profileImage || "https://placehold.co/100x100"} className="w-full h-full rounded-full object-cover" />
-                        <div className="absolute -bottom-2 -right-2 bg-black rounded-full p-1 border border-white/20">
-                            <i className="ph-fill ph-arrows-left-right text-[#00f3ff] text-xl"></i>
+                {isSubmitted ? (
+                    <div className="text-center py-10 animate-in zoom-in duration-300">
+                        <div className="w-20 h-20 rounded-full border-4 border-[#00f3ff] mx-auto mb-6 flex items-center justify-center bg-[#00f3ff]/10">
+                            <i className="ph-bold ph-check text-[#00f3ff] text-4xl"></i>
                         </div>
+                        <h2 className="font-syncopate text-2xl text-white font-bold uppercase mb-2">Success!</h2>
+                        <p className="text-[#00f3ff] font-bold uppercase tracking-widest text-sm mb-4">Contact Exchanged</p>
+                        <p className="text-white/60 text-xs leading-relaxed">You will now receive {cardData?.fullName || "this user"}'s card. Please save it to your device contacts.</p>
                     </div>
-                    <h2 className="font-syncopate text-xl text-white font-bold uppercase leading-none mb-2">Connect & Exchange</h2>
-                    <p className="text-white/60 text-xs">Share your info to instantly get {cardData?.fullName || "this user"}'s Digital Card.</p>
-                </div>
+                ) : (
+                    <>
+                        <div className="text-center mb-8">
+                            <div className="w-20 h-20 rounded-full border-2 border-[#00f3ff] p-1 mx-auto mb-4 relative">
+                                <img src={cardData?.profileImage || "https://placehold.co/100x100"} className="w-full h-full rounded-full object-cover" />
+                                <div className="absolute -bottom-2 -right-2 bg-black rounded-full p-1 border border-white/20">
+                                    <i className="ph-fill ph-arrows-left-right text-[#00f3ff] text-xl"></i>
+                                </div>
+                            </div>
+                            <h2 className="font-syncopate text-xl text-white font-bold uppercase leading-none mb-2">Connect & Exchange</h2>
+                            <p className="text-white/60 text-xs">Share your info to instantly get {cardData?.fullName || "this user"}'s Digital Card.</p>
+                        </div>
 
-                <div className="space-y-4">
-                    <div>
-                        <label className="text-[10px] text-[#00f3ff] uppercase font-bold tracking-wider mb-1 block">Your Name</label>
-                        <input
-                            type="text"
-                            placeholder="John Doe"
-                            className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white focus:border-[#00f3ff] outline-none transition"
-                            value={formData.name}
-                            onChange={e => setFormData({ ...formData, name: e.target.value })}
-                        />
-                    </div>
-                    <div>
-                        <label className="text-[10px] text-[#00f3ff] uppercase font-bold tracking-wider mb-1 block">Your Email</label>
-                        <input
-                            type="email"
-                            placeholder="john@example.com"
-                            className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white focus:border-[#00f3ff] outline-none transition"
-                            value={formData.email}
-                            onChange={e => setFormData({ ...formData, email: e.target.value })}
-                        />
-                    </div>
-                    <div>
-                        <label className="text-[10px] text-[#00f3ff] uppercase font-bold tracking-wider mb-1 block">Your Phone</label>
-                        <input
-                            type="tel"
-                            placeholder="+1 555 000 0000"
-                            className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white focus:border-[#00f3ff] outline-none transition"
-                            value={formData.phone}
-                            onChange={e => setFormData({ ...formData, phone: e.target.value })}
-                        />
-                    </div>
+                        <div className="space-y-4">
+                            <div>
+                                <label className="text-[10px] text-[#00f3ff] uppercase font-bold tracking-wider mb-1 block">Your Name</label>
+                                <input
+                                    type="text"
+                                    placeholder="John Doe"
+                                    className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white focus:border-[#00f3ff] outline-none transition"
+                                    value={formData.name}
+                                    onChange={e => setFormData({ ...formData, name: e.target.value })}
+                                />
+                            </div>
+                            <div>
+                                <label className="text-[10px] text-[#00f3ff] uppercase font-bold tracking-wider mb-1 block">Your Email</label>
+                                <input
+                                    type="email"
+                                    placeholder="john@example.com"
+                                    className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white focus:border-[#00f3ff] outline-none transition"
+                                    value={formData.email}
+                                    onChange={e => setFormData({ ...formData, email: e.target.value })}
+                                />
+                            </div>
+                            <div>
+                                <label className="text-[10px] text-[#00f3ff] uppercase font-bold tracking-wider mb-1 block">Your Phone</label>
+                                <input
+                                    type="tel"
+                                    placeholder="+1 555 000 0000"
+                                    className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white focus:border-[#00f3ff] outline-none transition"
+                                    value={formData.phone}
+                                    onChange={e => setFormData({ ...formData, phone: e.target.value })}
+                                />
+                            </div>
 
-                    <button
-                        onClick={() => onExchange(formData)}
-                        disabled={!formData.name}
-                        className="w-full py-4 mt-4 bg-[#00f3ff] hover:bg-white text-black font-rajdhani font-bold text-lg uppercase tracking-wider rounded-xl transition shadow-[0_0_20px_rgba(0,243,255,0.3)] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                    >
-                        <i className="ph-bold ph-swap"></i> Exchange Now
-                    </button>
+                            <button
+                                onClick={() => onExchange(formData)}
+                                disabled={!formData.name}
+                                className="w-full py-4 mt-4 bg-[#00f3ff] hover:bg-white text-black font-rajdhani font-bold text-lg uppercase tracking-wider rounded-xl transition shadow-[0_0_20px_rgba(0,243,255,0.3)] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                            >
+                                <i className="ph-bold ph-swap"></i> Exchange Now
+                            </button>
 
-                    <button onClick={onSkip} className="w-full text-center text-[10px] text-white/30 hover:text-white uppercase tracking-widest mt-4">
-                        Skip & Just Download Card
-                    </button>
-                </div>
-
+                            <button onClick={onSkip} className="w-full text-center text-[10px] text-white/30 hover:text-white uppercase tracking-widest mt-4">
+                                Skip & Just Download Card
+                            </button>
+                        </div>
+                    </>
+                )}
             </div>
         </div>
     );

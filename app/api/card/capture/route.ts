@@ -14,59 +14,52 @@ import { supabase } from '@/lib/supabase'; // We still need supabase for GHL tri
 // Wait, my `updateCardContent` implementation does `await updateQuery.select()`. This returns modified rows.
 // So `updateData[0]` will have the slug if I selected it?
 // `update()` with `select()` returns the modified rows. By default all columns? Yes, usually.
-// So I can get the slug from the result of `updateCardContent`.
-
-import { updateCardContent } from '@/lib/card-utils';
+import { supabaseAdmin } from '@/lib/supabase-admin';
 
 export const dynamic = 'force-dynamic';
 
-export async function POST(req: Request) {
+export async function POST(request: Request) {
     try {
-        const body = await req.json();
-        const { cardId, ownerId, name, phone, email, note } = body;
+        const { cardId, ownerId, name, email, phone, note } = await request.json();
 
-        // 1. Atomic Update
-        let finalCardData: any = null;
-
-        await updateCardContent(cardId, (content) => {
-            if (!content.leads) content.leads = [];
-            content.leads.push({
-                name, phone, email, note,
-                date: new Date().toISOString()
+        // 1. Insert into SQL 'leads' table (Admin Client bypasses RLS if needed, but we set public policy too)
+        // Using Admin client ensures it works even if we lock down RLS later.
+        const { error: insertError } = await supabaseAdmin
+            .from('leads')
+            .insert({
+                card_id: cardId,
+                owner_id: ownerId,
+                name,
+                email,
+                phone,
+                note
             });
-            return content;
-        }).then(res => {
-            if (res && res.data && res.data.length > 0) {
-                finalCardData = res.data[0];
-            }
-        });
 
-        // 2. Trigger GHL Automation (Auto-Text)
-        if (finalCardData && finalCardData.slug) {
-            const GHL_URL = process.env.GHL_WEBHOOK_URL;
-            if (GHL_URL) {
-                fetch(GHL_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        event: 'LEAD_CAPTURE',
-                        source: 'TAPOS_CARD_PROFILE',
-                        card_id: cardId,
-                        owner_id: ownerId,
-                        card_slug: finalCardData.slug,
-                        lead_name: name,
-                        lead_phone: phone,
-                        lead_email: email
-                    })
-                }).catch(err => console.error("GHL Trigger Failed", err));
-            }
+        if (insertError) {
+            console.error("SQL Insert Error:", insertError);
+            throw insertError;
+        }
+
+        // 2. Trigger GHL Webhook (Fire & Forget)
+        if (process.env.GHL_WEBHOOK_URL) {
+            fetch(process.env.GHL_WEBHOOK_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name,
+                    email,
+                    phone,
+                    notes: note,
+                    tags: ['TapOS Capture', 'Digital Card'],
+                    card_id: cardId
+                })
+            }).catch(err => console.error("GHL Webhook Failed:", err));
         }
 
         return NextResponse.json({ success: true });
 
-    } catch (err: any) {
-        console.error('Lead Capture Error:', err);
-        return NextResponse.json({ error: 'Server Error' }, { status: 500 });
+    } catch (e: any) {
+        console.error("Capture API Error:", e);
+        return NextResponse.json({ error: e.message || 'Error capturing lead' }, { status: 500 });
     }
 }
-

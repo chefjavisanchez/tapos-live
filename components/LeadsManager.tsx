@@ -1,14 +1,5 @@
-import { useState, useMemo } from 'react';
-import { FileSpreadsheet, Search, Filter, Calendar, CreditCard, User } from 'lucide-react';
-
-interface Lead {
-    name: string;
-    email: string;
-    phone: string;
-    note?: string;
-    date: string;
-    cardTitle?: string; // Enhanced lead type to include source card
-    cardId?: string;
+cardTitle ?: string; // Enhanced lead type to include source card
+cardId ?: string;
 }
 
 interface Props {

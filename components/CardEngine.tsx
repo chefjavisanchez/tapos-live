@@ -726,6 +726,9 @@ export default function CardEngine({ data, slug, ownerId, cardId }: CardEnginePr
     // EXCHANGE MODE STATE
     const [exchangeMode, setExchangeMode] = useState(false);
 
+    // NEW: Success State
+    const [isSubmitted, setIsSubmitted] = useState(false);
+
     if (!data) return <div className="text-white text-center mt-20">Card Protocol Not Found.</div>;
 
     const handleExchangeSubmit = async (formData: { name: string; email: string; phone: string }) => {
@@ -752,13 +755,18 @@ export default function CardEngine({ data, slug, ownerId, cardId }: CardEnginePr
         const saved = JSON.parse(localStorage.getItem('tapos_leads') || '[]');
         localStorage.setItem('tapos_leads', JSON.stringify([...saved, newLead]));
 
-        // 3. Download our VCF
+        // 3. Download our VCF and Track
         downloadVcf();
-        trackSave(); // TRACK SAVE ANALYTIC
+        trackSave();
 
-        // 4. Close & Reset
-        alert(`Shared! You received ${data.fullName}'s card and we saved your info.`);
-        setExchangeMode(false);
+        // 4. Show Success State (No Alerts!)
+        setIsSubmitted(true);
+        // Optional: Reset after a delay or keep success screen?
+        // Let's keep success screen for 3 seconds then close
+        setTimeout(() => {
+            setExchangeMode(false);
+            setIsSubmitted(false);
+        }, 3000);
     };
 
     const downloadVcf = async () => {
@@ -814,10 +822,11 @@ END:VCARD`;
         <div id="card-engine-root">
             <ExchangeModal
                 visible={exchangeMode}
-                onClose={() => setExchangeMode(false)}
+                onClose={() => { setExchangeMode(false); setIsSubmitted(false); }}
                 onExchange={handleExchangeSubmit}
                 onSkip={downloadVcf}
                 cardData={data}
+                isSubmitted={isSubmitted}
             />
 
             <link rel="preconnect" href="https://fonts.googleapis.com" />
