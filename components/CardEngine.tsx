@@ -555,22 +555,17 @@ export default function CardEngine({ data, slug, ownerId, cardId }: CardEnginePr
     useEffect(() => {
         // 1. Load Local Storage (Scanning History)
         const saved = localStorage.getItem('tapos_leads');
-        let localLeads = saved ? JSON.parse(saved) : [];
+        const localLeads = saved ? JSON.parse(saved) : [];
 
-        // 2. Load Cloud Leads (If they exist in the card data)
-        // Since the API saves leads to 'content.leads', and 'data' IS the content,
-        // we might already have them here.
-        const cloudLeads = data?.leads || [];
-
-        // 3. Merge (deduplicate by date or email to be safe, but simple concat for now)
-        // We prioritize Cloud leads for the Owner view
-        const allLeads = [...localLeads, ...cloudLeads];
+        // We no longer merge cloud leads here; the Lead Manager Dashboard is the central 
+        // source of truth for all leads. This local scanner state acts as a temporary 
+        // buffer for the device that resets when exported.
 
         // Remove duplicates based on date string if necessary, simplistic approach:
-        const uniqueLeads = allLeads.filter((v, i, a) => a.findIndex(t => (t.date === v.date)) === i);
+        const uniqueLeads = localLeads.filter((v: any, i: number, a: any) => a.findIndex((t: any) => (t.date === v.date)) === i);
 
         setScannedContacts(uniqueLeads);
-    }, [data?.leads]);
+    }, []);
 
     // Calculate valid ads
     const allAds = ['ad1', 'ad2', 'ad3', 'ad4', 'ad5'];
@@ -710,12 +705,10 @@ export default function CardEngine({ data, slug, ownerId, cardId }: CardEnginePr
         link.click();
         document.body.removeChild(link);
 
-        // Prompt to clear after download
+        // Automatically clear after download as requested
         setTimeout(() => {
-            if (confirm('Download started. Clear the leads board now?')) {
-                setScannedContacts([]);
-                localStorage.removeItem('tapos_leads');
-            }
+            setScannedContacts([]);
+            localStorage.removeItem('tapos_leads');
         }, 1000);
     };
 
