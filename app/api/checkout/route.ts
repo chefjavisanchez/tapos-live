@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-    apiVersion: '2025-12-15.clover' as any,
-});
+export const dynamic = 'force-dynamic';
 
 // Price IDs (from our previous steps)
 // Independent: 109.99 (includes shipping)
@@ -97,6 +95,10 @@ export async function POST(req: NextRequest) {
 
             successUrl += `&plan=corporate&quantity=${quantity}`;
         }
+
+        const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+            apiVersion: '2025-12-15.clover' as any,
+        });
 
         const session = await stripe.checkout.sessions.create({
             cancel_url: 'https://tapos360.com/pricing',

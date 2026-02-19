@@ -1,31 +1,64 @@
-cardTitle ?: string; // Enhanced lead type to include source card
-cardId ?: string;
+import React, { useState, useMemo } from 'react';
+import { Search, Filter, FileSpreadsheet, User, CreditCard, Calendar } from 'lucide-react';
+
+interface Lead {
+    id?: string;
+    created_at?: string;
+    date: string;
+    name: string;
+    email?: string;
+    phone?: string;
+    note?: string;
+    owner_id?: string;
+    cardTitle?: string; // Enhanced lead type to include source card
+    cardId?: string;
 }
 
 interface Props {
     cards: any[];
+    leads?: any[];
 }
 
-export default function LeadsManager({ cards }: Props) {
+export default function LeadsManager({ cards, leads = [] }: Props) {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedCardId, setSelectedCardId] = useState<string>('all');
 
-    // Aggregate all leads from all cards
+    // Aggregate all leads from all cards and the SQL table
     const allLeads = useMemo(() => {
-        let leads: Lead[] = [];
+        let cardLeads: Lead[] = [];
         cards.forEach(card => {
             if (card.content?.leads) {
-                const cardLeads = card.content.leads.map((l: any) => ({
+                const ls = card.content.leads.map((l: any) => ({
                     ...l,
                     cardTitle: card.title,
                     cardId: card.id
                 }));
-                leads = [...leads, ...cardLeads];
+                cardLeads = [...cardLeads, ...ls];
             }
         });
-        // Sort by date desc
-        return leads.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-    }, [cards]);
+
+        let sqlLeads: Lead[] = [];
+        if (leads && leads.length > 0) {
+            sqlLeads = leads.map((l: any) => {
+                const sourceCard = cards.find(c => c.id === l.card_id);
+                return {
+                    id: l.id,
+                    created_at: l.created_at,
+                    date: l.created_at || new Date().toISOString(),
+                    name: l.name,
+                    email: l.email,
+                    phone: l.phone,
+                    note: l.note,
+                    owner_id: l.owner_id,
+                    cardTitle: sourceCard ? sourceCard.title : undefined,
+                    cardId: l.card_id
+                };
+            });
+        }
+
+        const combined = [...sqlLeads, ...cardLeads];
+        return combined.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    }, [cards, leads]);
 
     // Filter leads
     const filteredLeads = useMemo(() => {
