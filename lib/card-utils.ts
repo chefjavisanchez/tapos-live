@@ -1,4 +1,4 @@
-import { supabaseAdmin as supabase } from '@/lib/supabase-admin';
+import { supabaseAdmin } from '@/lib/supabase-admin';
 
 const MAX_RETRIES = 5;
 
@@ -16,7 +16,7 @@ export async function updateCardContent(cardId: string, updateFn: (content: any)
         attempts++;
         try {
             // 1. Fetch current content and lock-version (updated_at)
-            const { data, error } = await supabase
+            const { data, error } = await supabaseAdmin
                 .from('cards')
                 .select('content, updated_at')
                 .eq('id', cardId)
@@ -41,7 +41,7 @@ export async function updateCardContent(cardId: string, updateFn: (content: any)
             const newContent = updateFn(JSON.parse(JSON.stringify(currentContent))); // Deep clone to be safe
 
             // 3. Attempt atomic update
-            let updateQuery = supabase
+            let updateQuery = supabaseAdmin
                 .from('cards')
                 .update({
                     content: newContent,

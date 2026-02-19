@@ -23,8 +23,14 @@ export async function POST(request: Request) {
         const { cardId, ownerId, name, email, phone, note } = await request.json();
 
         // 1. Insert into SQL 'leads' table (Admin Client bypasses RLS if needed, but we set public policy too)
-        // Using Admin client ensures it works even if we lock down RLS later.
-        const { error: insertError } = await supabaseAdmin
+
+        // Robust Supabase client instantiation for Vercel
+        const { createClient } = require('@supabase/supabase-js');
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+        const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+        const supabase = createClient(supabaseUrl, supabaseKey);
+
+        const { error: insertError } = await supabase
             .from('leads')
             .insert({
                 card_id: cardId,
