@@ -9,6 +9,7 @@ import { isAdmin as checkIsAdmin } from '@/lib/admin-config';
 import LandingPage from '@/components/LandingPage'; // Import Landing Page
 import DashboardSidebar from '@/components/DashboardSidebar'; // Import Sidebar
 import LeadViewer from '@/components/LeadViewer'; // Import LeadViewer
+import LeadsManager from '@/components/LeadsManager'; // Import LeadsManager
 
 export default function Home() {
     const [cards, setCards] = useState<any[]>([]);
@@ -21,7 +22,7 @@ export default function Home() {
     // NEW CORPORATE STATES
     const [appUser, setAppUser] = useState<any>(null);
     const [planType, setPlanType] = useState('independent');
-    const [activeTab, setActiveTab] = useState<'dashboard' | 'team'>('dashboard');
+    const [activeTab, setActiveTab] = useState<'dashboard' | 'team' | 'leads'>('dashboard');
     const [teamMembers, setTeamMembers] = useState<any[]>([]);
 
     // LEAD VIEWER STATE
@@ -46,6 +47,7 @@ export default function Home() {
         }
 
         if (tab === 'team') setActiveTab('team');
+        if (tab === 'leads') setActiveTab('leads');
 
         const fetchCards = async () => {
             const { data: { user } } = await supabase.auth.getUser();
@@ -237,6 +239,8 @@ export default function Home() {
                             )}
                         </div>
                     </div>
+                ) : activeTab === 'leads' ? (
+                    <LeadsManager cards={cards} />
                 ) : (
                     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                         <header className="mb-10">

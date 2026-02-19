@@ -35,8 +35,8 @@ export default function DashboardSidebar({
 }: {
     isAdmin: boolean,
     planType: string,
-    activeTab?: string,
-    setActiveTab?: (tab: any) => void,
+    activeTab: 'dashboard' | 'team' | 'leads',
+    setActiveTab?: (tab: 'dashboard' | 'team' | 'leads') => void,
     userCard?: any
 }) {
     const router = useRouter();
@@ -71,6 +71,13 @@ export default function DashboardSidebar({
                     label="Dashboard"
                     active={isDashboard && activeTab === 'dashboard'}
                     onClick={isDashboard ? () => setActiveTab?.('dashboard') : () => router.push('/')}
+                    router={router}
+                />
+                <NavItem
+                    icon={<Users size={20} />} // Reusing Users icon or similar
+                    label="Leads"
+                    active={isDashboard && activeTab === 'leads'}
+                    onClick={isDashboard ? () => setActiveTab?.('leads') : () => router.push('/?tab=leads')}
                     router={router}
                 />
                 <NavItem
