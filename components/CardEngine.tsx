@@ -816,6 +816,9 @@ END:VCARD`;
         a.click();
         document.body.removeChild(a);
         window.URL.revokeObjectURL(url);
+
+        // Track the save event in our analytics
+        trackSave();
     };
 
     return (
