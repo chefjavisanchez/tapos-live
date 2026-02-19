@@ -388,9 +388,10 @@ export default function CardEngine({ data, slug, ownerId, cardId }: CardEnginePr
     const searchParams = useSearchParams();
 
     // ANALYTICS TRACKING
+    // ANALYTICS TRACKING
     const trackSave = () => {
         if (!cardId) return;
-        fetch('/api/analytics', {
+        fetch('/api/card/analytics', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ cardId, type: 'save' })
@@ -401,7 +402,7 @@ export default function CardEngine({ data, slug, ownerId, cardId }: CardEnginePr
         // VIEW ANALYTIC
         // We use sessionStorage to prevent duplicate views in one session
         if (cardId && !sessionStorage.getItem(`viewed_${cardId}`)) {
-            fetch('/api/analytics', {
+            fetch('/api/card/analytics', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ cardId, type: 'view' })
