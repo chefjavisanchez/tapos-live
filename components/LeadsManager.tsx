@@ -135,7 +135,9 @@ export default function LeadsManager({ cards }: Props) {
                             <CreditCard size={14} /> Active Sources
                         </div>
                         <div className="text-3xl font-black text-neon-blue font-rajdhani">
-                            {selectedCardId === 'all' ? new Set(filteredLeads.map(l => l.cardId)).size : 1}
+                            {selectedCardId === 'all'
+                                ? new Set(filteredLeads.map(l => l.cardId)).size
+                                : (filteredLeads.length > 0 ? 1 : 0)}
                         </div>
                     </div>
                     <div className="p-6 text-center">
