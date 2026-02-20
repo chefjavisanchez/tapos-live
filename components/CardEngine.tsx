@@ -502,7 +502,7 @@ export default function CardEngine({ data, slug, ownerId, cardId, remoteLeads = 
           --text-main: ${isDarkMode ? '#ffffff' : '#1a1a1a'};
           --text-muted: ${isDarkMode ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.6)'};
           --glass-panel: ${isDarkMode ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)'};
-          --border-light: ${isDarkMode ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid rgba(0, 0, 0, 0.1)'};
+          --border-light: ${isDarkMode ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid rgba(0, 0, 0, 0.2)'};
           --gold: ${isDarkMode ? '#00f3ff' : '#007075'};
       }
       
