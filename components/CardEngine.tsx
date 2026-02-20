@@ -457,6 +457,7 @@ export default function CardEngine({ data, slug, ownerId, cardId, remoteLeads = 
     }, [searchParams]);
 
     const [activeAd, setActiveAd] = useState(0);
+    const [isAdPaused, setIsAdPaused] = useState(false);
 
     // IMMERSIVE MODE STATE
     const [isUIHidden, setIsUIHidden] = useState(false);
@@ -755,12 +756,12 @@ export default function CardEngine({ data, slug, ownerId, cardId, remoteLeads = 
 
     // Rotator
     useEffect(() => {
-        if (activeTab !== 'v-home') return;
+        if (activeTab !== 'v-home' || isAdPaused) return;
         const interval = setInterval(() => {
             setActiveAd(prev => (prev + 1) % adsToRender.length);
         }, 3000);
         return () => clearInterval(interval);
-    }, [activeTab, adsToRender.length]);
+    }, [activeTab, adsToRender.length, isAdPaused]);
 
     // SCANNER LOGIC
     const processImage = async (file: File) => {
@@ -1069,7 +1070,13 @@ END:VCARD`;
 
                         {/* VIEW 1: HOME */}
                         <div className={`view-pane justify-center items-center ${activeTab === 'v-home' ? 'active' : ''}`}>
-                            <div className="ad-container">
+                            <div
+                                className="ad-container"
+                                onMouseEnter={() => setIsAdPaused(true)}
+                                onMouseLeave={() => setIsAdPaused(false)}
+                                onTouchStart={() => setIsAdPaused(true)}
+                                onTouchEnd={() => setIsAdPaused(false)}
+                            >
                                 {adsToRender.map((key, idx) => {
                                     // SPECIAL: FIRST CARD IS LOGO IF AVAILABLE
                                     if (idx === 0 && data.logoImage) {
