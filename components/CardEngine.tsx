@@ -578,6 +578,63 @@ export default function CardEngine({ data, slug, ownerId, cardId, remoteLeads = 
       }
       /* Invert icons in light mode if needed */
       ${!isDarkMode ? '.ph-fill { filter: brightness(0.8); }' : ''}
+
+      /* PREMIUM AD STYLES */
+      .ad-card.premium-ad {
+          padding: 2px; /* thickness of the border */
+          background: transparent;
+          border: none;
+          overflow: hidden;
+      }
+      .ad-card.premium-ad::before {
+          content: '';
+          position: absolute;
+          top: -50%; left: -50%;
+          width: 200%; height: 200%;
+          background: conic-gradient(transparent, transparent, transparent, var(--gold));
+          animation: sweep-border 4s linear infinite;
+          z-index: 0;
+      }
+      @keyframes sweep-border {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+      }
+      .ad-card-inner {
+          position: relative;
+          width: 100%;
+          height: 100%;
+          background: var(--bg-card);
+          border-radius: 28px; /* Slightly less than the outer 30px to fit perfectly */
+          z-index: 1;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 20px;
+      }
+      .urgency-badge {
+          background: ${isDarkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0,0,0,0.05)'};
+          border: var(--border-light);
+          color: var(--text-main);
+          font-size: 10px;
+          font-weight: 700;
+          padding: 6px 14px;
+          border-radius: 20px;
+          margin-top: 15px;
+          margin-bottom: 5px;
+          animation: pulse-soft 3s ease-in-out infinite;
+      }
+      @keyframes pulse-soft {
+          0%, 100% { transform: scale(1); opacity: 0.8; }
+          50% { transform: scale(1.05); opacity: 1; box-shadow: 0 0 15px rgba(0, 243, 255, 0.3); }
+      }
+      .ad-image {
+          width: 100%;
+          height: 140px;
+          object-fit: contain;
+          border-radius: 12px;
+          margin: 15px 0;
+      }
     `;
 
     // SCANNER STATE
@@ -966,6 +1023,10 @@ END:VCARD`;
                                     const t2 = ad.title2 || (idx === 0 ? "MY WORK" : idx === 1 ? "ACCESS" : "CALL");
                                     const btnLabel = ad.btnLabel || (idx === 0 ? "VIEW PORTFOLIO" : idx === 1 ? "TEXT ME NOW" : "CALL OFFICE");
                                     const link = ad.link || "#";
+                                    const imageUrl = ad.imageUrl || ""; // NEW IMAGE URLs
+
+                                    const urgencies = ["🔥 14 Claimed Today", "⭐⭐⭐⭐⭐ 5.0 Rating", "⏳ Limited Time Offer", "⚡ Fast Action Bonus"];
+                                    const urgencyText = urgencies[(idx - 1) % urgencies.length];
 
                                     const icons = ["ph-briefcase", "ph-chat-circle-text", "ph-phone-call", "ph-star", "ph-gift"];
                                     const colors = ["#ffffff", "var(--gold)", "var(--accent)", "#ff0055", "#00ff88"];
@@ -973,11 +1034,29 @@ END:VCARD`;
                                     const iconColor = colors[idx % colors.length];
 
                                     return (
-                                        <div key={key} className={`ad-card ${activeAd === idx ? 'show' : ''}`}>
-                                            <div className="notify-badge"><i className={`ph-fill ${idx === 0 ? 'ph-bell' : 'ph-lightning'} pulse-bell`}></i> {safeStr(badge)}</div>
-                                            <div className="ad-title">{safeStr(t1)}<br /><span>{safeStr(t2)}</span></div>
-                                            <i className={`ph-fill ${icon} ad-icon-lg`} style={{ color: iconColor }}></i>
-                                            <a href={link} target="_blank" className="urgent-btn">{safeStr(btnLabel)}</a>
+                                        <div key={key} className={`ad-card ${idx > 0 ? 'premium-ad' : ''} ${activeAd === idx ? 'show' : ''}`}>
+                                            {idx > 0 ? (
+                                                <div className="ad-card-inner">
+                                                    <div className="notify-badge"><i className={`ph-fill ph-lightning pulse-bell`}></i> {safeStr(badge)}</div>
+                                                    <div className="ad-title">{safeStr(t1)}<br /><span>{safeStr(t2)}</span></div>
+
+                                                    {imageUrl ? (
+                                                        <img src={imageUrl} alt="Promo" className="ad-image" />
+                                                    ) : (
+                                                        <i className={`ph-fill ${icon} ad-icon-lg`} style={{ color: iconColor, margin: '20px 0' }}></i>
+                                                    )}
+
+                                                    <div className="urgency-badge">{urgencyText}</div>
+                                                    <a href={link} target="_blank" className="urgent-btn mt-2">{safeStr(btnLabel)}</a>
+                                                </div>
+                                            ) : (
+                                                <>
+                                                    <div className="notify-badge"><i className={`ph-fill ph-bell pulse-bell`}></i> {safeStr(badge)}</div>
+                                                    <div className="ad-title">{safeStr(t1)}<br /><span>{safeStr(t2)}</span></div>
+                                                    <i className={`ph-fill ${icon} ad-icon-lg`} style={{ color: iconColor }}></i>
+                                                    <a href={link} target="_blank" className="urgent-btn">{safeStr(btnLabel)}</a>
+                                                </>
+                                            )}
                                         </div>
                                     )
                                 })}

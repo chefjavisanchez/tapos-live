@@ -418,6 +418,15 @@ function EditorContent() {
                                             className="w-full bg-black/40 border border-white/10 rounded p-2 text-xs outline-none text-neon-blue font-bold" />
                                     </div>
 
+                                    {/* Image URL */}
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] uppercase text-white/40">Premium Image URL (Optional)</label>
+                                        <input type="text" placeholder="https://..."
+                                            value={content[ad]?.imageUrl || ''}
+                                            onChange={e => setContent({ ...content, [ad]: { ...content[ad], imageUrl: e.target.value } })}
+                                            className="w-full bg-black/40 border border-white/10 rounded p-2 text-xs outline-none font-mono text-neon-blue" />
+                                    </div>
+
                                     {/* Button Label */}
                                     <div className="space-y-1">
                                         <label className="text-[10px] uppercase text-white/40">Button Text</label>
