@@ -284,13 +284,13 @@ const IMPULSO_STYLES = `
   /* DOCK */
   .dock-zone { flex-shrink: 0; display: flex; flex-direction: column; align-items: center; padding-bottom: 20px; }
   .dock {
-      background: rgba(30, 30, 30, 0.8); backdrop-filter: blur(20px);
+      background: var(--glass-panel); backdrop-filter: blur(20px);
       border: var(--border-light); padding: 10px 20px; border-radius: 40px;
-      display: flex; gap: 24px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+      display: flex; gap: 24px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
       margin-bottom: 15px;
   }
-  .d-icon { font-size: 1.5rem; color: #666; transition: 0.3s; position: relative; cursor: pointer; }
-  .d-icon.active { color: #fff; transform: translateY(-4px); }
+  .d-icon { font-size: 1.5rem; color: var(--text-muted); transition: 0.3s; position: relative; cursor: pointer; }
+  .d-icon.active { color: var(--text-main); transform: translateY(-4px); }
   
   /* VIDEO */
    .video-frame {
