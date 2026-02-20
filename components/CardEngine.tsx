@@ -1405,7 +1405,7 @@ END:VCARD`;
 
                             {/* Services Grid (Matches the user's reference screenshot) */}
                             <div className="flex-1 overflow-y-auto px-4 pb-10 custom-scrollbar">
-                                {(!data?.content?.appServices || data.content.appServices.length === 0) ? (
+                                {(!data?.appServices || data.appServices.length === 0) ? (
                                     <div className="h-full flex flex-col items-center justify-center text-center px-6 opacity-60 mt-20">
                                         <i className="ph-light ph-folder-open text-5xl mb-4 text-[#00f3ff]"></i>
                                         <h3 className="text-white font-bold text-lg mb-2">Showcase Empty</h3>
@@ -1413,7 +1413,7 @@ END:VCARD`;
                                     </div>
                                 ) : (
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        {data.content.appServices.map((service: any, i: number) => (
+                                        {data.appServices.map((service: any, i: number) => (
                                             <motion.div
                                                 key={i}
                                                 initial={{ opacity: 0, y: 20 }}
