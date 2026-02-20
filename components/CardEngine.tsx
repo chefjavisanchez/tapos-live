@@ -1426,7 +1426,7 @@ END:VCARD`;
 
                                                 {/* Icon */}
                                                 <div className="w-10 h-10 rounded-full bg-[#00f3ff]/10 border border-[#00f3ff]/20 flex items-center justify-center mb-4">
-                                                    <i className={`ph-fill ph-${service.icon || 'star'} text-[#00f3ff] text-xl`}></i>
+                                                    <i className={`ph-fill ph-${(service.icon || 'star').toLowerCase().trim().replace('checkmark', 'check')} text-[#00f3ff] text-xl`}></i>
                                                 </div>
 
                                                 {/* Content */}
