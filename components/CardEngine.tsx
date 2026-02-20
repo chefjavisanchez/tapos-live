@@ -1103,12 +1103,12 @@ END:VCARD`;
                                                     className="hidden" disabled={scanning} />
                                             </label>
                                         </div>
-                                        <p className="text-center text-xs text-white/40 mb-4">Tap Camera to Scan Business Card</p>
+                                        <p className="text-center text-xs mb-4" style={{ color: 'var(--text-muted)' }}>Tap Camera to Scan Business Card</p>
 
                                         {/* LIST */}
                                         <div className="flex-1 overflow-auto space-y-2">
                                             <div className="flex justify-between items-center mb-2">
-                                                <span className="text-xs font-bold text-white uppercase">Saved Leads ({scannedContacts.length})</span>
+                                                <span className="text-xs font-bold uppercase" style={{ color: 'var(--text-main)' }}>Saved Leads ({scannedContacts.length})</span>
                                                 <div className="flex gap-2">
                                                     {scannedContacts.length > 0 && (
                                                         <button onClick={clearLeads} className="text-[10px] bg-red-500/10 text-red-400 px-2 py-1 rounded border border-red-500/30 hover:bg-red-500 hover:text-white transition">
@@ -1122,38 +1122,38 @@ END:VCARD`;
                                             </div>
                                             {scannedContacts.map((lead, i) => (
                                                 <div key={i} className="scan-list-item">
-                                                    <div className="font-bold text-white text-sm">{lead.name}</div>
-                                                    <div className="text-xs text-gray-400">{lead.email}</div>
-                                                    <div className="text-xs text-gray-400">{lead.phone}</div>
+                                                    <div className="font-bold text-sm" style={{ color: 'var(--text-main)' }}>{lead.name}</div>
+                                                    <div className="text-xs" style={{ color: 'var(--text-muted)' }}>{lead.email}</div>
+                                                    <div className="text-xs" style={{ color: 'var(--text-muted)' }}>{lead.phone}</div>
                                                 </div>
                                             ))}
-                                            {scannedContacts.length === 0 && <div className="text-center text-xs text-white/20 py-4">No leads saved yet.</div>}
+                                            {scannedContacts.length === 0 && <div className="text-center text-xs py-4" style={{ color: 'var(--text-muted)', opacity: 0.5 }}>No leads saved yet.</div>}
                                         </div>
                                     </>
                                 ) : (
                                     /* EDIT RESULT FORM */
-                                    <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3 animate-in fade-in">
+                                    <div className="rounded-2xl p-4 space-y-3 animate-in fade-in" style={{ background: 'var(--glass-panel)', border: 'var(--border-light)' }}>
                                         <h3 className="text-sm font-bold text-gold uppercase">Confirm Details</h3>
 
                                         <div>
-                                            <label className="text-[10px] text-gray-400 uppercase">Name</label>
+                                            <label className="text-[10px] uppercase" style={{ color: 'var(--text-muted)' }}>Name</label>
                                             <input type="text" value={scanResult.name} onChange={e => setScanResult({ ...scanResult, name: e.target.value })}
-                                                className="w-full bg-black/50 border border-white/20 rounded p-2 text-sm text-white focus:border-accent outline-none" />
+                                                className="w-full rounded p-2 text-sm focus:border-accent outline-none" style={{ background: 'var(--glass-panel)', border: 'var(--border-light)', color: 'var(--text-main)' }} />
                                         </div>
                                         <div>
-                                            <label className="text-[10px] text-gray-400 uppercase">Email</label>
+                                            <label className="text-[10px] uppercase" style={{ color: 'var(--text-muted)' }}>Email</label>
                                             <input type="text" value={scanResult.email} onChange={e => setScanResult({ ...scanResult, email: e.target.value })}
-                                                className="w-full bg-black/50 border border-white/20 rounded p-2 text-sm text-white focus:border-accent outline-none" />
+                                                className="w-full rounded p-2 text-sm focus:border-accent outline-none" style={{ background: 'var(--glass-panel)', border: 'var(--border-light)', color: 'var(--text-main)' }} />
                                         </div>
                                         <div>
-                                            <label className="text-[10px] text-gray-400 uppercase">Phone</label>
+                                            <label className="text-[10px] uppercase" style={{ color: 'var(--text-muted)' }}>Phone</label>
                                             <input type="text" value={scanResult.phone} onChange={e => setScanResult({ ...scanResult, phone: e.target.value })}
-                                                className="w-full bg-black/50 border border-white/20 rounded p-2 text-sm text-white focus:border-accent outline-none" />
+                                                className="w-full rounded p-2 text-sm focus:border-accent outline-none" style={{ background: 'var(--glass-panel)', border: 'var(--border-light)', color: 'var(--text-main)' }} />
                                         </div>
 
                                         <div className="flex gap-2 mt-4">
-                                            <button onClick={() => setScanResult(null)} className="flex-1 bg-white/10 p-2 rounded text-xs font-bold text-white uppercase">Cancel</button>
-                                            <button onClick={saveLead} className="flex-1 bg-neon-blue text-black p-2 rounded text-xs font-bold uppercase shadow-[0_0_15px_rgba(0,243,255,0.4)]">Save Lead</button>
+                                            <button onClick={() => setScanResult(null)} className="flex-1 p-2 rounded text-xs font-bold uppercase" style={{ background: 'var(--glass-panel)', color: 'var(--text-main)', border: 'var(--border-light)' }}>Cancel</button>
+                                            <button onClick={saveLead} className="flex-1 text-black p-2 rounded text-xs font-bold uppercase shadow-[0_0_15px_rgba(0,243,255,0.4)]" style={{ background: 'var(--gold)' }}>Save Lead</button>
                                         </div>
                                     </div>
                                 )}
