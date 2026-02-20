@@ -73,12 +73,11 @@ body {
     align-items: center;
     gap: 15px;
     padding: 20px;
-    background: rgba(255, 255, 255, 0.05);
-    /* Glass Background */
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--glass-panel);
+    border: var(--border-light);
     border-radius: 16px;
     text-decoration: none;
-    color: white;
+    color: var(--text-main);
     transition: all 0.3s ease;
     margin-bottom: 15px;
     /* Spacing between buttons */
@@ -94,7 +93,8 @@ body {
     width: 45px;
     height: 45px;
     border-radius: 12px;
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--glass-panel);
+    border: var(--border-light);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -113,17 +113,19 @@ body {
     font-size: 16px;
     font-weight: 700;
     margin: 0;
-    color: white;
+    color: var(--text-main);
 }
 
 .service-btn .text-content p {
     font-size: 12px;
     margin: 2px 0 0 0;
     opacity: 0.6;
+    color: var(--text-muted);
 }
 
 .service-btn .arrow-box {
     opacity: 0.5;
+    color: var(--text-main);
 }
 
 /* Custom Scrollbar */
