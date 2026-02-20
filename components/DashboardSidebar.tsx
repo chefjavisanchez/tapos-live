@@ -102,6 +102,7 @@ export default function DashboardSidebar({
                 {isAdmin && (
                     <div className="pt-4 mt-4 border-t border-white/10">
                         <NavItem href="/admin" icon={<Shield size={20} />} label="God Mode" active={pathname === '/admin'} router={router} />
+                        <NavItem href="/admin/affiliates" icon={<Users size={20} />} label="Affiliates" active={pathname === '/admin/affiliates'} router={router} />
                     </div>
                 )}
             </nav>
