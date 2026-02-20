@@ -73,11 +73,14 @@ export async function POST(req: Request) {
 
     // Update each card individually since Supabase JS Client doesn't have an easy bulk-update for JSONB
     for (const card of cardsToUpdate) {
+        const amountPaidCents = card.content?.amount_paid || 9900;
+        const commissionAmount = parseFloat(((amountPaidCents / 100) * 0.15).toFixed(2));
+
         const newContent = {
             ...card.content,
             affiliatePaid: true,
             affiliatePayoutDate: timestamp,
-            affiliatePayoutAmount: 20 // $20 Default
+            affiliatePayoutAmount: commissionAmount
         };
 
         const { error: updateError } = await adminDb

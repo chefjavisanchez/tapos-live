@@ -70,13 +70,17 @@ export async function GET(req: Request) {
             const affiliate = affiliateLedger[referrerSlug];
             affiliate.totalReferrals += 1;
 
+            // Calculate Commission (15% of amount paid, default to base $99)
+            const amountPaidCents = card.content?.amount_paid || 9900;
+            const commissionAmount = parseFloat(((amountPaidCents / 100) * 0.15).toFixed(2));
+
             // 2. Check if this specific referral has been paid out yet
             if (card.content?.affiliatePaid) {
                 affiliate.paidReferrals += 1;
-                affiliate.historicalAmountPaid += 20; // $20 Flat Fee Default
+                affiliate.historicalAmountPaid += card.content?.affiliatePayoutAmount || commissionAmount;
             } else {
                 affiliate.unpaidReferrals += 1;
-                affiliate.totalAmountOwed += 20; // $20 Flat Fee Default
+                affiliate.totalAmountOwed += commissionAmount;
             }
         }
     });

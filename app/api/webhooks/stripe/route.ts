@@ -66,7 +66,8 @@ export async function POST(req: Request) {
                     subscription: 'active',
                     paymentId: session.id,
                     paymentDate: new Date().toISOString(),
-                    shipping_verified: shippingDetails // SAVE VERIFIED ADDRESS
+                    shipping_verified: shippingDetails, // SAVE VERIFIED ADDRESS
+                    amount_paid: session.amount_total // Save total paid in cents
                 };
 
                 const { error: updateError } = await adminSupabase
