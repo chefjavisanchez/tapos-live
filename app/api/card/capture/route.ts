@@ -30,16 +30,10 @@ export async function POST(request: Request) {
         const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
         const supabase = createClient(supabaseUrl, supabaseKey);
 
-        // Quick fallback: If the database `card_id` is set as a UUID, inserting
-        // an integer (like 4) will crash heavily. We nullify it temporarily to 
-        // ensure the lead saves successfully to the Lead Manager dashboard.
-        const isValidUUID = typeof cardId === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(cardId);
-        const safeCardId = isValidUUID ? cardId : null;
-
         const { error: insertError } = await supabase
             .from('leads')
             .insert({
-                card_id: safeCardId,
+                card_id: cardId,
                 owner_id: ownerId,
                 name,
                 email,
