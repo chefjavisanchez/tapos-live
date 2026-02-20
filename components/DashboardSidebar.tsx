@@ -80,19 +80,6 @@ export default function DashboardSidebar({
                     onClick={isDashboard ? () => setActiveTab?.('leads') : () => router.push('/?tab=leads')}
                     router={router}
                 />
-                <NavItem
-                    icon={<CreditCard size={20} />}
-                    label="My Cards"
-                    active={false}
-                    onClick={() => {
-                        if (isDashboard) {
-                            setActiveTab?.('dashboard');
-                        } else {
-                            router.push('/');
-                        }
-                    }}
-                    router={router}
-                />
 
                 {planType === 'corporate' && (
                     <NavItem
