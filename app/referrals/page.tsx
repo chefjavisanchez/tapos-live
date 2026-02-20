@@ -184,7 +184,7 @@ export default function RewardsPage() {
                                         <h3 className="text-lg font-bold text-white flex items-center gap-2">
                                             <Shield size={18} className="text-neon-blue" /> Tracking & Payment Strategy
                                         </h3>
-                                        <span className="text-[10px] bg-white/10 text-white/50 px-2 py-1 rounded border border-white/10 uppercase">Beta Mode</span>
+                                        <span className="text-[10px] bg-green-500/20 text-green-400 px-2 py-1 rounded border border-green-500/40 uppercase font-bold tracking-wider">Active</span>
                                     </div>
 
                                     <div className="space-y-3">
@@ -196,7 +196,12 @@ export default function RewardsPage() {
                                                     <div className="text-[10px] text-white/50">Manual Transfer (Net-30)</div>
                                                 </div>
                                             </div>
-                                            <button className="text-[10px] text-neon-blue hover:text-white transition">CONFIGURE</button>
+                                            <button
+                                                onClick={() => alert("Stripe Connect integration is pending. Please contact support to arrange manual payout.")}
+                                                className="text-[10px] font-bold text-neon-blue hover:text-white transition bg-neon-blue/10 px-3 py-1.5 rounded"
+                                            >
+                                                CONFIGURE
+                                            </button>
                                         </div>
 
                                         <div className="flex items-center justify-between p-3 bg-black/40 rounded-lg border border-white/5">
@@ -207,7 +212,12 @@ export default function RewardsPage() {
                                                     <div className="text-[10px] text-green-400">● Active (Global Cookie)</div>
                                                 </div>
                                             </div>
-                                            <button className="text-[10px] text-neon-blue hover:text-white transition">VIEW TAGS</button>
+                                            <button
+                                                onClick={() => alert("<script src='https://tapygo.com/pixel.js'></script>\\n\\nCopy and paste this pixel into the <head> of your website.")}
+                                                className="text-[10px] font-bold text-neon-blue hover:text-white transition bg-neon-blue/10 px-3 py-1.5 rounded"
+                                            >
+                                                VIEW TAGS
+                                            </button>
                                         </div>
 
                                         <div className="mt-4 pt-4 border-t border-white/10">

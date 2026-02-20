@@ -35,7 +35,7 @@ export default function DashboardSidebar({
 }: {
     isAdmin: boolean,
     planType: string,
-    activeTab: 'dashboard' | 'team' | 'leads',
+    activeTab?: 'dashboard' | 'team' | 'leads',
     setActiveTab?: (tab: 'dashboard' | 'team' | 'leads') => void,
     userCard?: any
 }) {
