@@ -609,31 +609,96 @@ export default function CardEngine({ data, slug, ownerId, cardId, remoteLeads = 
           display: flex;
           flex-direction: column;
           align-items: center;
-          justify-content: center;
-          padding: 20px;
+          padding: 24px;
+          box-sizing: border-box;
       }
-      .urgency-badge {
-          background: ${isDarkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0,0,0,0.05)'};
-          border: var(--border-light);
-          color: var(--text-main);
-          font-size: 10px;
-          font-weight: 700;
-          padding: 6px 14px;
+      .premium-badge {
+          border: 1px solid rgba(255,255,255,0.2);
           border-radius: 20px;
-          margin-top: 15px;
-          margin-bottom: 5px;
-          animation: pulse-soft 3s ease-in-out infinite;
+          padding: 6px 24px;
+          font-size: 16px;
+          color: var(--text-muted);
+          margin-bottom: 15px;
+          background: rgba(255,255,255,0.05);
       }
-      @keyframes pulse-soft {
-          0%, 100% { transform: scale(1); opacity: 0.8; }
-          50% { transform: scale(1.05); opacity: 1; box-shadow: 0 0 15px rgba(0, 243, 255, 0.3); }
+      ${!isDarkMode ? `
+      .premium-badge {
+          border: 1px solid rgba(0,0,0,0.2);
+          background: rgba(0,0,0,0.05);
       }
-      .ad-image {
+      ` : ''}
+      .premium-title {
+          font-size: 26px;
+          font-weight: 500;
+          color: var(--text-main);
+          text-align: center;
+          margin-bottom: 8px;
+          line-height: 1.2;
+      }
+      .premium-subtitle {
+          font-size: 16px;
+          color: var(--text-muted);
+          text-align: center;
+          line-height: 1.4;
+          margin-bottom: 15px;
+      }
+      .premium-image-wrapper {
+          flex-grow: 1;
           width: 100%;
-          height: 140px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          overflow: hidden;
+          min-height: 0; /* Flexbox trick to allow shrinking */
+          margin-bottom: 15px;
+      }
+      .premium-image-wrapper img {
+          max-width: 100%;
+          max-height: 100%;
           object-fit: contain;
-          border-radius: 12px;
-          margin: 15px 0;
+          border-radius: 8px;
+      }
+      .premium-bottom-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          width: 100%;
+          margin-top: auto;
+      }
+      .premium-btn {
+          background: var(--gold);
+          color: #000;
+          font-weight: bold;
+          font-size: 20px;
+          padding: 12px 28px;
+          border-radius: 30px;
+          text-decoration: none;
+          box-shadow: 0 0 15px rgba(0, 243, 255, 0.4);
+      }
+      .premium-ad-indicator {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 6px;
+      }
+      .premium-ad-indicator strong {
+          font-size: 26px;
+          color: var(--text-main);
+          font-weight: bold;
+          line-height: 1;
+      }
+      .premium-dots {
+          display: flex;
+          gap: 6px;
+      }
+      .premium-dots span {
+          width: 8px; height: 8px;
+          background: var(--text-main);
+          border-radius: 50%;
+          opacity: 0.2;
+      }
+      .premium-dots span.active {
+          opacity: 1;
       }
     `;
 
@@ -1018,15 +1083,12 @@ END:VCARD`;
 
                                     // STANDARD AD CARD
                                     const ad = data[key] || {};
-                                    const badge = ad.badge || (idx === 0 ? "SYSTEM ALERT" : idx === 1 ? "CONNECT" : "URGENT");
-                                    const t1 = ad.title1 || (idx === 0 ? "DISCOVER" : idx === 1 ? "DIRECT" : "BOOK");
-                                    const t2 = ad.title2 || (idx === 0 ? "MY WORK" : idx === 1 ? "ACCESS" : "CALL");
-                                    const btnLabel = ad.btnLabel || (idx === 0 ? "VIEW PORTFOLIO" : idx === 1 ? "TEXT ME NOW" : "CALL OFFICE");
+                                    const badge = ad.badge || (idx === 0 ? "SYSTEM ALERT" : "NEW");
+                                    const t1 = ad.title1 || (idx === 0 ? "DISCOVER" : "");
+                                    const t2 = ad.title2 || (idx === 0 ? "MY WORK" : "");
+                                    const btnLabel = ad.btnLabel || (idx === 0 ? "VIEW PORTFOLIO" : "GET IT HERE");
                                     const link = ad.link || "#";
                                     const imageUrl = ad.imageUrl || ""; // NEW IMAGE URLs
-
-                                    const urgencies = ["🔥 14 Claimed Today", "⭐⭐⭐⭐⭐ 5.0 Rating", "⏳ Limited Time Offer", "⚡ Fast Action Bonus"];
-                                    const urgencyText = urgencies[(idx - 1) % urgencies.length];
 
                                     const icons = ["ph-briefcase", "ph-chat-circle-text", "ph-phone-call", "ph-star", "ph-gift"];
                                     const colors = ["#ffffff", "var(--gold)", "var(--accent)", "#ff0055", "#00ff88"];
@@ -1037,17 +1099,27 @@ END:VCARD`;
                                         <div key={key} className={`ad-card ${idx > 0 ? 'premium-ad' : ''} ${activeAd === idx ? 'show' : ''}`}>
                                             {idx > 0 ? (
                                                 <div className="ad-card-inner">
-                                                    <div className="notify-badge"><i className={`ph-fill ph-lightning pulse-bell`}></i> {safeStr(badge)}</div>
-                                                    <div className="ad-title">{safeStr(t1)}<br /><span>{safeStr(t2)}</span></div>
+                                                    {badge && <div className="premium-badge">{safeStr(badge)}</div>}
+                                                    {t1 && <div className="premium-title">{safeStr(t1)}</div>}
+                                                    {t2 && <div className="premium-subtitle">{safeStr(t2)}</div>}
 
-                                                    {imageUrl ? (
-                                                        <img src={imageUrl} alt="Promo" className="ad-image" />
-                                                    ) : (
-                                                        <i className={`ph-fill ${icon} ad-icon-lg`} style={{ color: iconColor, margin: '20px 0' }}></i>
-                                                    )}
+                                                    <div className="premium-image-wrapper">
+                                                        {imageUrl ? (
+                                                            <img src={imageUrl} alt="Promo" />
+                                                        ) : (
+                                                            <i className={`ph-fill ${icon}`} style={{ color: iconColor, fontSize: '80px' }}></i>
+                                                        )}
+                                                    </div>
 
-                                                    <div className="urgency-badge">{urgencyText}</div>
-                                                    <a href={link} target="_blank" className="urgent-btn mt-2">{safeStr(btnLabel)}</a>
+                                                    <div className="premium-bottom-row">
+                                                        <a href={link} target="_blank" className="premium-btn">{safeStr(btnLabel)}</a>
+                                                        <div className="premium-ad-indicator">
+                                                            <strong>Ad</strong>
+                                                            <div className="premium-dots">
+                                                                <span className="active"></span><span></span><span></span><span></span><span></span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             ) : (
                                                 <>
