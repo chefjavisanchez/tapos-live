@@ -1242,43 +1242,52 @@ END:VCARD`;
 
                             {/* Services Grid (Matches the user's reference screenshot) */}
                             <div className="flex-1 overflow-y-auto px-4 pb-10 custom-scrollbar">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    {(data?.content?.appServices?.length > 0 ? data.content.appServices : defaultServices).map((service: any, i: number) => (
-                                        <motion.div
-                                            key={i}
-                                            initial={{ opacity: 0, y: 20 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: 0.1 * i }}
-                                            className="bg-[#0b101e] border border-white/5 p-5 rounded-2xl flex flex-col relative overflow-hidden group hover:border-[#00f3ff]/30 transition-all duration-300"
-                                        >
-                                            {/* Subtle Glow Effect on Hover */}
-                                            <div className="absolute inset-0 bg-gradient-to-br from-[#00f3ff]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                                {(!data?.content?.appServices || data.content.appServices.length === 0) ? (
+                                    <div className="h-full flex flex-col items-center justify-center text-center px-6 opacity-60 mt-20">
+                                        <i className="ph-light ph-folder-open text-5xl mb-4 text-[#00f3ff]"></i>
+                                        <h3 className="text-white font-bold text-lg mb-2">Showcase Empty</h3>
+                                        <p className="text-sm text-slate-400">Add your first custom landing page from your Admin Dashboard.</p>
+                                    </div>
+                                ) : (
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        {data.content.appServices.map((service: any, i: number) => (
+                                            <motion.div
+                                                key={i}
+                                                initial={{ opacity: 0, y: 20 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                transition={{ delay: 0.1 * i }}
+                                                className="bg-[#0b101e] border border-white/5 p-5 rounded-2xl flex flex-col relative overflow-hidden group hover:border-[#00f3ff]/30 transition-all duration-300"
+                                            >
+                                                {/* Subtle Glow Effect on Hover */}
+                                                <div className="absolute inset-0 bg-gradient-to-br from-[#00f3ff]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
 
-                                            {/* Icon */}
-                                            <div className="w-10 h-10 rounded-full bg-[#00f3ff]/10 border border-[#00f3ff]/20 flex items-center justify-center mb-4">
-                                                <i className={`ph-fill ph-${service.icon || 'star'} text-[#00f3ff] text-xl`}></i>
-                                            </div>
+                                                {/* Icon */}
+                                                <div className="w-10 h-10 rounded-full bg-[#00f3ff]/10 border border-[#00f3ff]/20 flex items-center justify-center mb-4">
+                                                    <i className={`ph-fill ph-${service.icon || 'star'} text-[#00f3ff] text-xl`}></i>
+                                                </div>
 
-                                            {/* Content */}
-                                            <h3 className="text-white font-bold text-lg mb-2">{service.title}</h3>
-                                            <p className="text-slate-400 text-xs leading-relaxed mb-6 flex-1 whitespace-pre-line">
-                                                {service.description}
-                                            </p>
+                                                {/* Content */}
+                                                <h3 className="text-white font-bold text-lg mb-2">{service.title}</h3>
+                                                <p className="text-slate-400 text-xs leading-relaxed mb-6 flex-1 whitespace-pre-line">
+                                                    {service.description}
+                                                </p>
 
-                                            {/* Price & Action */}
-                                            <div className="flex items-center justify-between border-t border-white/10 pt-4 mt-auto">
-                                                <span className="text-2xl font-bold text-white">{service.price}</span>
-                                                <a
-                                                    href={service.actionUrl}
-                                                    target="_blank"
-                                                    className="bg-black hover:bg-[#111] text-white border border-white/10 text-xs font-bold px-6 py-2.5 rounded-full transition-colors focus:ring-2 focus:ring-[#00f3ff]/50"
-                                                >
-                                                    Book Now
-                                                </a>
-                                            </div>
-                                        </motion.div>
-                                    ))}
-                                </div>
+                                                {/* Price & Action */}
+                                                <div className="flex items-center justify-between border-t border-white/10 pt-4 mt-auto">
+                                                    <span className="text-2xl font-bold text-white">{service.price}</span>
+                                                    <a
+                                                        href={service.actionUrl}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="bg-black hover:bg-[#111] text-white border border-white/10 text-xs font-bold px-6 py-2.5 rounded-full transition-colors focus:ring-2 focus:ring-[#00f3ff]/50"
+                                                    >
+                                                        Book Now
+                                                    </a>
+                                                </div>
+                                            </motion.div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                         </motion.div>
                     </motion.div>
