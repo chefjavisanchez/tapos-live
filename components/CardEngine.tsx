@@ -1233,7 +1233,7 @@ END:VCARD`;
                             <div className="flex flex-col items-center pt-3 pb-4 sticky top-0 z-10 bg-gradient-to-b from-black/90 to-transparent">
                                 <div className="w-12 h-1.5 bg-white/20 rounded-full mb-4"></div>
                                 <div className="w-full px-6 flex justify-between items-center">
-                                    <h2 className="text-xl font-bold text-white uppercase tracking-wider font-syncopate">My Services</h2>
+                                    <h2 className="text-xl font-bold text-white uppercase tracking-wider font-syncopate">Showcase</h2>
                                     <button onClick={() => setIsServicesOpen(false)} className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white/70 hover:text-white hover:bg-white/20 transition">
                                         <i className="ph-bold ph-x"></i>
                                     </button>

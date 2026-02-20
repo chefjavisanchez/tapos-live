@@ -212,7 +212,7 @@ function EditorContent() {
 
                 {/* Tabs */}
                 <div className="flex border-b border-white/10 overflow-x-auto hide-scrollbar">
-                    {['profile', 'links', 'ads', 'services', 'drawer', 'visuals'].map((tab) => (
+                    {['profile', 'links', 'ads', 'services', 'pages', 'visuals'].map((tab) => (
                         <button
                             key={tab}
                             onClick={() => {
@@ -467,22 +467,22 @@ function EditorContent() {
                         </div>
                     )}
 
-                    {activeTab === 'drawer' && (
+                    {activeTab === 'pages' && (
                         <div className="space-y-8 animate-in fade-in">
                             <div className="flex justify-between items-center">
-                                <p className="text-xs text-white/40">These services appear in the premium App Drawer overlay.</p>
+                                <p className="text-xs text-white/40">These landing pages appear in the premium showcase overlay.</p>
                                 <button
                                     onClick={() => setContent({ ...content, appServices: [...(content.appServices || []), { title: '', description: '', price: '', icon: 'star', actionUrl: '' }] })}
                                     className="bg-neon-blue/20 text-neon-blue text-xs font-bold px-3 py-1.5 rounded flex items-center gap-1 hover:bg-neon-blue hover:text-black transition"
                                 >
-                                    + ADD SERVICE
+                                    + ADD PAGE
                                 </button>
                             </div>
 
                             {(content.appServices || []).map((srv: any, idx: number) => (
                                 <div key={idx} className="p-4 bg-white/5 rounded-lg border border-white/10 space-y-3 relative">
                                     <div className="flex justify-between items-center mb-2">
-                                        <h4 className="font-bold text-neon-blue text-sm">SERVICE {idx + 1}</h4>
+                                        <h4 className="font-bold text-neon-blue text-sm">PAGE {idx + 1}</h4>
                                         <button
                                             onClick={() => {
                                                 const newServices = [...content.appServices];
@@ -562,7 +562,7 @@ function EditorContent() {
 
                             {(content.appServices?.length === 0 || !content.appServices) && (
                                 <div className="text-center py-10 border border-dashed border-white/20 rounded-lg text-white/40 text-sm">
-                                    No premium services added yet. The app drawer will display fallback defaults on the live card.
+                                    No premium landing pages added yet. The showcase will display fallback defaults on the live card.
                                 </div>
                             )}
                         </div>
