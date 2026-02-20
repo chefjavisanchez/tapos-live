@@ -260,24 +260,26 @@ const IMPULSO_STYLES = `
 
   .soc-pill {
       display: flex; align-items: center; gap: 8px; padding: 8px 16px;
-      background: rgba(255, 255, 255, 0.1); border-radius: 30px;
-      border: 1px solid rgba(255, 255, 255, 0.1); color: #fff; text-decoration: none;
+      background: ${isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.03)'}; 
+      border-radius: 30px;
+      border: 1px solid ${isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0,0,0,0.1)'}; 
+      color: var(--text-main); text-decoration: none;
       font-size: 0.8rem; font-weight: 600; white-space: nowrap; flex-shrink: 0;
       transition: all 0.2s ease;
   }
-  .soc-pill:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+  .soc-pill:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
 
   .srv-btn {
       display: flex; align-items: center; gap: 15px; padding: 15px;
       margin-bottom: 10px; background: var(--glass-panel);
       border: var(--border-light); border-radius: 16px;
-      text-decoration: none; color: #fff; transition: 0.2s; flex-shrink: 0;
+      text-decoration: none; color: var(--text-main); transition: 0.2s; flex-shrink: 0;
   }
-  .srv-btn:active { transform: scale(0.98); background: rgba(255, 255, 255, 0.15); }
+  .srv-btn:active { transform: scale(0.98); background: ${isDarkMode ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.1)'}; }
   
   .btn-icon { font-size: 1.8rem; color: var(--gold); }
-  .btn-txt h3 { margin: 0; font-family: 'Rajdhani', sans-serif; font-size: 1.1rem; }
-  .btn-txt p { margin: 0; font-size: 0.7rem; color: #aaa; }
+  .text-content h3 { margin: 0; font-family: 'Rajdhani', sans-serif; font-size: 1.1rem; color: var(--text-main); }
+  .text-content p { margin: 0; font-size: 0.7rem; color: var(--text-muted); }
 
   /* DOCK */
   .dock-zone { flex-shrink: 0; display: flex; flex-direction: column; align-items: center; padding-bottom: 20px; }
@@ -988,18 +990,18 @@ END:VCARD`;
                                 <div className="velocity-track">
                                     {[1, 2, 3, 4].map(k => (
                                         <div key={k} className="flex gap-4">
-                                            {data.phone && <a href={`tel:${data.phone}`} className="soc-pill" style={{ borderColor: '#00ff88', color: '#fff' }}><i className="ph-fill ph-phone" style={{ color: '#00ff88' }}></i> Call</a>}
-                                            {data.phone && <a href={`sms:${data.phone}`} className="soc-pill" style={{ borderColor: '#00d2ff', color: '#fff' }}><i className="ph-fill ph-chat-circle-text" style={{ color: '#00d2ff' }}></i> SMS</a>}
-                                            {data.email && <a href={`mailto:${data.email}`} className="soc-pill" style={{ borderColor: '#ffa500', color: '#fff' }}><i className="ph-fill ph-envelope" style={{ color: '#ffa500' }}></i> Email</a>}
-                                            {data.social_instagram && <a href={data.social_instagram} target="_blank" className="soc-pill" style={{ borderColor: '#E1306C' }}><i className="ph-fill ph-instagram-logo"></i> Instagram</a>}
-                                            {data.social_facebook && <a href={data.social_facebook} target="_blank" className="soc-pill" style={{ borderColor: '#1877F2' }}><i className="ph-fill ph-facebook-logo"></i> Facebook</a>}
-                                            {data.social_linkedin && <a href={data.social_linkedin} target="_blank" className="soc-pill" style={{ borderColor: '#0077B5' }}><i className="ph-fill ph-linkedin-logo"></i> LinkedIn</a>}
-                                            {data.social_tiktok && <a href={data.social_tiktok} target="_blank" className="soc-pill" style={{ borderColor: '#fff' }}><i className="ph-fill ph-tiktok-logo"></i> TikTok</a>}
-                                            {data.social_threads && <a href={data.social_threads} target="_blank" className="soc-pill" style={{ borderColor: '#fff' }}><i className="ph-fill ph-at"></i> Threads</a>}
-                                            {data.social_x && <a href={data.social_x} target="_blank" className="soc-pill"><i className="ph-fill ph-x-logo"></i> X</a>}
-                                            {data.social_snapchat && <a href={data.social_snapchat} target="_blank" className="soc-pill" style={{ borderColor: '#FFFC00', color: '#FFFC00' }}><i className="ph-fill ph-snapchat-logo"></i> Snap</a>}
+                                            {data.phone && <a href={`tel:${data.phone}`} className="soc-pill" style={{ borderColor: '#00ff88', color: isDarkMode ? '#fff' : '#00b862' }}><i className="ph-fill ph-phone" style={{ color: isDarkMode ? '#00ff88' : 'inherit' }}></i> Call</a>}
+                                            {data.phone && <a href={`sms:${data.phone}`} className="soc-pill" style={{ borderColor: '#00d2ff', color: isDarkMode ? '#fff' : '#0090af' }}><i className="ph-fill ph-chat-circle-text" style={{ color: isDarkMode ? '#00d2ff' : 'inherit' }}></i> SMS</a>}
+                                            {data.email && <a href={`mailto:${data.email}`} className="soc-pill" style={{ borderColor: '#ffa500', color: isDarkMode ? '#fff' : '#c27c00' }}><i className="ph-fill ph-envelope" style={{ color: isDarkMode ? '#ffa500' : 'inherit' }}></i> Email</a>}
+                                            {data.social_instagram && <a href={data.social_instagram} target="_blank" className="soc-pill" style={{ borderColor: '#E1306C', color: isDarkMode ? 'var(--text-main)' : '#E1306C' }}><i className="ph-fill ph-instagram-logo"></i> Instagram</a>}
+                                            {data.social_facebook && <a href={data.social_facebook} target="_blank" className="soc-pill" style={{ borderColor: '#1877F2', color: isDarkMode ? 'var(--text-main)' : '#1877F2' }}><i className="ph-fill ph-facebook-logo"></i> Facebook</a>}
+                                            {data.social_linkedin && <a href={data.social_linkedin} target="_blank" className="soc-pill" style={{ borderColor: '#0077B5', color: isDarkMode ? 'var(--text-main)' : '#0077B5' }}><i className="ph-fill ph-linkedin-logo"></i> LinkedIn</a>}
+                                            {data.social_tiktok && <a href={data.social_tiktok} target="_blank" className="soc-pill" style={{ borderColor: isDarkMode ? '#fff' : '#000', color: isDarkMode ? 'var(--text-main)' : '#000' }}><i className="ph-fill ph-tiktok-logo"></i> TikTok</a>}
+                                            {data.social_threads && <a href={data.social_threads} target="_blank" className="soc-pill" style={{ borderColor: isDarkMode ? '#fff' : '#000', color: isDarkMode ? 'var(--text-main)' : '#000' }}><i className="ph-fill ph-at"></i> Threads</a>}
+                                            {data.social_x && <a href={data.social_x} target="_blank" className="soc-pill" style={{ borderColor: isDarkMode ? '#fff' : '#000', color: isDarkMode ? 'var(--text-main)' : '#000' }}><i className="ph-fill ph-x-logo"></i> X</a>}
+                                            {data.social_snapchat && <a href={data.social_snapchat} target="_blank" className="soc-pill" style={{ borderColor: '#FFFC00', color: isDarkMode ? '#fff' : '#d97706' }}><i className="ph-fill ph-snapchat-logo"></i> Snap</a>}
                                             {!data.phone && !data.email && !data.website && !data.social_instagram && (
-                                                <span className="soc-pill" style={{ opacity: 0.5, borderColor: 'rgba(255,255,255,0.2)' }}>TAPOS IMPULSO • CONNECT</span>
+                                                <span className="soc-pill" style={{ opacity: 0.5, borderColor: isDarkMode ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)', color: 'var(--text-main)' }}>TAPOS IMPULSO • CONNECT</span>
                                             )}
                                         </div>
                                     ))}
