@@ -1243,7 +1243,7 @@ END:VCARD`;
                             {/* Services Grid (Matches the user's reference screenshot) */}
                             <div className="flex-1 overflow-y-auto px-4 pb-10 custom-scrollbar">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    {defaultServices.map((service, i) => (
+                                    {(data?.content?.appServices?.length > 0 ? data.content.appServices : defaultServices).map((service: any, i: number) => (
                                         <motion.div
                                             key={i}
                                             initial={{ opacity: 0, y: 20 }}
@@ -1261,7 +1261,7 @@ END:VCARD`;
 
                                             {/* Content */}
                                             <h3 className="text-white font-bold text-lg mb-2">{service.title}</h3>
-                                            <p className="text-slate-400 text-xs leading-relaxed mb-6 flex-1">
+                                            <p className="text-slate-400 text-xs leading-relaxed mb-6 flex-1 whitespace-pre-line">
                                                 {service.description}
                                             </p>
 

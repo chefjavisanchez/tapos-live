@@ -60,6 +60,7 @@ function EditorContent() {
         srv2: { title: 'Service 2', subtitle: 'Desc', link: '#' },
         srv3: { title: 'Service 3', subtitle: 'Desc', link: '#' },
         srv4: { title: 'Service 4', subtitle: 'Desc', link: '#' },
+        appServices: [],
         shipping: {
             address: '',
             city: '',
@@ -85,6 +86,7 @@ function EditorContent() {
                 setContent((prev: any) => ({
                     ...prev,
                     ...data.content,
+                    appServices: data.content.appServices || [],
                     social_instagram: data.content.social_instagram || '',
                     social_facebook: data.content.social_facebook || '',
                     social_linkedin: data.content.social_linkedin || '',
@@ -210,7 +212,7 @@ function EditorContent() {
 
                 {/* Tabs */}
                 <div className="flex border-b border-white/10 overflow-x-auto hide-scrollbar">
-                    {['profile', 'links', 'ads', 'services', 'visuals'].map((tab) => (
+                    {['profile', 'links', 'ads', 'services', 'drawer', 'visuals'].map((tab) => (
                         <button
                             key={tab}
                             onClick={() => {
@@ -462,6 +464,107 @@ function EditorContent() {
                                         className="w-full bg-black/40 border border-white/10 rounded p-2 text-xs outline-none text-neon-blue" />
                                 </div>
                             ))}
+                        </div>
+                    )}
+
+                    {activeTab === 'drawer' && (
+                        <div className="space-y-8 animate-in fade-in">
+                            <div className="flex justify-between items-center">
+                                <p className="text-xs text-white/40">These services appear in the premium App Drawer overlay.</p>
+                                <button
+                                    onClick={() => setContent({ ...content, appServices: [...(content.appServices || []), { title: '', description: '', price: '', icon: 'star', actionUrl: '' }] })}
+                                    className="bg-neon-blue/20 text-neon-blue text-xs font-bold px-3 py-1.5 rounded flex items-center gap-1 hover:bg-neon-blue hover:text-black transition"
+                                >
+                                    + ADD SERVICE
+                                </button>
+                            </div>
+
+                            {(content.appServices || []).map((srv: any, idx: number) => (
+                                <div key={idx} className="p-4 bg-white/5 rounded-lg border border-white/10 space-y-3 relative">
+                                    <div className="flex justify-between items-center mb-2">
+                                        <h4 className="font-bold text-neon-blue text-sm">SERVICE {idx + 1}</h4>
+                                        <button
+                                            onClick={() => {
+                                                const newServices = [...content.appServices];
+                                                newServices.splice(idx, 1);
+                                                setContent({ ...content, appServices: newServices });
+                                            }}
+                                            className="text-[10px] uppercase bg-red-500/20 text-red-500 px-2 py-1 rounded hover:bg-red-500 hover:text-white transition"
+                                        >
+                                            Remove
+                                        </button>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div className="space-y-1">
+                                            <label className="text-[10px] uppercase text-white/40">Title</label>
+                                            <input type="text" placeholder="e.g. Strategy Call"
+                                                value={srv.title || ''}
+                                                onChange={e => {
+                                                    const newServices = [...content.appServices];
+                                                    newServices[idx] = { ...newServices[idx], title: e.target.value };
+                                                    setContent({ ...content, appServices: newServices });
+                                                }}
+                                                className="w-full bg-black/40 border border-white/10 rounded p-2 text-xs outline-none font-bold" />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <label className="text-[10px] uppercase text-white/40">Price</label>
+                                            <input type="text" placeholder="e.g. $199"
+                                                value={srv.price || ''}
+                                                onChange={e => {
+                                                    const newServices = [...content.appServices];
+                                                    newServices[idx] = { ...newServices[idx], price: e.target.value };
+                                                    setContent({ ...content, appServices: newServices });
+                                                }}
+                                                className="w-full bg-black/40 border border-white/10 rounded p-2 text-xs outline-none" />
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] uppercase text-white/40">Description</label>
+                                        <textarea placeholder="Service description..."
+                                            value={srv.description || ''}
+                                            onChange={e => {
+                                                const newServices = [...content.appServices];
+                                                newServices[idx] = { ...newServices[idx], description: e.target.value };
+                                                setContent({ ...content, appServices: newServices });
+                                            }}
+                                            rows={2}
+                                            className="w-full bg-black/40 border border-white/10 rounded p-2 text-xs outline-none resize-none" />
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div className="space-y-1">
+                                            <label className="text-[10px] uppercase text-white/40">Phosphor Icon Name (e.g. star, briefcase)</label>
+                                            <input type="text" placeholder="e.g. star"
+                                                value={srv.icon || ''}
+                                                onChange={e => {
+                                                    const newServices = [...content.appServices];
+                                                    newServices[idx] = { ...newServices[idx], icon: e.target.value };
+                                                    setContent({ ...content, appServices: newServices });
+                                                }}
+                                                className="w-full bg-black/40 border border-white/10 rounded p-2 text-xs outline-none" />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <label className="text-[10px] uppercase text-white/40">Booking Action URL</label>
+                                            <input type="text" placeholder="https://..."
+                                                value={srv.actionUrl || ''}
+                                                onChange={e => {
+                                                    const newServices = [...content.appServices];
+                                                    newServices[idx] = { ...newServices[idx], actionUrl: e.target.value };
+                                                    setContent({ ...content, appServices: newServices });
+                                                }}
+                                                className="w-full bg-black/40 border border-white/10 rounded p-2 text-xs outline-none text-neon-blue font-mono" />
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+
+                            {(content.appServices?.length === 0 || !content.appServices) && (
+                                <div className="text-center py-10 border border-dashed border-white/20 rounded-lg text-white/40 text-sm">
+                                    No premium services added yet. The app drawer will display fallback defaults on the live card.
+                                </div>
+                            )}
                         </div>
                     )}
 
