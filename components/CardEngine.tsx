@@ -669,9 +669,10 @@ export default function CardEngine({ data, slug, ownerId, cardId, remoteLeads = 
           background: var(--gold);
           color: #000;
           font-weight: bold;
-          font-size: 20px;
-          padding: 12px 28px;
+          font-size: 16px;
+          padding: 10px 22px;
           border-radius: 30px;
+          white-space: nowrap;
           text-decoration: none;
           box-shadow: 0 0 15px rgba(0, 243, 255, 0.4);
       }
@@ -682,7 +683,7 @@ export default function CardEngine({ data, slug, ownerId, cardId, remoteLeads = 
           gap: 6px;
       }
       .premium-ad-indicator strong {
-          font-size: 26px;
+          font-size: 24px;
           color: var(--text-main);
           font-weight: bold;
           line-height: 1;
@@ -1116,7 +1117,9 @@ END:VCARD`;
                                                         <div className="premium-ad-indicator">
                                                             <strong>Ad</strong>
                                                             <div className="premium-dots">
-                                                                <span className="active"></span><span></span><span></span><span></span><span></span>
+                                                                {[0, 1, 2, 3, 4].map(dotIdx => (
+                                                                    <span key={dotIdx} className={idx === dotIdx ? 'active' : ''}></span>
+                                                                ))}
                                                             </div>
                                                         </div>
                                                     </div>
