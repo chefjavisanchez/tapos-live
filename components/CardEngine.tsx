@@ -307,11 +307,11 @@ const IMPULSO_STYLES = `
       box-shadow: 0 0 20px rgba(0, 243, 255, 0.4);
       animation: pulse-glow 2s infinite;
       cursor: pointer;
-      border: 2px solid white;
+      border: 2px solid var(--bg-card);
   }
   .scan-list-item {
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.1);
+      background: var(--glass-panel);
+      border: var(--border-light);
       padding: 15px;
       border-radius: 12px;
       margin-bottom: 10px;
