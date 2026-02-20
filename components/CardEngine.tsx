@@ -260,9 +260,9 @@ const IMPULSO_STYLES = `
 
   .soc-pill {
       display: flex; align-items: center; gap: 8px; padding: 8px 16px;
-      background: ${isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.03)'}; 
+      background: var(--glass-panel); 
       border-radius: 30px;
-      border: 1px solid ${isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0,0,0,0.1)'}; 
+      border: var(--border-light); 
       color: var(--text-main); text-decoration: none;
       font-size: 0.8rem; font-weight: 600; white-space: nowrap; flex-shrink: 0;
       transition: all 0.2s ease;
@@ -275,7 +275,7 @@ const IMPULSO_STYLES = `
       border: var(--border-light); border-radius: 16px;
       text-decoration: none; color: var(--text-main); transition: 0.2s; flex-shrink: 0;
   }
-  .srv-btn:active { transform: scale(0.98); background: ${isDarkMode ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.1)'}; }
+  .srv-btn:active { transform: scale(0.98); opacity: 0.8; }
   
   .btn-icon { font-size: 1.8rem; color: var(--gold); }
   .text-content h3 { margin: 0; font-family: 'Rajdhani', sans-serif; font-size: 1.1rem; color: var(--text-main); }
