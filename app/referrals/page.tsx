@@ -273,7 +273,7 @@ export default function RewardsPage() {
                                     <div className="text-3xl font-bold text-white mb-4">30 DAYS FREE ADS</div>
                                     <p className="text-white/70 text-sm mb-6 leading-relaxed">
                                         Reach {GOAL} Points to unlock a full month of featured advertising in the
-                                        <span className="text-neon-blue font-bold"> JAVEELIST D+</span>.
+                                        <span className="text-neon-blue font-bold"> JAVEEADS</span>.
                                         Boost your visibility instantly!
                                     </p>
                                     <div className="flex items-center gap-2 p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
