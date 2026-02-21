@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Rocket, Zap, Shield, Globe, ArrowRight, Share2, Trees, Smartphone, ScanEye, Tv, MessageSquareText, Video, LayoutGrid, Users, BarChart3, Building2 } from 'lucide-react';
+import { Rocket, Zap, Shield, Globe, ArrowRight, Share2, Trees, Smartphone, ScanEye, Tv, MessageSquareText, Video, LayoutGrid, Users, BarChart3, Building2, Handshake } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 import NetworkingOS from './NetworkingOS';
@@ -231,20 +231,20 @@ export default function LandingPage() {
 
                             <FeatureRow
                                 icon={<Tv className="text-neon-blue" size={20} />}
-                                title="Dynamic Ad Slots"
-                                text="Monetize your profile with 5 customizable ad spaces. Showcase your logo, flyers, or text-based promotions to everyone you meet."
+                                title="Micro-Landing Page & Ad Slots"
+                                text="Your digital identity is now a high-converting micro-landing page with 4 customizable ad slots. Embed videos, promote products, and drive traffic on the spot."
+                            />
+
+                            <FeatureRow
+                                icon={<Handshake className="text-neon-blue" size={20} />}
+                                title="Two Ways to Earn"
+                                text="Share your standard link to earn 30 days of free advertising, or join the Official Partner Program to earn a 15% recurring cash commission for every referral."
                             />
 
                             <FeatureRow
                                 icon={<MessageSquareText className="text-neon-blue" size={20} />}
                                 title="Marquee Text Engine"
                                 text="Run a scrolling live ticker across your profile to announce your latest launch or a limited-time offer."
-                            />
-
-                            <FeatureRow
-                                icon={<Video className="text-neon-blue" size={20} />}
-                                title="Video Business Card"
-                                text="Embed your YouTube videos directly into your profile so prospects can see your work and hear your story instantly."
                             />
 
                             <FeatureRow
