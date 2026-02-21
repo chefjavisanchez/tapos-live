@@ -58,7 +58,7 @@ export async function POST(req: Request) {
 
     // Filter in JS to find the exact cards we need to update
     const cardsToUpdate = unpaidCards.filter(c => {
-        return c.content?.referrer === affiliateSlug &&
+        return c.content?.affiliate_referrer === affiliateSlug &&
             c.content?.subscription === 'active' &&
             !c.content?.affiliatePaid;
     });

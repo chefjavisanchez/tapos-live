@@ -29,6 +29,7 @@ export default function RewardsPage() {
     const [loading, setLoading] = useState(true);
     const [isAdmin, setIsAdmin] = useState(false);
     const [referrals, setReferrals] = useState<any[]>([]);
+    const [affiliateEarned, setAffiliateEarned] = useState<number>(0);
     const [userSlug, setUserSlug] = useState('');
     const [copied, setCopied] = useState(false);
     const [planType, setPlanType] = useState('independent');
@@ -70,6 +71,23 @@ export default function RewardsPage() {
                     .contains('content', { referrer: myCard.slug });
 
                 if (refs) setReferrals(refs);
+
+                // 3. Count Affiliate Referrals for Cash
+                const { data: affRefs } = await supabase
+                    .from('cards')
+                    .select('id, created_at, content')
+                    .contains('content', { affiliate_referrer: myCard.slug });
+
+                if (affRefs) {
+                    let earned = 0;
+                    affRefs.forEach(card => {
+                        if (card.content?.subscription === 'active') {
+                            const amountPaidCents = card.content?.amount_paid || 9900;
+                            earned += parseFloat(((amountPaidCents / 100) * 0.15).toFixed(2));
+                        }
+                    });
+                    setAffiliateEarned(earned);
+                }
             }
             setLoading(false);
         };
@@ -80,6 +98,15 @@ export default function RewardsPage() {
     const handleSignOut = async () => {
         await supabase.auth.signOut();
         router.push('/login');
+    };
+
+    const [copiedAffiliate, setCopiedAffiliate] = useState(false);
+
+    const copyAffiliateToClipboard = () => {
+        if (!userSlug) return;
+        navigator.clipboard.writeText(`https://tapos360.com/?affiliate=${userSlug}`);
+        setCopiedAffiliate(true);
+        setTimeout(() => setCopiedAffiliate(false), 2000);
     };
 
     const copyToClipboard = () => {
@@ -170,7 +197,7 @@ export default function RewardsPage() {
                                                     strokeLinecap="round" className="transition-all duration-1000 ease-out shadow-[0_0_20px_#48bb78]" />
                                             </svg>
                                             <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                                <div className="text-2xl font-bold font-rajdhani text-green-400">$0</div>
+                                                <div className="text-2xl font-bold font-rajdhani text-green-400">${affiliateEarned.toFixed(2)}</div>
                                                 <div className="text-[8px] font-bold text-white/50 uppercase tracking-widest">EARNED</div>
                                             </div>
                                         </div>
@@ -263,21 +290,38 @@ export default function RewardsPage() {
                                     </div>
                                     <h3 className="text-xl font-bold font-rajdhani tracking-wider text-white">EARN 15% COMMISSION</h3>
                                     <p className="text-white/60 text-xs mb-4">Earn recurring revenue when your referrals sign up for any Individual or Corporate TapOS account.</p>
-                                    <button className="w-full bg-green-500 hover:bg-green-400 text-black font-bold py-3 rounded-xl text-sm transition shadow-[0_0_15px_rgba(34,197,94,0.3)] hover:shadow-[0_0_25px_rgba(34,197,94,0.5)]">
-                                        JOIN AFFILIATE PROGRAM
+
+                                    {/* Partner Link Box */}
+                                    <div className="mb-4">
+                                        <div className="text-xs text-green-400 font-bold uppercase mb-2">Partner Tracking Link</div>
+                                        <div className="flex gap-2">
+                                            <div className="flex-1 bg-black/50 border border-white/20 rounded-lg px-4 py-3 text-sm text-white/80 font-mono truncate">
+                                                https://tapos360.com/?affiliate={userSlug}
+                                            </div>
+                                            <button
+                                                onClick={copyAffiliateToClipboard}
+                                                className="bg-green-500 text-black px-4 rounded-lg font-bold hover:bg-green-400 transition flex items-center justify-center w-12"
+                                            >
+                                                {copiedAffiliate ? <CheckCircle2 size={18} /> : <Copy size={18} />}
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <button onClick={() => window.location.href = 'mailto:javi@tapygo.com?subject=Join%20Partner%20Program'} className="w-full bg-green-500 hover:bg-green-400 text-black font-bold py-3 rounded-xl text-sm transition shadow-[0_0_15px_rgba(34,197,94,0.3)] hover:shadow-[0_0_25px_rgba(34,197,94,0.5)]">
+                                        BECOME AN OFFICIAL PARTNER
                                     </button>
                                 </div>
 
                                 {/* Link Box */}
                                 <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
-                                    <div className="text-xs text-neon-blue font-bold uppercase mb-2">Your Referral Link</div>
+                                    <div className="text-xs text-neon-blue font-bold uppercase mb-2">30-Day Free Ads Link</div>
                                     <div className="flex gap-2">
                                         <div className="flex-1 bg-black/50 border border-white/20 rounded-lg px-4 py-3 text-sm text-white/80 font-mono truncate">
                                             https://tapos360.com/?ref={userSlug}
                                         </div>
                                         <button
                                             onClick={copyToClipboard}
-                                            className="bg-neon-blue text-black px-4 rounded-lg font-bold hover:bg-white transition flex items-center gap-2"
+                                            className="bg-neon-blue text-black px-4 rounded-lg font-bold hover:bg-white transition flex items-center justify-center w-12"
                                         >
                                             {copied ? <CheckCircle2 size={18} /> : <Copy size={18} />}
                                         </button>

@@ -49,7 +49,7 @@ export async function GET(req: Request) {
 
     // First pass: Find all users that ARE affiliates (i.e. someone used their slug as a referrer)
     cards.forEach(card => {
-        const referrerSlug = card.content?.referrer;
+        const referrerSlug = card.content?.affiliate_referrer;
         const isActive = card.content?.subscription === 'active';
 
         if (referrerSlug && isActive) {

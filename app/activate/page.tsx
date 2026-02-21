@@ -57,7 +57,8 @@ const ActivationContent = () => {
                         plan: plan || 'independent',
                         quantity: parseInt(quantity || '1'),
                         stripe_session_id: sessionId,
-                        referrer: localStorage.getItem('tapos_referral_code') || null
+                        referrer: localStorage.getItem('tapos_referral_code') || null,
+                        affiliate_referrer: localStorage.getItem('tapos_affiliate_code') || null
                     }
                 }
             });

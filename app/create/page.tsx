@@ -8,7 +8,12 @@ import { Sparkles, ArrowRight, CreditCard, User, AlertTriangle, Loader2 } from '
 function CreateForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const referralCode = searchParams.get('ref'); // CAPTURE REFERRAL
+
+    // Safely check localStorage since it's client-side
+    const getStoredCode = (key: string) => typeof window !== 'undefined' ? localStorage.getItem(key) : null;
+
+    const referralCode = searchParams.get('ref') || getStoredCode('tapos_referral_code'); // CAPTURE REFERRAL
+    const affiliateCode = searchParams.get('affiliate') || getStoredCode('tapos_affiliate_code'); // CAPTURE AFFILIATE
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -53,6 +58,7 @@ function CreateForm() {
                 jobTitle: form.jobTitle,
                 theme: 'neon-blue',
                 referrer: referralCode || null, // SAVE REFERRER HERE
+                affiliate_referrer: affiliateCode || null, // SAVE AFFILIATE HERE
 
                 // Default Placeholder Data (From Leyda Template)
                 profileImage: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=800",

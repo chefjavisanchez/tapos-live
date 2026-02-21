@@ -33,6 +33,12 @@ export default function LandingPage() {
             localStorage.setItem('tapos_referral_code', ref);
             console.log('Referral Captured:', ref);
         }
+
+        const affiliate = searchParams.get('affiliate');
+        if (affiliate) {
+            localStorage.setItem('tapos_affiliate_code', affiliate);
+            console.log('Affiliate Captured:', affiliate);
+        }
     }, []);
 
     const handlePhoneClick = (index: number, e: React.MouseEvent) => {
