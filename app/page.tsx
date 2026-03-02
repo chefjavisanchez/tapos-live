@@ -197,6 +197,14 @@ export default function Home() {
                                         ${(cards.reduce((acc, c) => acc + (c.content?.analytics?.views || 0), 0) * 0.45).toFixed(2)}
                                     </div>
                                 </div>
+                                {/* SPONSOR PASSPORT STATS */}
+                                <div className="pl-6 border-l border-white/10">
+                                    <div className="text-[10px] text-[#ffde00] uppercase font-bold tracking-[0.2em] mb-1">Raffle Entries</div>
+                                    <div className="text-2xl font-black text-[#ffde00] font-syncopate flex items-center justify-end gap-2">
+                                        <Trophy size={18} />
+                                        {leads.filter(l => l.is_verified).length}
+                                    </div>
+                                </div>
                             </div>
 
                             {cards.length === 0 && (

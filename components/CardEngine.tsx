@@ -709,6 +709,7 @@ export default function CardEngine({ data, slug, ownerId, cardId, remoteLeads = 
     const [scanning, setScanning] = useState(false);
     const [scanResult, setScanResult] = useState<any>(null);
     const [isOwner, setIsOwner] = useState(false);
+    const [isExpoMode, setIsExpoMode] = useState(false);
 
     // SERVICES STATE
     const [isServicesOpen, setIsServicesOpen] = useState(false);
@@ -776,6 +777,50 @@ export default function CardEngine({ data, slug, ownerId, cardId, remoteLeads = 
             });
             const base64Image = await toBase64(file);
 
+            // 1.5. Check for QR Code (Expo Mode / Passport)
+            try {
+                const jsQR = (await import('jsqr')).default;
+                const img = new Image();
+                img.src = base64Image;
+                await new Promise(r => img.onload = r);
+
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext('2d');
+                ctx?.drawImage(img, 0, 0);
+                const imageData = ctx?.getImageData(0, 0, canvas.width, canvas.height);
+
+                if (imageData) {
+                    const code = jsQR(imageData.data, imageData.width, imageData.height);
+                    if (code) {
+                        console.log("🎯 QR Detected:", code.data);
+
+                        // Check if it's a TapOS URL
+                        const url = code.data;
+                        if (url.includes('tapos360.com/') || url.includes(window.location.host)) {
+                            const slug = url.split('/').pop();
+                            if (slug) {
+                                console.log("🔍 Fetching Verified TapOS Profile for:", slug);
+                                const res = await fetch(`/api/card/profile-lite?slug=${slug}`);
+                                if (res.ok) {
+                                    const profile = await res.json();
+                                    setScanResult({
+                                        ...profile,
+                                        is_verified: true,
+                                        notes: "Verified Passport Scan"
+                                    });
+                                    setScanning(false);
+                                    return; // STOP HERE! We have perfect data.
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch (qrErr) {
+                console.warn("QR Engine failed, falling back to AI/OCR", qrErr);
+            }
+
             // 2. Check for Turbo Mode
             if (data?.openai_api_key && data?.openai_api_key.startsWith('sk-')) {
                 console.log("🚀 Using AI Turbo Scan...");
@@ -842,6 +887,7 @@ export default function CardEngine({ data, slug, ownerId, cardId, remoteLeads = 
                     name: scanResult.name,
                     email: scanResult.email,
                     phone: scanResult.phone,
+                    is_verified: scanResult.is_verified || false,
                     note: `Scanned: ${scanResult.notes}`
                 })
             });
@@ -1251,6 +1297,20 @@ END:VCARD`;
                                 <div className="text-center mb-2">
                                     <h2 className="font-syncopate text-neon-blue text-xl font-bold">LEAD SCANNER</h2>
                                     <p className="text-xs text-white/50">AI OPTICAL RECOGNITION ONLINE</p>
+
+                                    {/* EXPO MODE TOGGLE */}
+                                    <div className="flex items-center justify-center gap-3 mt-4">
+                                        <button
+                                            onClick={() => setIsExpoMode(!isExpoMode)}
+                                            className={`px-3 py-1.5 rounded-full text-[10px] font-bold uppercase transition-all flex items-center gap-2 ${isExpoMode ? 'bg-[#ffde00] text-black shadow-[0_0_15px_rgba(255,222,0,0.5)]' : 'bg-white/10 text-white/40'}`}
+                                        >
+                                            <i className={`ph-fill ${isExpoMode ? 'ph-ticket' : 'ph-scan'}`}></i>
+                                            {isExpoMode ? 'Expo Mode: ON' : 'Expo Mode: OFF'}
+                                        </button>
+                                        <div className="text-[9px] text-white/30 italic">
+                                            {isExpoMode ? 'Instant QR Capture + Raffle' : 'Scan Physical Cards (AI)'}
+                                        </div>
+                                    </div>
                                 </div>
 
                                 {!scanResult ? (
