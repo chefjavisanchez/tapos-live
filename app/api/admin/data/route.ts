@@ -64,7 +64,9 @@ export async function GET(req: Request) {
             userDetails: userMatch ? {
                 email: userMatch.email,
                 metadata: userMatch.user_metadata,
-                lastSignIn: userMatch.last_sign_in_at
+                lastSignIn: userMatch.last_sign_in_at,
+                lastActive: userMatch.user_metadata?.last_active_at,
+                csScore: userMatch.user_metadata?.onboarding_score
             } : null
         };
     });

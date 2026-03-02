@@ -5,6 +5,8 @@ import { useRouter, usePathname } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { useState, useEffect } from 'react';
 
+import { updateCSMetrics, calculateOnboardingScore } from '@/lib/cs-tracking';
+
 const NavItem = ({ icon, label, href, active, onClick, router }: { icon: any, label: string, href?: string, active?: boolean, onClick?: () => void, router: any }) => {
     const content = (
         <>
@@ -49,10 +51,31 @@ export default function DashboardSidebar({
 
     const isDashboard = pathname === '/';
     const [mounted, setMounted] = useState(false);
+    const [onboardingScore, setOnboardingScore] = useState(0);
 
     useEffect(() => {
         setMounted(true);
-    }, []);
+
+        const trackActivity = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) return;
+
+            // Update UI score immediately
+            if (userCard) {
+                const metrics = calculateOnboardingScore(userCard.content);
+                setOnboardingScore(metrics.score);
+
+                // Track backend only once per session to avoid noise/overhead
+                const sessionTracked = sessionStorage.getItem('tapos_active_tracked');
+                if (!sessionTracked) {
+                    await updateCSMetrics(user.id, userCard.content);
+                    sessionStorage.setItem('tapos_active_tracked', 'true');
+                }
+            }
+        };
+
+        trackActivity();
+    }, [userCard]);
 
     if (!mounted) return <aside className="w-72 border-r border-white/10 bg-black/40 backdrop-blur-xl max-md:hidden h-screen" />;
 
@@ -105,6 +128,25 @@ export default function DashboardSidebar({
                         <NavItem href="/admin/affiliates" icon={<Users size={20} />} label="Affiliates" active={pathname === '/admin/affiliates'} router={router} />
                     </div>
                 )}
+
+                {/* SUCCESS SCORE CARD (CS FEATURE) */}
+                <div className="mt-8 p-4 rounded-2xl bg-gradient-to-br from-neon-blue/10 to-purple-500/10 border border-white/10">
+                    <div className="flex justify-between items-center mb-2">
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-white/40">Success Score</span>
+                        <span className="text-[10px] font-bold text-neon-blue">{onboardingScore}%</span>
+                    </div>
+                    <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden mb-3">
+                        <div
+                            className="h-full bg-neon-blue transition-all duration-1000 ease-out shadow-[0_0_10px_#00f3ff]"
+                            style={{ width: `${onboardingScore}%` }}
+                        />
+                    </div>
+                    <p className="text-[10px] text-white/50 leading-tight">
+                        {onboardingScore < 100
+                            ? "Complete your profile to unlock maximum visibility."
+                            : "Your profile is fully optimized for conversions!"}
+                    </p>
+                </div>
             </nav>
 
 

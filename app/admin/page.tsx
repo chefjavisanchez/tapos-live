@@ -327,7 +327,7 @@ export default function AdminDashboard() {
                                     <tr className="bg-white/5 border-b border-white/10 text-gray-400 uppercase text-xs tracking-wider">
                                         <th className="p-4">Status</th>
                                         <th className="p-4">User Identity</th>
-                                        <th className="p-4">Contact Info</th>
+                                        <th className="p-4">Pulse (CS)</th>
                                         <th className="p-4 text-center">Referrals</th>
                                         <th className="p-4">Slug / URL</th>
                                         <th className="p-4">Joined</th>
@@ -381,21 +381,42 @@ export default function AdminDashboard() {
                                                     </div>
                                                 </td>
                                                 <td className="p-4">
-                                                    <div className="space-y-1">
-                                                        <div className="flex items-center gap-2 text-white/80 font-bold text-xs truncate max-w-[180px]">
-                                                            <Mail size={12} className="text-neon-blue" /> {email}
+                                                    <div className="space-y-3">
+                                                        {/* ONBOARDING SCORE */}
+                                                        <div>
+                                                            <div className="flex justify-between items-center mb-1 text-[10px] font-bold uppercase tracking-wider">
+                                                                <span className="text-white/40">Onboarding</span>
+                                                                <span className="text-neon-blue">{userDetails.csScore || 0}%</span>
+                                                            </div>
+                                                            <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
+                                                                <div
+                                                                    className="h-full bg-neon-blue shadow-[0_0_5px_#00f3ff]"
+                                                                    style={{ width: `${userDetails.csScore || 0}%` }}
+                                                                />
+                                                            </div>
                                                         </div>
 
-                                                        {typeof metadata.shipping_address === 'string' && metadata.shipping_address.trim() && (
-                                                            <div className="mt-2 p-2 rounded bg-white/5 border border-white/5">
-                                                                <div className="text-[9px] font-black text-neon-blue uppercase mb-1 flex items-center gap-1">
-                                                                    <Clock size={10} /> SHIPPING DETAILS
-                                                                </div>
-                                                                <div className="text-[11px] leading-tight text-white/70 italic">
-                                                                    {metadata.shipping_address}
-                                                                </div>
-                                                            </div>
-                                                        )}
+                                                        {/* ACTIVITY PULSE */}
+                                                        <div className="flex items-center gap-2">
+                                                            {(() => {
+                                                                const lastActive = userDetails.lastActive ? new Date(userDetails.lastActive) : null;
+                                                                const isAtRisk = !lastActive || (Date.now() - lastActive.getTime() > 7 * 24 * 60 * 60 * 1000);
+
+                                                                return (
+                                                                    <>
+                                                                        <div className={`w-2 h-2 rounded-full ${isAtRisk ? 'bg-red-500 animate-pulse shadow-[0_0_8px_#ef4444]' : 'bg-green-500 shadow-[0_0_8px_#22c55e]'}`} />
+                                                                        <div className="flex flex-col">
+                                                                            <span className={`text-[10px] font-bold uppercase ${isAtRisk ? 'text-red-400' : 'text-green-400'}`}>
+                                                                                {isAtRisk ? 'AT RISK' : 'ACTIVE'}
+                                                                            </span>
+                                                                            <span className="text-[9px] text-white/40">
+                                                                                {lastActive ? `Pulse: ${lastActive.toLocaleDateString()}` : 'Never Active'}
+                                                                            </span>
+                                                                        </div>
+                                                                    </>
+                                                                );
+                                                            })()}
+                                                        </div>
                                                     </div>
                                                 </td>
                                                 <td className="p-4 text-center">

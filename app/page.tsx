@@ -177,11 +177,28 @@ export default function Home() {
                 {activeTab === 'dashboard' ? (
                     <div className="animate-in fade-in duration-700">
                         {/* HEADER */}
-                        <header className="flex justify-between items-center mb-10">
+                        <header className="flex justify-between items-end mb-10">
                             <div>
                                 <h1 className="text-4xl font-black mb-2 font-syncopate uppercase">OPERATIONAL STATUS: <span className="text-neon-blue">SYSTEM</span></h1>
                                 <p className="text-white/50 font-medium">Welcome back, {appUser?.user_metadata?.full_name || 'Operator'}.</p>
                             </div>
+
+                            {/* ROI / VALUE CENTER (CS FEATURE) */}
+                            <div className="flex gap-6 text-right max-md:hidden">
+                                <div>
+                                    <div className="text-[10px] text-white/40 uppercase font-bold tracking-[0.2em] mb-1">Paper Cards Saved</div>
+                                    <div className="text-2xl font-black text-white font-syncopate">
+                                        {cards.reduce((acc, c) => acc + (c.content?.analytics?.views || 0), 0)}
+                                    </div>
+                                </div>
+                                <div className="pl-6 border-l border-white/10">
+                                    <div className="text-[10px] text-neon-blue uppercase font-bold tracking-[0.2em] mb-1">Estimated ROI</div>
+                                    <div className="text-2xl font-black text-neon-blue font-syncopate">
+                                        ${(cards.reduce((acc, c) => acc + (c.content?.analytics?.views || 0), 0) * 0.45).toFixed(2)}
+                                    </div>
+                                </div>
+                            </div>
+
                             {cards.length === 0 && (
                                 <a href="/create" className="bg-neon-blue hover:bg-white text-black px-8 py-3 rounded-xl font-bold uppercase text-sm tracking-widest transition-all shadow-[0_0_20px_rgba(0,243,255,0.3)]">
                                     Create New Card
