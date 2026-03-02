@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Terminal, CreditCard, User, Settings, LogOut, LayoutGrid, Loader2, Shield, Gift, ShoppingBag, Eye, Share2, UserPlus, Users, CheckCircle2, Copy, Trophy } from "lucide-react";
+import { Terminal, CreditCard, User, Settings, LogOut, LayoutGrid, Loader2, Shield, Gift, ShoppingBag, Eye, Share2, UserPlus, Users, CheckCircle2, Copy, Trophy, Ticket } from "lucide-react";
 import { useRouter } from 'next/navigation';
 import { isAdmin as checkIsAdmin } from '@/lib/admin-config';
 
@@ -10,6 +10,7 @@ import LandingPage from '@/components/LandingPage'; // Import Landing Page
 import DashboardSidebar from '@/components/DashboardSidebar'; // Import Sidebar
 import LeadViewer from '@/components/LeadViewer'; // Import LeadViewer
 import LeadsManager from '@/components/LeadsManager'; // Import LeadsManager
+import ExpoDashboard from '@/components/ExpoDashboard'; // Import ExpoDashboard
 
 export default function Home() {
     const [cards, setCards] = useState<any[]>([]);
@@ -23,7 +24,7 @@ export default function Home() {
     // NEW CORPORATE STATES
     const [appUser, setAppUser] = useState<any>(null);
     const [planType, setPlanType] = useState('independent');
-    const [activeTab, setActiveTab] = useState<'dashboard' | 'team' | 'leads'>('dashboard');
+    const [activeTab, setActiveTab] = useState<'dashboard' | 'team' | 'leads' | 'expo'>('dashboard');
     const [teamMembers, setTeamMembers] = useState<any[]>([]);
 
     // LEAD VIEWER STATE
@@ -49,6 +50,7 @@ export default function Home() {
 
         if (tab === 'team') setActiveTab('team');
         if (tab === 'leads') setActiveTab('leads');
+        if (tab === 'expo') setActiveTab('expo');
 
         const fetchCards = async () => {
             const { data: { user } } = await supabase.auth.getUser();
@@ -128,6 +130,7 @@ export default function Home() {
 
                     <nav className="flex flex-col gap-4 text-lg">
                         <NavItem icon={<LayoutGrid size={24} />} label="Dashboard" active={activeTab === 'dashboard'} onClick={() => { setActiveTab('dashboard'); setMobileMenuOpen(false); }} />
+                        <NavItem icon={<Ticket size={24} />} label="Expo Mode" active={activeTab === 'expo'} onClick={() => { setActiveTab('expo'); setMobileMenuOpen(false); }} />
                         {planType === 'corporate' && (
                             <NavItem icon={<UserPlus size={24} />} label="Team Control" active={activeTab === 'team'} onClick={() => { setActiveTab('team'); setMobileMenuOpen(false); }} />
                         )}
@@ -151,8 +154,8 @@ export default function Home() {
             <DashboardSidebar
                 isAdmin={isAdmin}
                 planType={planType}
-                activeTab={activeTab}
-                setActiveTab={setActiveTab}
+                activeTab={activeTab as any}
+                setActiveTab={setActiveTab as any}
                 userCard={cards[0]}
             />
 
@@ -369,6 +372,8 @@ export default function Home() {
                     </div>
                 ) : activeTab === 'leads' ? (
                     <LeadsManager cards={cards} leads={leads} /> // Pass leads directly
+                ) : activeTab === 'expo' ? (
+                    <ExpoDashboard leads={leads} cards={cards} />
                 ) : (
                     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                         <header className="mb-10">

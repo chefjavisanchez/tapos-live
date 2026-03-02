@@ -1,6 +1,6 @@
 'use client';
 
-import { Terminal, LayoutGrid, User, Users, Gift, ShoppingBag, Shield, Settings, CreditCard, LogOut, Eye, Share2 } from "lucide-react";
+import { Terminal, LayoutGrid, User, Users, Gift, ShoppingBag, Shield, Settings, CreditCard, LogOut, Eye, Share2, Ticket } from "lucide-react";
 import { useRouter, usePathname } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { useState, useEffect } from 'react';
@@ -37,8 +37,8 @@ export default function DashboardSidebar({
 }: {
     isAdmin: boolean,
     planType: string,
-    activeTab?: 'dashboard' | 'team' | 'leads',
-    setActiveTab?: (tab: 'dashboard' | 'team' | 'leads') => void,
+    activeTab?: 'dashboard' | 'team' | 'leads' | 'expo',
+    setActiveTab?: (tab: 'dashboard' | 'team' | 'leads' | 'expo') => void,
     userCard?: any
 }) {
     const router = useRouter();
@@ -101,6 +101,13 @@ export default function DashboardSidebar({
                     label="Leads"
                     active={isDashboard && activeTab === 'leads'}
                     onClick={isDashboard ? () => setActiveTab?.('leads') : () => router.push('/?tab=leads')}
+                    router={router}
+                />
+                <NavItem
+                    icon={<Ticket size={20} className="text-[#ffde00]" />}
+                    label="Expo Mode"
+                    active={isDashboard && activeTab === 'expo'}
+                    onClick={isDashboard ? () => setActiveTab?.('expo') : () => router.push('/?tab=expo')}
                     router={router}
                 />
 

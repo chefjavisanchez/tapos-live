@@ -1,0 +1,224 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { supabase } from '@/lib/supabase';
+import { Sparkles, ArrowRight, User, Mail, Phone, Ticket, Loader2 } from 'lucide-react';
+
+export default function PassportPage() {
+    const [loading, setLoading] = useState(false);
+    const [success, setSuccess] = useState(false);
+    const [error, setError] = useState('');
+    const [form, setForm] = useState({
+        fullName: '',
+        email: '',
+        phone: '',
+        company: ''
+    });
+    const [generatedSlug, setGeneratedSlug] = useState('');
+
+    const handleRegister = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setLoading(true);
+        setError('');
+
+        try {
+            // 1. Create a "Lite" user or just a card with a random ID
+            // For Event Lites, we can use a UUID-based slug for speed
+            const slug = `p-${Math.random().toString(36).substring(2, 7)}-${form.fullName.toLowerCase().replace(/\s+/g, '-')}`.substring(0, 30);
+
+            const initialContent = {
+                fullName: form.fullName,
+                email: form.email,
+                phone: form.phone,
+                company: form.company,
+                theme: 'gold', // Passport/Gold theme
+                is_lite: true,
+                event: 'Sponsor Passport Experience',
+                profileImage: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=400&h=400&fit=crop",
+                bio: "Official Event Guest"
+            };
+
+            const { data, error: insertError } = await supabase
+                .from('cards')
+                .insert([
+                    {
+                        title: `${form.fullName}'s Passport`,
+                        slug: slug,
+                        content: initialContent,
+                        user_id: null // Guest cards don't need a formal account initially
+                    }
+                ])
+                .select()
+                .single();
+
+            if (insertError) throw insertError;
+
+            setGeneratedSlug(slug);
+            setSuccess(true);
+
+        } catch (err: any) {
+            console.error(err);
+            setError('Registration failed. Please try again.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    if (success) {
+        return (
+            <div className="min-h-screen bg-black flex flex-col items-center justify-center p-6 text-center">
+                <div className="w-full max-w-sm glass-panel border border-[#ffde00]/30 rounded-[2.5rem] p-8 relative overflow-hidden animate-in zoom-in-95 duration-500">
+                    <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-transparent via-[#ffde00] to-transparent"></div>
+
+                    <div className="mb-8 flex flex-col items-center">
+                        <div className="w-20 h-20 rounded-full bg-[#ffde00]/10 border border-[#ffde00] flex items-center justify-center mb-4 shadow-[0_0_20px_rgba(255,222,0,0.2)]">
+                            <Ticket className="text-[#ffde00]" size={32} />
+                        </div>
+                        <h1 className="font-syncopate text-xl font-bold text-white uppercase tracking-tighter italic">PASSPORT ACTIVATED</h1>
+                        <p className="text-[#ffde00] text-xs font-bold uppercase tracking-widest mt-2 px-3 py-1 bg-[#ffde00]/10 rounded-full">Official Guest</p>
+                    </div>
+
+                    <div className="bg-white p-4 rounded-2xl mb-8 shadow-[0_0_30px_rgba(255,255,255,0.1)] inline-block">
+                        <img
+                            src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=https://tapos360.com/${generatedSlug}`}
+                            alt="Your Passport QR"
+                            className="w-48 h-48"
+                        />
+                    </div>
+
+                    <div className="text-left space-y-4 mb-8">
+                        <div>
+                            <p className="text-[10px] text-white/30 uppercase font-black tracking-widest">Guest Name</p>
+                            <p className="text-white font-rajdhani font-bold text-lg">{form.fullName}</p>
+                        </div>
+                        <div className="flex justify-between">
+                            <div>
+                                <p className="text-[10px] text-white/30 uppercase font-black tracking-widest">Raffle Status</p>
+                                <p className="text-[#ffde00] font-bold">READY TO SCAN</p>
+                            </div>
+                            <div className="text-right">
+                                <p className="text-[10px] text-white/30 uppercase font-black tracking-widest">Access ID</p>
+                                <p className="text-white/50 font-mono text-xs tracking-tighter uppercase">{generatedSlug.split('-')[1]}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button
+                        onClick={() => window.location.reload()}
+                        className="text-white/30 hover:text-white text-[10px] uppercase font-bold tracking-widest transition"
+                    >
+                        Register Another Guest
+                    </button>
+                </div>
+
+                <p className="mt-8 text-white/20 text-[10px] uppercase tracking-[0.3em] font-medium">Sponsor Passport Experience &bull; TapOS 3.0</p>
+            </div>
+        );
+    }
+
+    return (
+        <div className="min-h-screen bg-black bg-cyber-grid p-6 text-white flex flex-col items-center justify-center">
+
+            <div className="mb-10 text-center animate-in fade-in slide-in-from-top-4 duration-700">
+                <div className="flex items-center justify-center gap-3 mb-2">
+                    <div className="p-2 bg-[#ffde00]/20 rounded-lg text-[#ffde00]">
+                        <Ticket size={24} />
+                    </div>
+                    <h1 className="font-syncopate text-2xl font-bold tracking-tighter uppercase">TAP<span className="text-[#ffde00]">O</span>S LITE</h1>
+                </div>
+                <p className="text-white/40 text-xs font-bold uppercase tracking-[0.2em]">Claim Your Personal Event Passport</p>
+            </div>
+
+            <div className="w-full max-w-md glass-panel border border-white/10 rounded-[2rem] p-8 shadow-2xl relative overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-700">
+
+                <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+
+                <form onSubmit={handleRegister} className="space-y-6">
+                    <div className="space-y-2">
+                        <label className="text-[10px] font-black text-white/40 uppercase tracking-widest ml-1">Full Name</label>
+                        <div className="relative">
+                            <User className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={18} />
+                            <input
+                                required
+                                value={form.fullName}
+                                onChange={e => setForm({ ...form, fullName: e.target.value })}
+                                type="text"
+                                className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:outline-none focus:border-[#ffde00]/50 transition"
+                                placeholder="e.g. Jane Foster"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-white/40 uppercase tracking-widest ml-1">Email</label>
+                            <div className="relative">
+                                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={18} />
+                                <input
+                                    required
+                                    value={form.email}
+                                    onChange={e => setForm({ ...form, email: e.target.value })}
+                                    type="email"
+                                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:outline-none focus:border-[#ffde00]/50 transition"
+                                    placeholder="jane@expo.com"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-white/40 uppercase tracking-widest ml-1">Company (Opt)</label>
+                            <div className="relative">
+                                <Sparkles className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={18} />
+                                <input
+                                    value={form.company}
+                                    onChange={e => setForm({ ...form, company: e.target.value })}
+                                    type="text"
+                                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:outline-none focus:border-[#ffde00]/50 transition"
+                                    placeholder="e.g. Acme Inc"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="space-y-2">
+                        <label className="text-[10px] font-black text-white/40 uppercase tracking-widest ml-1">Phone Number (Opt)</label>
+                        <div className="relative">
+                            <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={18} />
+                            <input
+                                value={form.phone}
+                                onChange={e => setForm({ ...form, phone: e.target.value })}
+                                type="tel"
+                                className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:outline-none focus:border-[#ffde00]/50 transition"
+                                placeholder="+1 (555) 000-0000"
+                            />
+                        </div>
+                    </div>
+
+                    <p className="text-[9px] text-white/20 text-center uppercase tracking-widest px-4 italic">
+                        By registering, you agree to share your contact info with event sponsors to receive raffle alerts.
+                    </p>
+
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        className="w-full bg-[#ffde00] hover:bg-white text-black font-black py-5 rounded-[1.5rem] mt-4 flex items-center justify-center gap-3 transition-all duration-300 hover:scale-[1.02] shadow-[0_0_30px_rgba(255,222,0,0.2)] group"
+                    >
+                        {loading ? <Loader2 className="animate-spin text-black" /> : (
+                            <>
+                                GENERATE MY PASSPORT <ArrowRight className="group-hover:translate-x-1 transition-transform" size={20} />
+                            </>
+                        )}
+                    </button>
+                </form>
+
+                {error && <p className="mt-4 text-red-500 text-xs text-center font-bold">{error}</p>}
+            </div>
+
+            <div className="mt-12 flex items-center gap-4 opacity-30 group hover:opacity-100 transition-opacity">
+                <div className="w-10 h-[1px] bg-white"></div>
+                <p className="text-[10px] font-black uppercase tracking-[0.5em]">TAPOS ID</p>
+                <div className="w-10 h-[1px] bg-white"></div>
+            </div>
+        </div>
+    );
+}
