@@ -183,6 +183,13 @@ export default function AdminDashboard() {
         }
     };
 
+    const handlePulseReachout = (userEmail: string, score: number, roi: string) => {
+        const subject = encodeURIComponent("Quick question about your TapOS profile");
+        const body = encodeURIComponent(`Hi! \n\nI noticed you have an onboarding success score of ${score}% on your TapOS account.\n\nOur records show you've already saved an estimated ${roi} on paper business cards! \n\nWould you like a quick 5-minute call to help you reach 100% and maximize your visibility?\n\nBest, \nJavi \nTapOS Success Team`);
+
+        window.location.href = `mailto:${userEmail}?subject=${subject}&body=${body}`;
+    };
+
     const handleLoginAs = async (userId: string) => {
         if (!confirm('LOGIN AS USER?\n\nThis will take you to their private dashboard. You will need to log back in as Admin later.')) return;
 
@@ -464,6 +471,13 @@ export default function AdminDashboard() {
                                                                 title="Rescue Account (Change Email/Password)"
                                                             >
                                                                 <Lock size={12} /> RESCUE
+                                                            </button>
+                                                            <button
+                                                                onClick={() => handlePulseReachout(email, userDetails.csScore || 0, ((card.content?.analytics?.views || 0) * 0.45).toLocaleString('en-US', { style: 'currency', currency: 'USD' }))}
+                                                                className="px-2 py-1 bg-green-500/10 hover:bg-green-500 text-green-500 hover:text-black border border-green-500/50 rounded text-xs font-bold transition flex items-center gap-1"
+                                                                title="Send Success reachout email"
+                                                            >
+                                                                <Mail size={12} /> REACHOUT
                                                             </button>
                                                             <button
                                                                 onClick={() => handleLoginAs(userDetails.id || card.user_id)}

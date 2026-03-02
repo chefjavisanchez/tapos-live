@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Terminal, CreditCard, User, Settings, LogOut, LayoutGrid, Loader2, Shield, Gift, ShoppingBag, Eye, Share2, UserPlus, Users } from "lucide-react";
+import { Terminal, CreditCard, User, Settings, LogOut, LayoutGrid, Loader2, Shield, Gift, ShoppingBag, Eye, Share2, UserPlus, Users, CheckCircle2, Copy, Trophy } from "lucide-react";
 import { useRouter } from 'next/navigation';
 import { isAdmin as checkIsAdmin } from '@/lib/admin-config';
 
@@ -266,6 +266,97 @@ export default function Home() {
                                     <span className="text-white/50 font-black uppercase tracking-widest text-sm group-hover:text-white">Initialize Your Profile</span>
                                 </a>
                             )}
+                        </div>
+                        {/* SUCCESS & GROWTH HUB (CS PHASE 2) */}
+                        <div className="mt-12 grid grid-cols-1 lg:grid-cols-3 gap-8 pb-12">
+
+                            {/* SUCCESS CHECKLIST */}
+                            <div className="lg:col-span-1 bg-white/5 border border-white/10 rounded-[2rem] p-8">
+                                <h3 className="text-xl font-bold mb-6 font-rajdhani flex items-center gap-2">
+                                    <CheckCircle2 size={24} className="text-neon-blue" /> SUCCESS CHECKLIST
+                                </h3>
+                                <div className="space-y-4">
+                                    {(() => {
+                                        const primary = cards[0];
+                                        if (!primary) return <p className="text-white/40 text-sm italic">Create your first card to begin.</p>;
+
+                                        const checks = [
+                                            { label: 'Upload Brand Logo', done: !!primary.content?.logo },
+                                            { label: 'Write Bio / Description', done: !!primary.content?.bio },
+                                            { label: 'Add 2+ Social Links', done: (primary.content?.socials?.length || 0) >= 2 },
+                                            { label: 'Add 1+ Featured Ad', done: (primary.content?.ads?.length || 0) >= 1 },
+                                        ];
+
+                                        return checks.map((c, i) => (
+                                            <div key={i} className="flex items-center gap-3">
+                                                <div className={`w-5 h-5 rounded-full flex items-center justify-center border ${c.done ? 'bg-neon-blue border-neon-blue' : 'border-white/20'}`}>
+                                                    {c.done && <CheckCircle2 size={12} className="text-black" />}
+                                                </div>
+                                                <span className={`text-sm font-bold ${c.done ? 'text-white/80 line-through' : 'text-white'}`}>{c.label}</span>
+                                            </div>
+                                        ));
+                                    })()}
+                                </div>
+                                <div className="mt-8 p-4 bg-neon-blue/10 rounded-xl border border-neon-blue/20">
+                                    <p className="text-[10px] uppercase font-bold text-neon-blue mb-1 tracking-widest text-center italic">Goal: 100% Visible</p>
+                                </div>
+                            </div>
+
+                            {/* DUAL REFERRAL TRACKS */}
+                            <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {/* CARD A: EARN CASH */}
+                                <div className="bg-gradient-to-br from-green-900/30 to-black border border-green-500/30 rounded-[2rem] p-8 flex flex-col justify-between">
+                                    <div>
+                                        <div className="flex justify-between items-start mb-4">
+                                            <div className="p-3 bg-green-500/20 rounded-2xl text-green-400">
+                                                <Trophy size={24} />
+                                            </div>
+                                            <span className="text-[10px] font-bold text-green-400 border border-green-500/20 px-2 py-1 rounded bg-green-900/20 uppercase tracking-widest">Revenue</span>
+                                        </div>
+                                        <h3 className="text-2xl font-bold font-rajdhani text-white mb-2">EARN 15% CASH</h3>
+                                        <p className="text-white/50 text-xs mb-6 leading-relaxed">Refer any person or company to the TapOS subscription and earn forever.</p>
+                                    </div>
+                                    <button
+                                        onClick={() => {
+                                            const slug = cards[0]?.slug;
+                                            if (slug) {
+                                                navigator.clipboard.writeText(`https://tapos360.com/?affiliate=${slug}`);
+                                                alert("Partner Link Copied!");
+                                            }
+                                        }}
+                                        className="w-full py-4 bg-green-500 hover:bg-green-400 text-black font-black rounded-2xl text-xs uppercase tracking-[0.2em] transition translate-y-0 active:translate-y-1"
+                                    >
+                                        Copy Partner Link
+                                    </button>
+                                </div>
+
+                                {/* CARD B: EARN ADS */}
+                                <div className="bg-gradient-to-br from-purple-900/30 to-black border border-purple-500/30 rounded-[2rem] p-8 flex flex-col justify-between">
+                                    <div>
+                                        <div className="flex justify-between items-start mb-4">
+                                            <div className="p-3 bg-purple-500/20 rounded-2xl text-purple-400">
+                                                <Eye size={24} />
+                                            </div>
+                                            <span className="text-[10px] font-bold text-purple-400 border border-purple-500/20 px-2 py-1 rounded bg-purple-900/20 uppercase tracking-widest">Visibility</span>
+                                        </div>
+                                        <h3 className="text-2xl font-bold font-rajdhani text-white mb-2">30 DAYS FREE ADS</h3>
+                                        <p className="text-white/50 text-xs mb-6 leading-relaxed">Earn points for every new user referral. Unlock free ad space on JAVEEADS.</p>
+                                    </div>
+                                    <button
+                                        onClick={() => {
+                                            const slug = cards[0]?.slug;
+                                            if (slug) {
+                                                navigator.clipboard.writeText(`https://tapos360.com/?ref=${slug}`);
+                                                alert("Referral Link Copied!");
+                                            }
+                                        }}
+                                        className="w-full py-4 bg-purple-500 hover:bg-purple-400 text-black font-black rounded-2xl text-xs uppercase tracking-[0.2em] transition translate-y-0 active:translate-y-1"
+                                    >
+                                        Copy Referral Link
+                                    </button>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                 ) : activeTab === 'leads' ? (
