@@ -3,7 +3,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
-import { Shield, CheckCircle2, XCircle, Mail, User, Clock, Loader2, Lock, ShieldCheck, LogOut, Trash2, ExternalLink } from 'lucide-react';
+import { Shield, CheckCircle2, XCircle, Mail, User, Clock, Loader2, Lock, ShieldCheck, LogOut, Trash2, ExternalLink, Ticket, Zap } from 'lucide-react';
 import DashboardSidebar from '@/components/DashboardSidebar';
 import { isAdmin as checkIsAdmin } from '@/lib/admin-config';
 
@@ -287,6 +287,38 @@ export default function AdminDashboard() {
         }
     };
 
+    const handleToggleSponsor = async (userId: string, currentStatus: boolean) => {
+        const msg = currentStatus ? "REVOKE SPONSOR STATUS?" : "GRANT SPONSOR STATUS?";
+        if (!confirm(`${msg}\n\nSponsors get access to Expo Mode and real-time Raffle Dashboard.`)) return;
+
+        try {
+            setLoading(true);
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) return router.push('/login');
+
+            const res = await fetch('/api/admin/toggle-sponsor', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${session.access_token}`
+                },
+                body: JSON.stringify({ userId, isSponsor: !currentStatus })
+            });
+
+            const data = await res.json();
+            if (data.success) {
+                alert('Success! Sponsor status updated.');
+                checkAuthAndFetch();
+            } else {
+                alert('Error: ' + data.error);
+                setLoading(false);
+            }
+        } catch (err: any) {
+            alert('Failed to connect: ' + err.message);
+            setLoading(false);
+        }
+    };
+
     if (!mounted || loading) {
         return (
             <div className="min-h-screen bg-black flex items-center justify-center text-neon-blue">
@@ -353,6 +385,7 @@ export default function AdminDashboard() {
                                 <thead>
                                     <tr className="bg-white/5 border-b border-white/10 text-gray-400 uppercase text-xs tracking-wider">
                                         <th className="p-4">Status</th>
+                                        <th className="p-4 text-center">Sponsor</th>
                                         <th className="p-4">User Identity</th>
                                         <th className="p-4">Pulse (CS)</th>
                                         <th className="p-4 text-center">Referrals</th>
@@ -393,6 +426,19 @@ export default function AdminDashboard() {
                                                             {plan} {plan === 'corporate' && <span className="ml-1 text-[10px] text-white">x{Number(metadata.quantity || 1)}</span>}
                                                         </span>
                                                     </div>
+                                                </td>
+                                                <td className="p-4 text-center">
+                                                    <button
+                                                        onClick={() => handleToggleSponsor(userDetails.id || card.user_id, !!metadata.is_sponsor)}
+                                                        className={`p-2 rounded-lg border transition-all ${metadata.is_sponsor
+                                                            ? 'bg-[#ffde00]/20 border-[#ffde00] text-[#ffde00]'
+                                                            : 'bg-white/5 border-white/10 text-white/20 hover:text-white/40'
+                                                            }`}
+                                                        title={metadata.is_sponsor ? "Revoke Sponsor Status" : "Grant Sponsor Status"}
+                                                    >
+                                                        <Ticket size={20} />
+                                                        <div className="text-[8px] font-black mt-1 uppercase">{metadata.is_sponsor ? "ACTIVE" : "OFF"}</div>
+                                                    </button>
                                                 </td>
                                                 <td className="p-4">
                                                     <div className="flex items-center gap-3">

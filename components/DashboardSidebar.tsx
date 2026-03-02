@@ -52,6 +52,7 @@ export default function DashboardSidebar({
     const isDashboard = pathname === '/';
     const [mounted, setMounted] = useState(false);
     const [onboardingScore, setOnboardingScore] = useState(0);
+    const [isSponsor, setIsSponsor] = useState(false);
 
     useEffect(() => {
         setMounted(true);
@@ -59,6 +60,8 @@ export default function DashboardSidebar({
         const trackActivity = async () => {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) return;
+
+            setIsSponsor(!!user.user_metadata?.is_sponsor);
 
             // Update UI score immediately
             if (userCard) {
@@ -103,13 +106,15 @@ export default function DashboardSidebar({
                     onClick={isDashboard ? () => setActiveTab?.('leads') : () => router.push('/?tab=leads')}
                     router={router}
                 />
-                <NavItem
-                    icon={<Ticket size={20} className="text-[#ffde00]" />}
-                    label="Expo Mode"
-                    active={isDashboard && activeTab === 'expo'}
-                    onClick={isDashboard ? () => setActiveTab?.('expo') : () => router.push('/?tab=expo')}
-                    router={router}
-                />
+                {(isAdmin || isSponsor) && (
+                    <NavItem
+                        icon={<Ticket size={20} className="text-[#ffde00]" />}
+                        label="Expo Mode"
+                        active={isDashboard && activeTab === 'expo'}
+                        onClick={isDashboard ? () => setActiveTab?.('expo') : () => router.push('/?tab=expo')}
+                        router={router}
+                    />
+                )}
 
                 {planType === 'corporate' && (
                     <NavItem
