@@ -183,11 +183,31 @@ export default function AdminDashboard() {
         }
     };
 
-    const handlePulseReachout = (userEmail: string, score: number, roi: string) => {
+    const handlePulseReachout = async (userEmail: string, score: number, roi: string, userId: string) => {
+        // 1. Open Email Client Immediately for UX
         const subject = encodeURIComponent("Quick question about your TapOS profile");
         const body = encodeURIComponent(`Hi! \n\nI noticed you have an onboarding success score of ${score}% on your TapOS account.\n\nOur records show you've already saved an estimated ${roi} on paper business cards! \n\nWould you like a quick 5-minute call to help you reach 100% and maximize your visibility?\n\nBest, \nJavi \nTapOS Success Team`);
-
         window.location.href = `mailto:${userEmail}?subject=${subject}&body=${body}`;
+
+        // 2. Track Reachout in DB
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) return;
+
+            await fetch('/api/admin/cs/track-reachout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${session.access_token}`
+                },
+                body: JSON.stringify({ userId })
+            });
+
+            // Quietly refresh to show "Last Contacted" UI update
+            checkAuthAndFetch();
+        } catch (e) {
+            console.error("Reachout Tracking Error:", e);
+        }
     };
 
     const handleLoginAs = async (userId: string) => {
@@ -419,6 +439,11 @@ export default function AdminDashboard() {
                                                                             <span className="text-[9px] text-white/40">
                                                                                 {lastActive ? `Pulse: ${lastActive.toLocaleDateString()}` : 'Never Active'}
                                                                             </span>
+                                                                            {userDetails.lastContacted && (
+                                                                                <span className="text-[10px] text-neon-blue font-bold mt-2">
+                                                                                    LAST MAIL: {new Date(userDetails.lastContacted).toLocaleDateString()}
+                                                                                </span>
+                                                                            )}
                                                                         </div>
                                                                     </>
                                                                 );
@@ -473,7 +498,7 @@ export default function AdminDashboard() {
                                                                 <Lock size={12} /> RESCUE
                                                             </button>
                                                             <button
-                                                                onClick={() => handlePulseReachout(email, userDetails.csScore || 0, ((card.content?.analytics?.views || 0) * 0.45).toLocaleString('en-US', { style: 'currency', currency: 'USD' }))}
+                                                                onClick={() => handlePulseReachout(email, userDetails.csScore || 0, ((card.content?.analytics?.views || 0) * 0.45).toLocaleString('en-US', { style: 'currency', currency: 'USD' }), userDetails.id || card.user_id)}
                                                                 className="px-2 py-1 bg-green-500/10 hover:bg-green-500 text-green-500 hover:text-black border border-green-500/50 rounded text-xs font-bold transition flex items-center gap-1"
                                                                 title="Send Success reachout email"
                                                             >

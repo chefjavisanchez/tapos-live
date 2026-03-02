@@ -63,10 +63,12 @@ export async function GET(req: Request) {
             ...card,
             userDetails: userMatch ? {
                 email: userMatch.email,
+                id: userMatch.id,
                 metadata: userMatch.user_metadata,
                 lastSignIn: userMatch.last_sign_in_at,
                 lastActive: userMatch.user_metadata?.last_active_at,
-                csScore: userMatch.user_metadata?.onboarding_score
+                csScore: userMatch.user_metadata?.onboarding_score,
+                lastContacted: userMatch.user_metadata?.last_contacted_at
             } : null
         };
     });
