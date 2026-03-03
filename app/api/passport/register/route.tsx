@@ -76,48 +76,47 @@ export async function POST(req: Request) {
                     replyTo: 'javi@tapygo.com',
                     subject: 'Your Event Passport is Activated! 🎫',
                     react: (
-                        <PassportEmailTemplate 
-                            fullName= { fullName } 
-                            slug={ slug } 
-                            qrUrl={ qrUrl }
-                    />
+                        <PassportEmailTemplate
+                            fullName={fullName}
+                            slug={slug}
+                            qrUrl={qrUrl}
+                        />
                     ),
-                    text: `Hello ${fullName}! Your Event Passport for Konecta Expo 2026 is activated. Your Access ID is ${slug.slice(-5).toUpperCase()
-            }. You can view your digital badge at: https://tapos360.com/${slug}`,
-            headers: {
-                'X-Entity-Ref-ID': slug,
+                    text: `Hello ${fullName}! Your Event Passport for Konecta Expo 2026 is activated. Your Access ID is ${slug.slice(-5).toUpperCase()}. You can view your digital badge at: https://tapos360.com/${slug}`,
+                    headers: {
+                        'X-Entity-Ref-ID': slug,
                     },
+                });
+
+                if (emailError) {
+                    console.error('❌ Resend API Error Response:', emailError);
+                    emailStatus = `error_api: ${emailError.message}`;
+                    resendResponse = emailError;
+                } else {
+                    console.log('✅ Resend Email Dispatched Success! Response ID:', emailData?.id);
+                    emailStatus = 'sent';
+                    resendResponse = emailData;
+                }
+            }
+        } catch (catastrophicError: any) {
+            console.error('🔥 Critical Failure in Resend Integration:', catastrophicError);
+            emailStatus = `critical_error: ${catastrophicError.message}`;
+        }
+
+        console.log('--- Passport Registration Success ---');
+        return NextResponse.json({
+            success: true,
+            slug,
+            emailStatus,
+            diagnostics: {
+                hasKey: !!process.env.RESEND_API_KEY,
+                keyPrefix: (process.env.RESEND_API_KEY || '').substring(0, 6),
+                resendResponse
+            }
         });
 
-        if (emailError) {
-            console.error('❌ Resend API Error Response:', emailError);
-            emailStatus = `error_api: ${emailError.message}`;
-            resendResponse = emailError;
-        } else {
-            console.log('✅ Resend Email Dispatched Success! Response ID:', emailData?.id);
-            emailStatus = 'sent';
-            resendResponse = emailData;
-        }
-    }
-        } catch (catastrophicError: any) {
-    console.error('🔥 Critical Failure in Resend Integration:', catastrophicError);
-    emailStatus = `critical_error: ${catastrophicError.message}`;
-}
-
-console.log('--- Passport Registration Success ---');
-return NextResponse.json({
-    success: true,
-    slug,
-    emailStatus,
-    diagnostics: {
-        hasKey: !!process.env.RESEND_API_KEY,
-        keyPrefix: (process.env.RESEND_API_KEY || '').substring(0, 6),
-        resendResponse
-    }
-});
-
     } catch (error: any) {
-    console.error('Passport Registration Error:', error);
-    return NextResponse.json({ error: error.message || 'Registration failed' }, { status: 500 });
-}
+        console.error('Passport Registration Error:', error);
+        return NextResponse.json({ error: error.message || 'Registration failed' }, { status: 500 });
+    }
 }

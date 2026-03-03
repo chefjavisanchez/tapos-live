@@ -207,10 +207,11 @@ export default function PassportPage() {
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black text-white/40 uppercase tracking-widest ml-1">Company (Opt)</label>
+                            <label className="text-[10px] font-black text-white/40 uppercase tracking-widest ml-1">Company</label>
                             <div className="relative">
                                 <Sparkles className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={18} />
                                 <input
+                                    required
                                     value={form.company}
                                     onChange={e => setForm({ ...form, company: e.target.value })}
                                     type="text"
@@ -222,10 +223,11 @@ export default function PassportPage() {
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-[10px] font-black text-white/40 uppercase tracking-widest ml-1">Phone Number (Opt)</label>
+                        <label className="text-[10px] font-black text-white/40 uppercase tracking-widest ml-1">Phone Number</label>
                         <div className="relative">
                             <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={18} />
                             <input
+                                required
                                 value={form.phone}
                                 onChange={e => setForm({ ...form, phone: e.target.value })}
                                 type="tel"
