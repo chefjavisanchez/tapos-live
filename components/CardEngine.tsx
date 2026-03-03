@@ -841,19 +841,38 @@ export default function CardEngine({ data, slug, ownerId, cardId, remoteLeads = 
         return () => cancelAnimationFrame(animationFrameId);
     }, [isScanningLive, activeTab]);
 
-    const startLiveScanner = async () => {
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({
-                video: { facingMode: 'environment' }
-            });
-            if (videoRef.current) {
-                videoRef.current.srcObject = stream;
-                setIsScanningLive(true);
+    // Stream attachment effect
+    useEffect(() => {
+        let stream: MediaStream | null = null;
+
+        const attachStream = async () => {
+            if (isScanningLive && videoRef.current && !videoRef.current.srcObject) {
+                try {
+                    console.log("📹 Accessing Camera...");
+                    stream = await navigator.mediaDevices.getUserMedia({
+                        video: { facingMode: 'environment' }
+                    });
+                    if (videoRef.current) {
+                        videoRef.current.srcObject = stream;
+                    }
+                } catch (err) {
+                    console.error("Error accessing camera:", err);
+                    setIsScanningLive(false);
+                }
             }
-        } catch (err) {
-            console.error("Error accessing camera:", err);
-            alert("Could not access camera for live scanning.");
-        }
+        };
+
+        attachStream();
+
+        return () => {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+        };
+    }, [isScanningLive]);
+
+    const startLiveScanner = () => {
+        setIsScanningLive(true);
     };
 
     const stopLiveScanner = () => {
