@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Sparkles, ArrowRight, User, Mail, Phone, Ticket, Loader2 } from 'lucide-react';
+import { Sparkles, ArrowRight, User, Mail, Phone, Ticket, Loader2, Calendar, Download } from 'lucide-react';
+import { generateCalendarLinks } from '@/lib/calendar';
 
 export default function PassportPage() {
     const [loading, setLoading] = useState(false);
@@ -22,43 +23,22 @@ export default function PassportPage() {
         setError('');
 
         try {
-            // 1. Create a "Lite" user or just a card with a random ID
-            // For Event Lites, we can use a UUID-based slug for speed
-            const slug = `p-${Math.random().toString(36).substring(2, 7)}-${form.fullName.toLowerCase().replace(/\s+/g, '-')}`.substring(0, 30);
+            const response = await fetch('/api/passport/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(form)
+            });
 
-            const initialContent = {
-                fullName: form.fullName,
-                email: form.email,
-                phone: form.phone,
-                company: form.company,
-                theme: 'gold', // Passport/Gold theme
-                is_lite: true,
-                event: 'Sponsor Passport Experience',
-                profileImage: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=400&h=400&fit=crop",
-                bio: "Official Event Guest"
-            };
+            const result = await response.json();
 
-            const { data, error: insertError } = await supabase
-                .from('cards')
-                .insert([
-                    {
-                        title: `${form.fullName}'s Passport`,
-                        slug: slug,
-                        content: initialContent,
-                        user_id: null // Guest cards don't need a formal account initially
-                    }
-                ])
-                .select()
-                .single();
+            if (!response.ok) throw new Error(result.error || 'Registration failed');
 
-            if (insertError) throw insertError;
-
-            setGeneratedSlug(slug);
+            setGeneratedSlug(result.slug);
             setSuccess(true);
 
         } catch (err: any) {
             console.error(err);
-            setError('Registration failed. Please try again.');
+            setError(err.message || 'Registration failed. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -100,6 +80,39 @@ export default function PassportPage() {
                                 <p className="text-[10px] text-white/30 uppercase font-black tracking-widest">Access ID</p>
                                 <p className="text-white/50 font-mono text-xs tracking-tighter uppercase">{generatedSlug.split('-')[1]}</p>
                             </div>
+                        </div>
+                    </div>
+
+                    <div className="space-y-3 mb-8">
+                        <p className="text-[10px] text-white/40 uppercase font-black tracking-widest text-center">Save Event to Calendar</p>
+                        <div className="flex gap-2">
+                            <a
+                                href={generateCalendarLinks({
+                                    title: "Konecta con Crema Spring Expo",
+                                    description: "Official event for business networking and raffle. Show your TapOS Passport QR to participate!",
+                                    location: "TBD",
+                                    start: new Date('2026-04-30T17:00:00'),
+                                    end: new Date('2026-04-30T21:00:00')
+                                }).googleUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex-1 bg-white/10 hover:bg-white/20 border border-white/10 py-3 rounded-xl flex items-center justify-center gap-2 text-[10px] uppercase font-bold transition"
+                            >
+                                <Calendar size={14} className="text-[#ffde00]" /> Google
+                            </a>
+                            <a
+                                href={generateCalendarLinks({
+                                    title: "Konecta con Crema Spring Expo",
+                                    description: "Official event for business networking and raffle. Show your TapOS Passport QR to participate!",
+                                    location: "TBD",
+                                    start: new Date('2026-04-30T17:00:00'),
+                                    end: new Date('2026-04-30T21:00:00')
+                                }).icsDataUri}
+                                download="event-passport.ics"
+                                className="flex-1 bg-white/10 hover:bg-white/20 border border-white/10 py-3 rounded-xl flex items-center justify-center gap-2 text-[10px] uppercase font-bold transition"
+                            >
+                                <Download size={14} className="text-[#ffde00]" /> iCal / Outlook
+                            </a>
                         </div>
                     </div>
 
