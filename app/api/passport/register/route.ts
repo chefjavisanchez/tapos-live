@@ -57,41 +57,58 @@ export async function POST(req: Request) {
         console.log('Supabase Insert Success:', data.id);
 
         // 3. Send Email via Resend
+        let emailStatus = 'pending';
+        let resendResponse = null;
+
         try {
             const apiKey = process.env.RESEND_API_KEY || '';
             console.log(`📡 Resend Diagnostics: Key found? ${!!apiKey} | Prefix: ${apiKey.substring(0, 6)}...`);
 
             if (!apiKey) {
                 console.error('❌ CRITICAL: RESEND_API_KEY is missing in environment variables.');
-                return NextResponse.json({ success: true, slug, emailStatus: 'skipped_no_key' });
-            }
-
-            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=https://tapos360.com/${slug}`;
-
-            const { data: emailResponse, error: emailError } = await resend.emails.send({
-                from: 'TapOS <javi@tapygo.com>',
-                to: [email],
-                replyTo: 'javi@tapygo.com',
-                subject: 'Your Event Passport is Activated! 🎫',
-                react: PassportEmailTemplate({ fullName, slug, qrUrl }),
-                text: `Hello ${fullName}! Your Event Passport for Konecta Expo 2026 is activated. Your Access ID is ${slug.slice(-5).toUpperCase()}. You can view your digital badge at: https://tapos360.com/${slug}`,
-                headers: {
-                    'X-Entity-Ref-ID': slug,
-                },
-            });
-
-            if (emailError) {
-                console.error('❌ Resend API Error Response:', emailError);
-                console.log('Resend Error Payload:', JSON.stringify(emailError, null, 2));
+                emailStatus = 'error_missing_key';
             } else {
-                console.log('✅ Resend Email Dispatched Success! Response ID:', emailResponse?.id);
+                const resend = new Resend(apiKey);
+                const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=https://tapos360.com/${slug}`;
+
+                const { data: emailData, error: emailError } = await resend.emails.send({
+                    from: 'TapOS <javi@tapygo.com>',
+                    to: [email],
+                    replyTo: 'javi@tapygo.com',
+                    subject: 'Your Event Passport is Activated! 🎫',
+                    react: PassportEmailTemplate({ fullName, slug, qrUrl }),
+                    text: `Hello ${fullName}! Your Event Passport for Konecta Expo 2026 is activated. Your Access ID is ${slug.slice(-5).toUpperCase()}. You can view your digital badge at: https://tapos360.com/${slug}`,
+                    headers: {
+                        'X-Entity-Ref-ID': slug,
+                    },
+                });
+
+                if (emailError) {
+                    console.error('❌ Resend API Error Response:', emailError);
+                    emailStatus = `error_api: ${emailError.message}`;
+                    resendResponse = emailError;
+                } else {
+                    console.log('✅ Resend Email Dispatched Success! Response ID:', emailData?.id);
+                    emailStatus = 'sent';
+                    resendResponse = emailData;
+                }
             }
-        } catch (catastrophicError) {
+        } catch (catastrophicError: any) {
             console.error('🔥 Critical Failure in Resend Integration:', catastrophicError);
+            emailStatus = `catastrophice_error: ${catastrophicError.message}`;
         }
 
         console.log('--- Passport Registration Success ---');
-        return NextResponse.json({ success: true, slug });
+        return NextResponse.json({
+            success: true,
+            slug,
+            emailStatus,
+            diagnostics: {
+                hasKey: !!process.env.RESEND_API_KEY,
+                keyPrefix: (process.env.RESEND_API_KEY || '').substring(0, 6),
+                resendResponse
+            }
+        });
 
     } catch (error: any) {
         console.error('Passport Registration Error:', error);

@@ -16,6 +16,7 @@ export default function PassportPage() {
         company: ''
     });
     const [generatedSlug, setGeneratedSlug] = useState('');
+    const [emailStatus, setEmailStatus] = useState('');
 
     const handleRegister = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -34,8 +35,13 @@ export default function PassportPage() {
             if (!response.ok) throw new Error(result.error || 'Registration failed');
 
             setGeneratedSlug(result.slug);
-            setSuccess(true);
+            setEmailStatus(result.emailStatus);
 
+            if (result.emailStatus.startsWith('error')) {
+                console.error('📧 Email Diagnostic:', result.diagnostics);
+            }
+
+            setSuccess(true);
         } catch (err: any) {
             console.error(err);
             setError(err.message || 'Registration failed. Please try again.');
@@ -132,9 +138,15 @@ export default function PassportPage() {
                         </div>
                     </div>
 
+                    {emailStatus !== 'sent' && (
+                        <div className="mt-4 p-3 bg-red-500/10 border border-red-500/30 rounded-xl text-[10px] text-red-400 font-bold uppercase tracking-widest animate-pulse">
+                            ⚠️ Email Issue: {emailStatus || 'Unknown Error'}
+                        </div>
+                    )}
+
                     <button
                         onClick={() => window.location.reload()}
-                        className="text-white/30 hover:text-white text-[10px] uppercase font-bold tracking-widest transition"
+                        className="mt-6 text-white/30 hover:text-white text-[10px] uppercase font-bold tracking-widest transition"
                     >
                         Register Another Guest
                     </button>
