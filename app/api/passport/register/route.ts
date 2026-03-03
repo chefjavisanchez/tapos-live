@@ -58,26 +58,33 @@ export async function POST(req: Request) {
 
         // 3. Send Email via Resend
         try {
-            console.log('Sending Email via Resend...');
-            if (!process.env.RESEND_API_KEY) {
-                console.error('RESEND_API_KEY is missing in process.env!');
+            const apiKey = process.env.RESEND_API_KEY || '';
+            console.log(`📡 Resend Diagnostics: Key found? ${!!apiKey} | Prefix: ${apiKey.substring(0, 6)}...`);
+
+            if (!apiKey) {
+                console.error('❌ CRITICAL: RESEND_API_KEY is missing in environment variables.');
+                return NextResponse.json({ success: true, slug, emailStatus: 'skipped_no_key' });
             }
 
             const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=https://tapos360.com/${slug}`;
 
             const { data: emailResponse, error: emailError } = await resend.emails.send({
-                from: 'TapOS <no-reply@tapygo.com>',
+                from: 'TapOS <hello@tapygo.com>',
                 to: [email],
+                reply_to: 'javi@tapygo.com', // Personal fallback for replies
                 subject: 'Your Event Passport is Activated! 🎫',
                 react: PassportEmailTemplate({ fullName, slug, qrUrl }),
                 text: `Hello ${fullName}! Your Event Passport for Konecta Expo 2026 is activated. Your Access ID is ${slug.slice(-5).toUpperCase()}. You can view your digital badge at: https://tapos360.com/${slug}`,
+                headers: {
+                    'X-Entity-Ref-ID': slug,
+                },
             });
 
             if (emailError) {
                 console.error('❌ Resend API Error Response:', emailError);
-                console.log('Resend Error Details:', JSON.stringify(emailError, null, 2));
+                console.log('Resend Error Payload:', JSON.stringify(emailError, null, 2));
             } else {
-                console.log('✅ Resend Email Success! Response ID:', emailResponse?.id);
+                console.log('✅ Resend Email Dispatched Success! Response ID:', emailResponse?.id);
             }
         } catch (catastrophicError) {
             console.error('🔥 Critical Failure in Resend Integration:', catastrophicError);
