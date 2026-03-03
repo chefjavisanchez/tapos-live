@@ -70,16 +70,14 @@ export async function POST(req: Request) {
                 to: [email],
                 subject: 'Your Event Passport is Activated! 🎫',
                 react: PassportEmailTemplate({ fullName, slug, qrUrl }),
+                text: `Hello ${fullName}! Your Event Passport for Konecta Expo 2026 is activated. Your Access ID is ${slug.slice(-5).toUpperCase()}. You can view your digital badge at: https://tapos360.com/${slug}`,
             });
 
             if (emailError) {
                 console.error('❌ Resend API Error Response:', emailError);
-                console.log('Resend Error Details:', {
-                    name: emailError.name,
-                    message: emailError.message,
-                });
+                console.log('Resend Error Details:', JSON.stringify(emailError, null, 2));
             } else {
-                console.log('✅ Resend Email Success! Response:', emailResponse);
+                console.log('✅ Resend Email Success! Response ID:', emailResponse?.id);
             }
         } catch (catastrophicError) {
             console.error('🔥 Critical Failure in Resend Integration:', catastrophicError);

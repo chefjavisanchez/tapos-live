@@ -809,19 +809,30 @@ export default function CardEngine({ data, slug, ownerId, cardId, remoteLeads = 
 
                             // Process the QR data
                             const url = code.data;
-                            if (url.includes('tapos360.com/') || url.includes(window.location.host)) {
-                                const slug = url.split('/').pop();
-                                if (slug) {
-                                    const res = await fetch(`/api/card/profile-lite?slug=${slug}`);
+                            console.log("📍 Analyzing QR Payload:", url);
+
+                            // More flexible matching: Any URL containing a slug-like pattern after a slash
+                            const parts = url.split('/');
+                            const slugCandidate = parts.pop() || parts.pop(); // handle trailing slashes
+
+                            if (slugCandidate && slugCandidate.length >= 3) {
+                                console.log("🔍 Checking potential TapOS profile:", slugCandidate);
+                                try {
+                                    const res = await fetch(`/api/card/profile-lite?slug=${slugCandidate}`);
                                     if (res.ok) {
                                         const profile = await res.json();
+                                        console.log("✅ Verified Profile Found:", profile.fullName);
                                         setScanResult({
                                             ...profile,
                                             is_verified: true,
                                             notes: "Verified Passport Scan (Live)"
                                         });
                                         stopLiveScanner();
+                                    } else {
+                                        console.log("ℹ️ QR is not a TapOS profile (or profile not found).");
                                     }
+                                } catch (e) {
+                                    console.error("Profile check failed:", e);
                                 }
                             }
                             scanningRef.current = false;
