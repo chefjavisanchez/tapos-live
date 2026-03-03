@@ -6,10 +6,14 @@ import { PassportEmailTemplate } from '@/components/emails/PassportEmail';
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(req: Request) {
+    console.log('--- Passport Registration Start ---');
     try {
-        const { fullName, email, phone, company } = await req.json();
+        const body = await req.json();
+        console.log('Registration Payload:', body);
+        const { fullName, email, phone, company } = body;
 
         if (!fullName || !email) {
+            console.warn('Missing required fields:', { fullName, email });
             return NextResponse.json({ error: 'Name and email are required' }, { status: 400 });
         }
 
@@ -17,6 +21,7 @@ export async function POST(req: Request) {
         const randomStr = Math.random().toString(36).substring(2, 7);
         const namePart = fullName.toLowerCase().replace(/\s+/g, '-').substring(0, 15);
         const slug = `p-${randomStr}-${namePart}`;
+        console.log('Generated Slug:', slug);
 
         const initialContent = {
             fullName,
@@ -31,6 +36,7 @@ export async function POST(req: Request) {
         };
 
         // 2. Insert into Supabase using admin client
+        console.log('Inserting into Supabase...');
         const { data, error: insertError } = await supabaseAdmin
             .from('cards')
             .insert([
@@ -48,22 +54,38 @@ export async function POST(req: Request) {
             console.error('Supabase Insert Error:', insertError);
             throw insertError;
         }
+        console.log('Supabase Insert Success:', data.id);
 
         // 3. Send Email via Resend
         try {
+            console.log('Sending Email via Resend...');
+            if (!process.env.RESEND_API_KEY) {
+                console.error('RESEND_API_KEY is missing in process.env!');
+            }
+
             const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=https://tapos360.com/${slug}`;
 
-            await resend.emails.send({
+            const { data: emailResponse, error: emailError } = await resend.emails.send({
                 from: 'TapOS <javi@tapygo.com>',
                 to: [email],
                 subject: 'Your Event Passport is Activated! 🎫',
                 react: PassportEmailTemplate({ fullName, slug, qrUrl }),
             });
-        } catch (emailError) {
-            console.error('Resend Email Error:', emailError);
-            // Don't fail the whole request if email fails, but log it
+
+            if (emailError) {
+                console.error('❌ Resend API Error Response:', emailError);
+                console.log('Resend Error Details:', {
+                    name: emailError.name,
+                    message: emailError.message,
+                });
+            } else {
+                console.log('✅ Resend Email Success! Response:', emailResponse);
+            }
+        } catch (catastrophicError) {
+            console.error('🔥 Critical Failure in Resend Integration:', catastrophicError);
         }
 
+        console.log('--- Passport Registration Success ---');
         return NextResponse.json({ success: true, slug });
 
     } catch (error: any) {

@@ -2,7 +2,7 @@
 
 import ExchangeModal from './ExchangeModal';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Script from 'next/script';
 
@@ -57,6 +57,15 @@ const IMPULSO_STYLES = `
       background: #000;
       border-left: 1px solid #222;
       border-right: 1px solid #222;
+  }
+
+  @keyframes scan {
+      0% { top: 0; }
+      100% { top: 100%; }
+  }
+
+  .animate-scan-line {
+      animation: scan 2s linear infinite;
   }
 
   /* HEADER */
@@ -710,6 +719,10 @@ export default function CardEngine({ data, slug, ownerId, cardId, remoteLeads = 
     const [scanResult, setScanResult] = useState<any>(null);
     const [isOwner, setIsOwner] = useState(false);
     const [isExpoMode, setIsExpoMode] = useState(false);
+    const [isScanningLive, setIsScanningLive] = useState(false);
+    const videoRef = useRef<HTMLVideoElement>(null);
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+    const scanningRef = useRef(false);
 
     // SERVICES STATE
     const [isServicesOpen, setIsServicesOpen] = useState(false);
@@ -764,6 +777,99 @@ export default function CardEngine({ data, slug, ownerId, cardId, remoteLeads = 
         return () => clearInterval(interval);
     }, [activeTab, adsToRender.length, isAdPaused]);
 
+    // Live Scanner Loop
+    useEffect(() => {
+        let animationFrameId: number;
+        const scan = async () => {
+            if (!isScanningLive || scanningRef.current || !videoRef.current || !canvasRef.current || activeTab !== 'v-scan') {
+                animationFrameId = requestAnimationFrame(scan);
+                return;
+            }
+
+            const video = videoRef.current;
+            const canvas = canvasRef.current;
+
+            if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                const ctx = canvas.getContext('2d', { willReadFrequently: true });
+                if (ctx) {
+                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+                    try {
+                        const jsQR = (await import('jsqr')).default;
+                        const code = jsQR(imageData.data, imageData.width, imageData.height, {
+                            inversionAttempts: "dontInvert",
+                        });
+
+                        if (code) {
+                            console.log("🎯 Live QR Detected:", code.data);
+                            scanningRef.current = true;
+
+                            // Process the QR data
+                            const url = code.data;
+                            if (url.includes('tapos360.com/') || url.includes(window.location.host)) {
+                                const slug = url.split('/').pop();
+                                if (slug) {
+                                    const res = await fetch(`/api/card/profile-lite?slug=${slug}`);
+                                    if (res.ok) {
+                                        const profile = await res.json();
+                                        setScanResult({
+                                            ...profile,
+                                            is_verified: true,
+                                            notes: "Verified Passport Scan (Live)"
+                                        });
+                                        stopLiveScanner();
+                                    }
+                                }
+                            }
+                            scanningRef.current = false;
+                        }
+                    } catch (err) {
+                        console.error("Live QR Scan Error:", err);
+                    }
+                }
+            }
+            animationFrameId = requestAnimationFrame(scan);
+        };
+
+        if (isScanningLive) {
+            animationFrameId = requestAnimationFrame(scan);
+        }
+
+        return () => cancelAnimationFrame(animationFrameId);
+    }, [isScanningLive, activeTab]);
+
+    const startLiveScanner = async () => {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: 'environment' }
+            });
+            if (videoRef.current) {
+                videoRef.current.srcObject = stream;
+                setIsScanningLive(true);
+            }
+        } catch (err) {
+            console.error("Error accessing camera:", err);
+            alert("Could not access camera for live scanning.");
+        }
+    };
+
+    const stopLiveScanner = () => {
+        if (videoRef.current && videoRef.current.srcObject) {
+            const stream = videoRef.current.srcObject as MediaStream;
+            stream.getTracks().forEach(track => track.stop());
+            videoRef.current.srcObject = null;
+        }
+        setIsScanningLive(false);
+    };
+
+    // Auto-stop scanner if tab changes
+    useEffect(() => {
+        if (activeTab !== 'v-scan') stopLiveScanner();
+    }, [activeTab]);
+
     // SCANNER LOGIC
     const processImage = async (file: File) => {
         setScanning(true);
@@ -785,10 +891,18 @@ export default function CardEngine({ data, slug, ownerId, cardId, remoteLeads = 
                 await new Promise(r => img.onload = r);
 
                 const canvas = document.createElement('canvas');
-                canvas.width = img.width;
-                canvas.height = img.height;
+                // Optimization: Resize massive high-res mobile photos for jsQR efficiency
+                const MAX_WIDTH = 1200;
+                let width = img.width;
+                let height = img.height;
+                if (width > MAX_WIDTH) {
+                    height *= MAX_WIDTH / width;
+                    width = MAX_WIDTH;
+                }
+                canvas.width = width;
+                canvas.height = height;
                 const ctx = canvas.getContext('2d');
-                ctx?.drawImage(img, 0, 0);
+                ctx?.drawImage(img, 0, 0, width, height);
                 const imageData = ctx?.getImageData(0, 0, canvas.width, canvas.height);
 
                 if (imageData) {
@@ -1315,16 +1429,47 @@ END:VCARD`;
 
                                 {!scanResult ? (
                                     <>
-                                        {/* CAMERA TRIGGER */}
-                                        <div className="flex justify-center py-6">
-                                            <label className="scan-btn relative group">
-                                                {scanning ? <Loader2 className="animate-spin text-black" /> : <i className="ph-fill ph-camera text-2xl text-black"></i>}
-                                                <input type="file" accept="image/*" capture="environment"
-                                                    onChange={(e) => e.target.files && processImage(e.target.files[0])}
-                                                    className="hidden" disabled={scanning} />
-                                            </label>
+                                        {/* CAMERA TRIGGER & LIVE VIEW */}
+                                        <div className="flex flex-col items-center py-6 gap-6">
+                                            {isScanningLive ? (
+                                                <div className="relative w-full max-w-[280px] aspect-square rounded-3xl overflow-hidden border-2 border-[#ffde00] shadow-[0_0_30px_rgba(255,222,0,0.3)]">
+                                                    <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover" />
+                                                    <canvas ref={canvasRef} className="hidden" />
+
+                                                    {/* Scanning Line Animation */}
+                                                    <div className="absolute inset-x-0 h-[2px] bg-[#ffde00] shadow-[0_0_15px_#ffde00] animate-scan-line top-0"></div>
+
+                                                    <button
+                                                        onClick={stopLiveScanner}
+                                                        className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/60 backdrop-blur-md text-white text-[10px] font-bold py-2 px-4 rounded-full uppercase tracking-widest border border-white/20"
+                                                    >
+                                                        Cancel
+                                                    </button>
+                                                </div>
+                                            ) : (
+                                                <div className="flex flex-col items-center gap-6">
+                                                    <button onClick={startLiveScanner} className="scan-btn relative group !bg-[#ffde00] !border-none shadow-[0_0_20px_rgba(255,222,0,0.4)]">
+                                                        <i className="ph-fill ph-scan text-2xl text-black"></i>
+                                                    </button>
+                                                    <div className="flex flex-col items-center">
+                                                        <p className="text-white font-bold text-sm tracking-wide">START LIVE SCANNER</p>
+                                                        <p className="text-[10px] text-white/40 uppercase tracking-tighter">Recommended for Passport QR</p>
+                                                    </div>
+
+                                                    <div className="w-full h-[1px] bg-white/5 flex items-center justify-center">
+                                                        <span className="bg-black px-2 text-[9px] text-white/20 font-bold">OR UPLOAD PHOTO</span>
+                                                    </div>
+
+                                                    <label className="flex items-center gap-2 text-white/60 hover:text-white transition cursor-pointer">
+                                                        <i className="ph-bold ph-image text-lg"></i>
+                                                        <span className="text-[10px] font-bold uppercase tracking-widest">Select From Gallery</span>
+                                                        <input type="file" accept="image/*" capture="environment"
+                                                            onChange={(e) => e.target.files && processImage(e.target.files[0])}
+                                                            className="hidden" disabled={scanning} />
+                                                    </label>
+                                                </div>
+                                            )}
                                         </div>
-                                        <p className="text-center text-xs mb-4" style={{ color: 'var(--text-muted)' }}>Tap Camera to Scan Business Card</p>
 
                                         {/* LIST */}
                                         <div className="flex-1 overflow-auto space-y-2">
@@ -1345,7 +1490,7 @@ END:VCARD`;
                                                 <div key={i} className="scan-list-item">
                                                     <div className="font-bold text-sm" style={{ color: 'var(--text-main)' }}>{lead.name}</div>
                                                     <div className="text-xs" style={{ color: 'var(--text-muted)' }}>{lead.email}</div>
-                                                    <div className="text-xs" style={{ color: 'var(--text-muted)' }}>{lead.phone}</div>
+                                                    <div className="text-xs" style={{ color: 'var(--text-muted)' }}>{lead.phone} {lead.company ? `• ${lead.company}` : ''}</div>
                                                 </div>
                                             ))}
                                             {scannedContacts.length === 0 && <div className="text-center text-xs py-4" style={{ color: 'var(--text-muted)', opacity: 0.5 }}>No leads saved yet.</div>}
@@ -1369,6 +1514,11 @@ END:VCARD`;
                                         <div>
                                             <label className="text-[10px] uppercase" style={{ color: 'var(--text-muted)' }}>Phone</label>
                                             <input type="text" value={scanResult.phone} onChange={e => setScanResult({ ...scanResult, phone: e.target.value })}
+                                                className="w-full rounded p-2 text-sm focus:border-accent outline-none" style={{ background: 'var(--glass-panel)', border: 'var(--border-light)', color: 'var(--text-main)' }} />
+                                        </div>
+                                        <div>
+                                            <label className="text-[10px] uppercase" style={{ color: 'var(--text-muted)' }}>Business Name</label>
+                                            <input type="text" value={scanResult.company || ''} onChange={e => setScanResult({ ...scanResult, company: e.target.value })}
                                                 className="w-full rounded p-2 text-sm focus:border-accent outline-none" style={{ background: 'var(--glass-panel)', border: 'var(--border-light)', color: 'var(--text-main)' }} />
                                         </div>
 

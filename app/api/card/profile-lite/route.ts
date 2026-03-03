@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { supabase } from '@/lib/supabase';
 
 export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
@@ -7,18 +7,16 @@ export async function GET(req: Request) {
 
     if (!slug) return NextResponse.json({ error: 'Missing slug' }, { status: 400 });
 
-    const supabase = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
-
     const { data, error } = await supabase
         .from('cards')
         .select('content')
         .eq('slug', slug)
         .single();
 
-    if (error || !data) return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
+    if (error || !data) {
+        console.error('Profile Lite Error:', error);
+        return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
+    }
 
     const content = data.content || {};
     return NextResponse.json({

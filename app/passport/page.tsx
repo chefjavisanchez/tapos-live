@@ -71,7 +71,23 @@ export default function PassportPage() {
                             <p className="text-[10px] text-white/30 uppercase font-black tracking-widest">Guest Name</p>
                             <p className="text-white font-rajdhani font-bold text-lg">{form.fullName}</p>
                         </div>
-                        <div className="flex justify-between">
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <p className="text-[10px] text-white/30 uppercase font-black tracking-widest">Email</p>
+                                <p className="text-white/70 text-xs font-medium truncate">{form.email}</p>
+                            </div>
+                            <div>
+                                <p className="text-[10px] text-white/30 uppercase font-black tracking-widest">Phone</p>
+                                <p className="text-white/70 text-xs font-medium">{form.phone || 'N/A'}</p>
+                            </div>
+                        </div>
+                        {form.company && (
+                            <div>
+                                <p className="text-[10px] text-white/30 uppercase font-black tracking-widest">Business</p>
+                                <p className="text-white/70 text-xs font-medium">{form.company}</p>
+                            </div>
+                        )}
+                        <div className="flex justify-between pt-2 border-t border-white/5">
                             <div>
                                 <p className="text-[10px] text-white/30 uppercase font-black tracking-widest">Raffle Status</p>
                                 <p className="text-[#ffde00] font-bold">READY TO SCAN</p>
