@@ -883,6 +883,7 @@ export default function CardEngine({ data, slug, ownerId, cardId, remoteLeads = 
     }, [isScanningLive]);
 
     const startLiveScanner = () => {
+        setIsExpoMode(true); // Auto-enable Expo Mode for best performance during live scan
         setIsScanningLive(true);
     };
 

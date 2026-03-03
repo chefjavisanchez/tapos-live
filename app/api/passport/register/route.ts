@@ -66,7 +66,7 @@ export async function POST(req: Request) {
             const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=https://tapos360.com/${slug}`;
 
             const { data: emailResponse, error: emailError } = await resend.emails.send({
-                from: 'TapOS <javi@tapygo.com>',
+                from: 'TapOS <no-reply@tapygo.com>',
                 to: [email],
                 subject: 'Your Event Passport is Activated! 🎫',
                 react: PassportEmailTemplate({ fullName, slug, qrUrl }),
