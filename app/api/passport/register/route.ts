@@ -69,9 +69,9 @@ export async function POST(req: Request) {
             const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=https://tapos360.com/${slug}`;
 
             const { data: emailResponse, error: emailError } = await resend.emails.send({
-                from: 'TapOS <hello@tapygo.com>',
+                from: 'TapOS <javi@tapygo.com>',
                 to: [email],
-                reply_to: 'javi@tapygo.com', // Personal fallback for replies
+                replyTo: 'javi@tapygo.com',
                 subject: 'Your Event Passport is Activated! 🎫',
                 react: PassportEmailTemplate({ fullName, slug, qrUrl }),
                 text: `Hello ${fullName}! Your Event Passport for Konecta Expo 2026 is activated. Your Access ID is ${slug.slice(-5).toUpperCase()}. You can view your digital badge at: https://tapos360.com/${slug}`,
