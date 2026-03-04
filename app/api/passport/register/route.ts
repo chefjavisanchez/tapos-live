@@ -1,9 +1,7 @@
-import * as React from 'react';
-import { renderToStaticMarkup } from 'react-dom/server';
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { Resend } from 'resend';
-import { PassportEmailTemplate } from '@/components/emails/PassportEmail';
+import { getPassportEmailHtml } from '@/components/emails/PassportEmail';
 
 export async function POST(req: Request) {
     console.log('--- Passport Registration Start ---');
@@ -71,15 +69,12 @@ export async function POST(req: Request) {
                 const resend = new Resend(apiKey);
                 const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=https://tapos360.com/${slug}`;
 
-                // Robust rendering using React.createElement instead of JSX inside the route
-                // This bypasses potential JSX transpilation issues in serverless Node environments
-                const emailElement = React.createElement(PassportEmailTemplate, {
+                // Use the string-based HTML generator
+                const html = getPassportEmailHtml({
                     fullName,
                     slug,
                     qrUrl
                 });
-
-                const html = renderToStaticMarkup(emailElement);
 
                 const { data: emailData, error: emailError } = await resend.emails.send({
                     from: 'TapOS <javi@tapygo.com>',
