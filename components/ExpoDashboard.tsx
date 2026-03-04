@@ -6,13 +6,17 @@ import { supabase } from "@/lib/supabase";
 
 export default function ExpoDashboard({ leads, cards }: { leads: any[], cards: any[] }) {
     const [isSponsor, setIsSponsor] = useState(false);
+    const [userId, setUserId] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const checkSponsorStatus = async () => {
             const { data: { user } } = await supabase.auth.getUser();
-            if (user?.user_metadata?.is_sponsor) {
-                setIsSponsor(true);
+            if (user) {
+                setUserId(user.id);
+                if (user.user_metadata?.is_sponsor) {
+                    setIsSponsor(true);
+                }
             }
             setLoading(false);
         };
@@ -48,28 +52,62 @@ export default function ExpoDashboard({ leads, cards }: { leads: any[], cards: a
                         </p>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-                            <div className="p-4 bg-white/5 border border-white/10 rounded-2xl text-left hover:border-[#ffde00]/50 transition cursor-default group">
+                            <a
+                                href="https://buy.stripe.com/3cIaEW3ICeje1cR62r3gk0A"
+                                target="_blank"
+                                className="p-4 bg-white/5 border border-white/10 rounded-2xl text-left hover:border-[#ffde00]/50 transition cursor-pointer group"
+                            >
                                 <Sparkles size={16} className="text-[#ffde00] mb-2 group-hover:scale-110 transition" />
                                 <p className="text-[10px] font-black uppercase text-white/40 tracking-widest">Event Booster</p>
-                                <p className="text-lg font-bold text-white">$49<span className="text-sm text-white/40 font-medium">/event</span></p>
-                            </div>
-                            <div className="p-4 bg-[#ffde00]/5 border border-[#ffde00]/20 rounded-2xl text-left hover:border-[#ffde00]/50 transition cursor-default group">
+                                <p className="text-lg font-bold text-white">$199<span className="text-sm text-white/40 font-medium">/event</span></p>
+                                <p className="text-[9px] text-[#ffde00] font-bold mt-1 opacity-0 group-hover:opacity-100 transition-opacity uppercase tracking-widest">Select Plan ➔</p>
+                            </a>
+                            <a
+                                href="https://buy.stripe.com/8x24gy4MG4IE2gVcqP3gk0B"
+                                target="_blank"
+                                className="p-4 bg-[#ffde00]/5 border border-[#ffde00]/20 rounded-2xl text-left hover:border-[#ffde00]/50 transition cursor-pointer group"
+                            >
                                 <Trophy size={16} className="text-[#ffde00] mb-2 group-hover:scale-110 transition" />
                                 <p className="text-[10px] font-black uppercase text-white/40 tracking-widest">Global Sponsor</p>
-                                <p className="text-lg font-bold text-white">$199<span className="text-sm text-white/40 font-medium">/year</span></p>
-                            </div>
+                                <p className="text-lg font-bold text-white">$999<span className="text-sm text-white/40 font-medium">/year</span></p>
+                                <p className="text-[9px] text-[#ffde00] font-bold mt-1 opacity-0 group-hover:opacity-100 transition-opacity uppercase tracking-widest">Best Value ➔</p>
+                            </a>
                         </div>
 
                         <a
-                            href="https://www.tapos360.com/pricing"
+                            href="https://buy.stripe.com/8x24gy4MG4IE2gVcqP3gk0B"
+                            target="_blank"
                             className="block w-full bg-[#ffde00] hover:bg-white text-black font-black py-5 rounded-[1.5rem] text-sm uppercase tracking-[0.2em] transition-all transform hover:scale-[1.02] shadow-[0_10px_30px_rgba(255,222,0,0.2)]"
                         >
-                            UPGRADE NOW
+                            ACTIVATE MISSION CONTROL
                         </a>
 
-                        <p className="mt-6 text-[10px] text-white/30 uppercase tracking-[0.3em] font-bold">
-                            Trusted by Konecta & Crema Spring Expo
-                        </p>
+                        <div className="mt-8 pt-6 border-t border-white/5 text-left">
+                            <p className="text-[10px] text-white/40 font-black uppercase tracking-[0.2em] mb-4 text-center">Implementation Blueprint</p>
+                            <div className="space-y-3">
+                                <div className="flex gap-3">
+                                    <div className="text-[#ffde00] font-bold text-xs">01</div>
+                                    <p className="text-[11px] text-white/60">Invite guests to register at <span className="text-[#ffde00] font-bold">tapos360.com/passport?host={userId?.slice(-5) || 'YOUR_ID'}</span></p>
+                                </div>
+                                <div className="flex gap-3">
+                                    <div className="text-[#ffde00] font-bold text-xs">02</div>
+                                    <p className="text-[11px] text-white/60">Vendors use the TapOS scanner in <strong>Expo Mode</strong> to scan visitor QRs.</p>
+                                </div>
+                                <div className="flex gap-3">
+                                    <div className="text-[#ffde00] font-bold text-xs">03</div>
+                                    <p className="text-[11px] text-white/60">Leads sync instantly to <u>both</u> the Vendor and Host dashboards.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="mt-8 flex flex-col items-center gap-2">
+                            <p className="text-[9px] text-white/20 uppercase tracking-[0.2em] font-bold">
+                                30-day cancellation notice required for annual plans.
+                            </p>
+                            <a href="mailto:support@tapos360.com" className="text-[9px] text-white/40 hover:text-white underline uppercase tracking-widest">
+                                Manage Subscription / Cancel
+                            </a>
+                        </div>
                     </div>
                 </div>
             )}
@@ -160,13 +198,27 @@ export default function ExpoDashboard({ leads, cards }: { leads: any[], cards: a
                             <Zap className="text-purple-400" size={20} /> Sponsor Tools
                         </h3>
                         <div className="space-y-4">
+                            <button
+                                onClick={() => {
+                                    const link = `${window.location.origin}/passport?host=${userId}`;
+                                    navigator.clipboard.writeText(link);
+                                    alert("Personalized registration link copied!");
+                                }}
+                                className="w-full flex items-center justify-between p-4 bg-white/5 rounded-xl border border-white/10 hover:border-white/30 transition group"
+                            >
+                                <div>
+                                    <p className="text-sm font-bold text-white uppercase">Personalized registration</p>
+                                    <p className="text-[10px] text-white/40">Guests register via your unique host link</p>
+                                </div>
+                                <ArrowUpRight size={16} className="text-[#ffde00] group-hover:scale-110 transition" />
+                            </button>
                             <a
-                                href="/passport"
+                                href={`/passport?host=${userId}`}
                                 target="_blank"
                                 className="flex items-center justify-between p-4 bg-white/5 rounded-xl border border-white/10 hover:border-white/30 transition group"
                             >
                                 <div>
-                                    <p className="text-sm font-bold text-white uppercase">Guest Registration</p>
+                                    <p className="text-sm font-bold text-white uppercase">Open Passport Form</p>
                                     <p className="text-[10px] text-white/40">Open this on a tablet at your booth</p>
                                 </div>
                                 <ExternalLink size={16} className="text-white/20 group-hover:text-white transition" />

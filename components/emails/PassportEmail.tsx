@@ -44,7 +44,7 @@ export const getPassportEmailHtml = ({
 
                 <div style="margin-bottom: 40px; text-align: center;">
                     <p style="margin: 0; color: rgba(255,255,255,0.4); font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 3px;">SECRET ACCESS ID</p>
-                    <p style="margin: 8px 0 0 0; color: #ffffff; font-size: 42px; font-weight: 900; letter-spacing: 2px; font-family: 'Syncopate', sans-serif;">${accessId}</p>
+                    <p style="margin: 8px 0 0 0; color: #ffffff; font-size: 64px; font-weight: 900; letter-spacing: 4px; font-family: 'Syncopate', sans-serif;">${accessId}</p>
                 </div>
 
                 <div style="text-align: left; margin-bottom: 40px;">

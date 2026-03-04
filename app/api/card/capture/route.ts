@@ -20,7 +20,7 @@ export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
     try {
-        const { cardId, ownerId, name, email, phone, note, is_verified } = await request.json();
+        const { cardId, ownerId, name, email, phone, note, is_verified, eventOwnerId } = await request.json();
 
         // 1. Insert into SQL 'leads' table
         const { createClient } = require('@supabase/supabase-js');
@@ -33,6 +33,7 @@ export async function POST(request: Request) {
             .insert({
                 card_id: cardId,
                 owner_id: ownerId,
+                event_owner_id: eventOwnerId || null,
                 name,
                 email,
                 phone,

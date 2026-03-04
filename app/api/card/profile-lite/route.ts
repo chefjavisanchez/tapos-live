@@ -24,6 +24,7 @@ export async function GET(req: Request) {
         email: content.email || '',
         phone: content.phone || '',
         title: content.jobTitle || '',
-        company: content.company || ''
+        company: content.company || '',
+        eventOwnerId: content.eventOwnerId || null
     });
 }

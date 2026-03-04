@@ -8,7 +8,7 @@ export async function POST(req: Request) {
     try {
         const body = await req.json();
         console.log('Registration Payload:', body);
-        const { fullName, email, phone, company } = body;
+        const { fullName, email, phone, company, eventOwnerId } = body;
 
         if (!fullName || !email || !phone || !company) {
             console.warn('Missing required fields:', { fullName, email, phone, company });
@@ -26,6 +26,7 @@ export async function POST(req: Request) {
             email,
             phone,
             company,
+            eventOwnerId: eventOwnerId || null,
             theme: 'gold',
             is_lite: true,
             event: 'Konecta con Crema Spring Expo',

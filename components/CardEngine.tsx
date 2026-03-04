@@ -953,6 +953,7 @@ export default function CardEngine({ data, slug, ownerId, cardId, remoteLeads = 
                                     setScanResult({
                                         ...profile,
                                         is_verified: true,
+                                        eventOwnerId: profile.eventOwnerId || null,
                                         notes: "Verified Passport Scan"
                                     });
                                     setScanning(false);
@@ -1033,6 +1034,7 @@ export default function CardEngine({ data, slug, ownerId, cardId, remoteLeads = 
                     email: scanResult.email,
                     phone: scanResult.phone,
                     is_verified: scanResult.is_verified || false,
+                    eventOwnerId: scanResult.eventOwnerId || null,
                     note: `Scanned: ${scanResult.notes}`
                 })
             });

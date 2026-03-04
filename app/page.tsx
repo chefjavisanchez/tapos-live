@@ -81,10 +81,11 @@ export default function Home() {
             if (data) setCards(data);
 
             // FETCH LEADS (SQL)
+            // Shows leads captured by the user OR leads captured during an event hosted by the user
             const { data: leadsData } = await supabase
                 .from('leads')
                 .select('*')
-                .eq('owner_id', user.id)
+                .or(`owner_id.eq.${user.id},event_owner_id.eq.${user.id}`)
                 .order('created_at', { ascending: false });
 
             if (leadsData) setLeads(leadsData);

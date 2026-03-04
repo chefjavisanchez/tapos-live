@@ -85,30 +85,27 @@ export default async function Page({ params }: Props) {
     const isActive = card.content.subscription === 'active' || card.content.is_lite === true;
 
     if (!isActive) {
-        // If the owner provided a redirect for locked state, or user wants to avoid the lock screen entirely:
-        // The user mentioned: "when i scan the QR code... is supposted to take me to https://www.tapos360.com"
-        // We will show the lock screen but the button leads to Pricing.
-
+        // Redirection logic for inactive profiles as requested by the user
         return (
             <div className="min-h-screen bg-black flex flex-col items-center justify-center p-6 text-center font-mono text-white relative overflow-hidden">
-                <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1635322966219-b75ed372eb01?q=80&w=1000')] bg-cover opacity-20 blur-sm animate-pulse"></div>
+                <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-[#ffde00] to-transparent animate-shimmer"></div>
 
-                <div className="z-10 bg-black/80 backdrop-blur-xl p-8 rounded-2xl border border-[#00F3FF]/30 shadow-2xl max-w-md w-full">
-                    <div className="w-20 h-20 bg-[#00F3FF]/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-[#00F3FF]/30 animate-bounce">
-                        <i className="ph-fill ph-lock-key text-[#00F3FF] text-3xl"></i>
+                <div className="z-10 bg-[#050510] border border-white/10 p-10 rounded-[2.5rem] shadow-2xl max-w-md w-full relative">
+                    <div className="w-20 h-20 bg-[#ffde00]/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-[#ffde00]/30">
+                        <i className="ph-fill ph-lock-key text-[#ffde00] text-3xl"></i>
                     </div>
 
-                    <h1 className="text-2xl font-bold uppercase tracking-widest mb-2 text-white">Profile Locked</h1>
-                    <p className="text-white/50 text-sm mb-8">
-                        This digital identity ({card.content.fullName}) has been created but not yet activated.
+                    <h1 className="text-3xl font-black font-syncopate uppercase mb-3 leading-tight">Identity <span className="text-[#ffde00]">Locked</span></h1>
+                    <p className="text-white/50 text-xs mb-10 leading-relaxed font-medium">
+                        This TapOS profile hasn't been activated by the owner. If this is your profile, activation is required to go live.
                     </p>
 
-                    <a href="https://www.tapos360.com/pricing" className="block w-full bg-[#00F3FF] hover:bg-white text-black font-bold py-4 rounded-xl transition transform hover:scale-105 shadow-lg shadow-[#00F3FF]/20 mb-4">
-                        OWNER ACTIVATION
+                    <a href="https://www.tapos360.com/pricing" className="block w-full bg-[#ffde00] hover:bg-white text-black font-black py-5 rounded-[1.2rem] transition transform hover:scale-[1.02] shadow-[0_10px_30px_rgba(255,222,0,0.2)] mb-4 text-xs tracking-widest uppercase">
+                        ACTIVATE PROFILE
                     </a>
 
-                    <p className="text-[10px] text-white/30 uppercase tracking-wider text-center">
-                        <a href="https://www.tapos360.com" className="hover:text-[#00F3FF] transition">TAPOS SECURE GATEWAY</a>
+                    <p className="text-[10px] text-white/30 uppercase tracking-[0.3em] text-center mt-6">
+                        <a href="https://www.tapos360.com" className="hover:text-white transition">Back to tapos360.com</a>
                     </p>
                 </div>
             </div>

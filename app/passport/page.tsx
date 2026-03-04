@@ -15,8 +15,15 @@ export default function PassportPage() {
         phone: '',
         company: ''
     });
+    const [eventOwnerId, setEventOwnerId] = useState<string | null>(null);
     const [generatedSlug, setGeneratedSlug] = useState('');
     const [emailStatus, setEmailStatus] = useState('');
+
+    useEffect(() => {
+        const searchParams = new URLSearchParams(window.location.search);
+        const host = searchParams.get('host');
+        if (host) setEventOwnerId(host);
+    }, []);
 
     const handleRegister = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -27,7 +34,7 @@ export default function PassportPage() {
             const response = await fetch('/api/passport/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(form)
+                body: JSON.stringify({ ...form, eventOwnerId })
             });
 
             const result = await response.json();
