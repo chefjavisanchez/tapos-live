@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
@@ -71,13 +71,15 @@ export async function POST(req: Request) {
                 const resend = new Resend(apiKey);
                 const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=https://tapos360.com/${slug}`;
 
-                const html = renderToStaticMarkup(
-                    <PassportEmailTemplate
-                        fullName={fullName}
-                        slug={slug}
-                        qrUrl={qrUrl}
-                    />
-                );
+                // Robust rendering using React.createElement instead of JSX inside the route
+                // This bypasses potential JSX transpilation issues in serverless Node environments
+                const emailElement = React.createElement(PassportEmailTemplate, {
+                    fullName,
+                    slug,
+                    qrUrl
+                });
+
+                const html = renderToStaticMarkup(emailElement);
 
                 const { data: emailData, error: emailError } = await resend.emails.send({
                     from: 'TapOS <javi@tapygo.com>',
@@ -109,17 +111,12 @@ export async function POST(req: Request) {
         console.log('--- Passport Registration Success ---');
         return NextResponse.json({
             success: true,
-            slug,
-            emailStatus,
-            diagnostics: {
-                hasKey: !!process.env.RESEND_API_KEY,
-                keyPrefix: (process.env.RESEND_API_KEY || '').substring(0, 6),
-                resendResponse
-            }
+            slug: slug,
+            emailStatus: emailStatus,
+            resendResponse: resendResponse
         });
-
     } catch (error: any) {
-        console.error('Passport Registration Error:', error);
-        return NextResponse.json({ error: error.message || 'Registration failed' }, { status: 500 });
+        console.error('Global Registration Error:', error);
+        return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }
