@@ -106,24 +106,13 @@ export default function DashboardSidebar({
                     onClick={isDashboard ? () => setActiveTab?.('leads') : () => router.push('/?tab=leads')}
                     router={router}
                 />
-                {(isAdmin || isSponsor) && (
-                    <>
-                        <NavItem
-                            icon={<Ticket size={20} className="text-[#ffde00]" />}
-                            label="Expo Mode"
-                            active={isDashboard && activeTab === 'expo'}
-                            onClick={isDashboard ? () => setActiveTab?.('expo') : () => router.push('/?tab=expo')}
-                            router={router}
-                        />
-                        <NavItem
-                            icon={<ArrowUpRight size={20} className="text-white/40" />}
-                            label="Passport Link"
-                            href="/passport"
-                            active={pathname === '/passport'}
-                            router={router}
-                        />
-                    </>
-                )}
+                <NavItem
+                    icon={<Ticket size={20} className="text-[#ffde00]" />}
+                    label="Expo Mode"
+                    active={isDashboard && activeTab === 'expo'}
+                    onClick={isDashboard ? () => setActiveTab?.('expo') : () => router.push('/?tab=expo')}
+                    router={router}
+                />
 
                 {planType === 'corporate' && (
                     <NavItem

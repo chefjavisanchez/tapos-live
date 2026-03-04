@@ -1,15 +1,79 @@
 'use client';
 
-import { Trophy, Users, Zap, ExternalLink, Ticket, ArrowUpRight, CheckCircle2 } from "lucide-react";
+import { Trophy, Users, Zap, ExternalLink, Ticket, ArrowUpRight, CheckCircle2, Lock, Sparkles } from "lucide-react";
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
 
 export default function ExpoDashboard({ leads, cards }: { leads: any[], cards: any[] }) {
+    const [isSponsor, setIsSponsor] = useState(false);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const checkSponsorStatus = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user?.user_metadata?.is_sponsor) {
+                setIsSponsor(true);
+            }
+            setLoading(false);
+        };
+        checkSponsorStatus();
+    }, []);
+
     const verifiedLeads = leads.filter(l => l.is_verified);
     const totalLeads = leads.length;
     const totalViews = cards.reduce((acc, c) => acc + (c.content?.analytics?.views || 0), 0);
     const estimatedROI = (totalViews * 0.45).toFixed(2);
 
+    if (loading) return <div className="p-10 text-[#ffde00] animate-pulse">VERIFYING SPONSOR CREDENTIALS...</div>;
+
     return (
-        <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 relative">
+
+            {/* LOCKED OVERLAY FOR NON-SPONSORS */}
+            {!isSponsor && (
+                <div className="absolute inset-x-0 -top-4 -bottom-4 z-50 flex items-center justify-center p-6 rounded-[3rem] overflow-hidden">
+                    <div className="absolute inset-0 bg-black/60 backdrop-blur-md"></div>
+                    <div className="relative z-10 max-w-xl w-full bg-gradient-to-br from-[#ffde00]/20 via-black to-purple-500/10 border border-[#ffde00]/30 p-10 rounded-[2.5rem] shadow-[0_0_50px_rgba(255,222,0,0.15)] text-center animate-in zoom-in-95 duration-500">
+                        <div className="w-20 h-20 bg-[#ffde00]/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-[#ffde00]/30 text-[#ffde00]">
+                            <Lock size={40} className="animate-pulse" />
+                        </div>
+
+                        <h2 className="text-3xl font-black font-syncopate uppercase mb-4 leading-tight">
+                            UNLOCK <span className="text-[#ffde00]">EXPO MODE</span>
+                        </h2>
+
+                        <p className="text-white/70 text-sm mb-8 leading-relaxed font-medium">
+                            Transform your TapOS into a lead-generation machine. Unlock real-time verified capture,
+                            instant raffle entry, and the high-speed Global Passport registration system.
+                        </p>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                            <div className="p-4 bg-white/5 border border-white/10 rounded-2xl text-left hover:border-[#ffde00]/50 transition cursor-default group">
+                                <Sparkles size={16} className="text-[#ffde00] mb-2 group-hover:scale-110 transition" />
+                                <p className="text-[10px] font-black uppercase text-white/40 tracking-widest">Event Booster</p>
+                                <p className="text-lg font-bold text-white">$49<span className="text-sm text-white/40 font-medium">/event</span></p>
+                            </div>
+                            <div className="p-4 bg-[#ffde00]/5 border border-[#ffde00]/20 rounded-2xl text-left hover:border-[#ffde00]/50 transition cursor-default group">
+                                <Trophy size={16} className="text-[#ffde00] mb-2 group-hover:scale-110 transition" />
+                                <p className="text-[10px] font-black uppercase text-white/40 tracking-widest">Global Sponsor</p>
+                                <p className="text-lg font-bold text-white">$199<span className="text-sm text-white/40 font-medium">/year</span></p>
+                            </div>
+                        </div>
+
+                        <a
+                            href="https://www.tapos360.com/pricing"
+                            className="block w-full bg-[#ffde00] hover:bg-white text-black font-black py-5 rounded-[1.5rem] text-sm uppercase tracking-[0.2em] transition-all transform hover:scale-[1.02] shadow-[0_10px_30px_rgba(255,222,0,0.2)]"
+                        >
+                            UPGRADE NOW
+                        </a>
+
+                        <p className="mt-6 text-[10px] text-white/30 uppercase tracking-[0.3em] font-bold">
+                            Trusted by Konecta & Crema Spring Expo
+                        </p>
+                    </div>
+                </div>
+            )}
+
             <header className="mb-10">
                 <div className="flex items-center gap-3 mb-2">
                     <div className="p-2 bg-[#ffde00]/20 rounded-lg text-[#ffde00]">
