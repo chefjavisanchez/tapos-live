@@ -1,4 +1,5 @@
 import React from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { Resend } from 'resend';
@@ -11,9 +12,9 @@ export async function POST(req: Request) {
         console.log('Registration Payload:', body);
         const { fullName, email, phone, company } = body;
 
-        if (!fullName || !email) {
-            console.warn('Missing required fields:', { fullName, email });
-            return NextResponse.json({ error: 'Name and email are required' }, { status: 400 });
+        if (!fullName || !email || !phone || !company) {
+            console.warn('Missing required fields:', { fullName, email, phone, company });
+            return NextResponse.json({ error: 'All fields are required' }, { status: 400 });
         }
 
         // 1. Generate Slug
@@ -70,18 +71,20 @@ export async function POST(req: Request) {
                 const resend = new Resend(apiKey);
                 const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=https://tapos360.com/${slug}`;
 
+                const html = renderToStaticMarkup(
+                    <PassportEmailTemplate
+                        fullName={fullName}
+                        slug={slug}
+                        qrUrl={qrUrl}
+                    />
+                );
+
                 const { data: emailData, error: emailError } = await resend.emails.send({
                     from: 'TapOS <javi@tapygo.com>',
                     to: [email],
                     replyTo: 'javi@tapygo.com',
                     subject: 'Your Event Passport is Activated! 🎫',
-                    react: (
-                        <PassportEmailTemplate
-                            fullName={fullName}
-                            slug={slug}
-                            qrUrl={qrUrl}
-                        />
-                    ),
+                    html: html,
                     text: `Hello ${fullName}! Your Event Passport for Konecta Expo 2026 is activated. Your Access ID is ${slug.slice(-5).toUpperCase()}. You can view your digital badge at: https://tapos360.com/${slug}`,
                     headers: {
                         'X-Entity-Ref-ID': slug,
