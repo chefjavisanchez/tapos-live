@@ -8,7 +8,10 @@ export const getPassportEmailHtml = ({
     fullName,
     slug,
     qrUrl,
-}: PassportEmailTemplateProps) => `
+}: PassportEmailTemplateProps) => {
+    const accessId = slug.split('-')[1]?.toUpperCase() || 'GUEST';
+
+    return `
 <!DOCTYPE html>
 <html>
 <head>
@@ -37,7 +40,10 @@ export const getPassportEmailHtml = ({
 
                 <div style="background-color: #ffffff; padding: 24px; border-radius: 32px; display: inline-block; margin-bottom: 40px; box-shadow: 0 10px 30px rgba(255,255,255,0.1);">
                     <img src="${qrUrl}" alt="Passport QR Code" style="width: 220px; height: 220px; display: block;" />
-                    <div style="margin-top: 15px; color: #111; font-size: 12px; font-weight: bold; letter-spacing: 1px;">ENTRY PASS: ${slug.split('-')[1]?.toUpperCase() || 'GUEST'}</div>
+                    <div style="margin-top: 20px;">
+                        <p style="margin: 0; color: #666; font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px;">ACCESS ID</p>
+                        <p style="margin: 5px 0 0 0; color: #000; font-size: 28px; font-weight: 900; letter-spacing: 1px;">${accessId}</p>
+                    </div>
                 </div>
 
                 <div style="text-align: left; margin-bottom: 40px;">
@@ -82,3 +88,4 @@ export const getPassportEmailHtml = ({
 </body>
 </html>
 `;
+};

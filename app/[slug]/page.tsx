@@ -81,14 +81,14 @@ export default async function Page({ params }: Props) {
     }
 
     // 3. SECURITY CHECK: IS CARD ACTIVE?
-    // We allow "Preview" mode (if specifically enabled) or if Subscription is Active
-    const isActive = card.content.subscription === 'active';
-
-    // If you want to allow the OWNER to view it, we'd need session checks, 
-    // but since this is a static public page, we Lock it by default.
-    // The "Preview" route we made earlier bypasses this because it renders CardEngine directly.
+    // We allow "Preview" mode (if specifically enabled), if Subscription is Active, or if it's a Lite Passport
+    const isActive = card.content.subscription === 'active' || card.content.is_lite === true;
 
     if (!isActive) {
+        // If the owner provided a redirect for locked state, or user wants to avoid the lock screen entirely:
+        // The user mentioned: "when i scan the QR code... is supposted to take me to https://www.tapos360.com"
+        // We will show the lock screen but the button leads to Pricing.
+
         return (
             <div className="min-h-screen bg-black flex flex-col items-center justify-center p-6 text-center font-mono text-white relative overflow-hidden">
                 <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1635322966219-b75ed372eb01?q=80&w=1000')] bg-cover opacity-20 blur-sm animate-pulse"></div>
@@ -103,12 +103,12 @@ export default async function Page({ params }: Props) {
                         This digital identity ({card.content.fullName}) has been created but not yet activated.
                     </p>
 
-                    <a href={`/editor?id=${card.id}`} className="block w-full bg-[#00F3FF] hover:bg-white text-black font-bold py-4 rounded-xl transition transform hover:scale-105 shadow-lg shadow-[#00F3FF]/20 mb-4">
+                    <a href="https://www.tapos360.com/pricing" className="block w-full bg-[#00F3FF] hover:bg-white text-black font-bold py-4 rounded-xl transition transform hover:scale-105 shadow-lg shadow-[#00F3FF]/20 mb-4">
                         OWNER ACTIVATION
                     </a>
 
-                    <p className="text-[10px] text-white/30 uppercase tracking-wider">
-                        TapOS Secure Gateway
+                    <p className="text-[10px] text-white/30 uppercase tracking-wider text-center">
+                        <a href="https://www.tapos360.com" className="hover:text-[#00F3FF] transition">TAPOS SECURE GATEWAY</a>
                     </p>
                 </div>
             </div>
