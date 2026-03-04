@@ -47,7 +47,7 @@ export default function ExpoDashboard({ leads, cards }: { leads: any[], cards: a
                         </h2>
 
                         <p className="text-white/70 text-sm mb-8 leading-relaxed font-medium">
-                            Transform your TapOS into a lead-generation machine. Unlock real-time verified capture,
+                            Transform your TapOS <span className="text-[#ffde00] font-bold">"Impulso"</span> into a lead-generation machine. Unlock real-time verified capture,
                             instant raffle entry, and the high-speed Global Passport registration system.
                         </p>
 
@@ -75,7 +75,7 @@ export default function ExpoDashboard({ leads, cards }: { leads: any[], cards: a
                         </div>
 
                         <a
-                            href="https://buy.stripe.com/8x24gy4MG4IE2gVcqP3gk0B"
+                            href="https://www.tapos360.com"
                             target="_blank"
                             className="block w-full bg-[#ffde00] hover:bg-white text-black font-black py-5 rounded-[1.5rem] text-sm uppercase tracking-[0.2em] transition-all transform hover:scale-[1.02] shadow-[0_10px_30px_rgba(255,222,0,0.2)]"
                         >
@@ -83,19 +83,19 @@ export default function ExpoDashboard({ leads, cards }: { leads: any[], cards: a
                         </a>
 
                         <div className="mt-8 pt-6 border-t border-white/5 text-left">
-                            <p className="text-[10px] text-white/40 font-black uppercase tracking-[0.2em] mb-4 text-center">Implementation Blueprint</p>
+                            <p className="text-[10px] text-white font-black uppercase tracking-[0.2em] mb-4 text-center">Implementation Blueprint</p>
                             <div className="space-y-3">
                                 <div className="flex gap-3">
                                     <div className="text-[#ffde00] font-bold text-xs">01</div>
-                                    <p className="text-[11px] text-white/60">Invite guests to register at <span className="text-[#ffde00] font-bold">tapos360.com/passport?host={userId?.slice(-5) || 'YOUR_ID'}</span></p>
+                                    <p className="text-[11px] text-white">Invite guests to register at <span className="underline decoration-[#ffde00] font-bold">tapos360.com/passport?host=XXXXX</span></p>
                                 </div>
                                 <div className="flex gap-3">
                                     <div className="text-[#ffde00] font-bold text-xs">02</div>
-                                    <p className="text-[11px] text-white/60">Vendors use the TapOS scanner in <strong>Expo Mode</strong> to scan visitor QRs.</p>
+                                    <p className="text-[11px] text-white">Vendors use the TapOS scanner in <strong>Expo Mode</strong> to scan visitor QRs.</p>
                                 </div>
                                 <div className="flex gap-3">
                                     <div className="text-[#ffde00] font-bold text-xs">03</div>
-                                    <p className="text-[11px] text-white/60">Leads sync instantly to <u>both</u> the Vendor and Host dashboards.</p>
+                                    <p className="text-[11px] text-white">Leads sync instantly to <u>both</u> the Vendor and Host dashboards.</p>
                                 </div>
                             </div>
                         </div>
