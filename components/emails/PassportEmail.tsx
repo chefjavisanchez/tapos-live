@@ -38,12 +38,13 @@ export const getPassportEmailHtml = ({
                     <span style="color: #000000; font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">OFFICIAL EVENT GUEST</span>
                 </div>
 
-                <div style="background-color: #ffffff; padding: 24px; border-radius: 32px; display: inline-block; margin-bottom: 40px; box-shadow: 0 10px 30px rgba(255,255,255,0.1);">
+                <div style="background-color: #ffffff; padding: 24px; border-radius: 32px; display: inline-block; margin-bottom: 25px; box-shadow: 0 10px 30px rgba(255,255,255,0.1);">
                     <img src="${qrUrl}" alt="Passport QR Code" style="width: 220px; height: 220px; display: block;" />
-                    <div style="margin-top: 20px;">
-                        <p style="margin: 0; color: #666; font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px;">ACCESS ID</p>
-                        <p style="margin: 5px 0 0 0; color: #000; font-size: 28px; font-weight: 900; letter-spacing: 1px;">${accessId}</p>
-                    </div>
+                </div>
+
+                <div style="margin-bottom: 40px; text-align: center;">
+                    <p style="margin: 0; color: rgba(255,255,255,0.4); font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 3px;">SECRET ACCESS ID</p>
+                    <p style="margin: 8px 0 0 0; color: #ffffff; font-size: 42px; font-weight: 900; letter-spacing: 2px; font-family: 'Syncopate', sans-serif;">${accessId}</p>
                 </div>
 
                 <div style="text-align: left; margin-bottom: 40px;">
