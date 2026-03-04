@@ -3,6 +3,7 @@
 import { Trophy, Users, Zap, ExternalLink, Ticket, ArrowUpRight, CheckCircle2, Lock, Sparkles } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { isAdmin } from "@/lib/admin-config";
 
 export default function ExpoDashboard({ leads, cards }: { leads: any[], cards: any[] }) {
     const [isSponsor, setIsSponsor] = useState(false);
@@ -14,7 +15,8 @@ export default function ExpoDashboard({ leads, cards }: { leads: any[], cards: a
             const { data: { user } } = await supabase.auth.getUser();
             if (user) {
                 setUserId(user.id);
-                if (user.user_metadata?.is_sponsor) {
+                // Unlock for registered sponsors OR administrators
+                if (user.user_metadata?.is_sponsor || isAdmin(user.email)) {
                     setIsSponsor(true);
                 }
             }
