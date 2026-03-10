@@ -7,37 +7,60 @@ export async function GET() {
         process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
 
-    const slug = 'marcelamccall';
-    const newName = 'Marcela McCall';
-
     try {
-        // 1. Fetch current content
-        const { data: card, error: fetchError } = await supabase
+        // Search for Marcela in the content->fullName
+        const { data: cards, error: fetchError } = await supabase
             .from('cards')
-            .select('content')
-            .eq('slug', slug)
-            .single();
+            .select('slug, content')
+            .ilike('content->>fullName', '%Marcela%');
 
-        if (fetchError || !card) {
-            return NextResponse.json({ error: 'Card not found', detail: fetchError }, { status: 404 });
+        if (fetchError) {
+            return NextResponse.json({ error: 'Search failed', detail: fetchError }, { status: 500 });
         }
 
-        const updatedContent = {
-            ...card.content,
-            fullName: newName
-        };
-
-        // 2. Update content
-        const { error: updateError } = await supabase
-            .from('cards')
-            .update({ content: updatedContent })
-            .eq('slug', slug);
-
-        if (updateError) {
-            return NextResponse.json({ error: 'Update failed', detail: updateError }, { status: 500 });
+        if (!cards || cards.length === 0) {
+            // Try searching in the slug itself as fallback
+            const { data: slugCards, error: slugError } = await supabase
+                .from('cards')
+                .select('slug, content')
+                .ilike('slug', '%marcela%');
+            
+            if (slugError || !slugCards || slugCards.length === 0) {
+                return NextResponse.json({ error: 'No Marcela found in DB', cardsFound: 0 });
+            }
+            
+            // If found by slug, update them all
+            for (const card of slugCards) {
+                const updatedContent = {
+                    ...card.content,
+                    fullName: 'Marcela McCall'
+                };
+                await supabase
+                    .from('cards')
+                    .update({ content: updatedContent })
+                    .eq('slug', card.slug);
+            }
+            return NextResponse.json({ success: true, updated: slugCards.map(c => c.slug) });
         }
 
-        return NextResponse.json({ success: true, message: `Updated ${slug} to ${newName}` });
+        // Update all found cards
+        for (const card of cards) {
+            const updatedContent = {
+                ...card.content,
+                fullName: 'Marcela McCall'
+            };
+            await supabase
+                .from('cards')
+                .update({ content: updatedContent })
+                .eq('slug', card.slug);
+        }
+
+        return NextResponse.json({ 
+            success: true, 
+            message: `Updated ${cards.length} Marcela cards`, 
+            slugs: cards.map(c => c.slug) 
+        });
+
     } catch (err: any) {
         return NextResponse.json({ error: err.message }, { status: 500 });
     }
