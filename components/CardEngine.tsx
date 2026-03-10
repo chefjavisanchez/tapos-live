@@ -735,6 +735,12 @@ export default function CardEngine({ data, slug, ownerId, cardId, remoteLeads = 
         const leadToSave = leadOverride || scanResult;
         if (!leadToSave) return;
 
+        // LEAD LIMIT CHECK (20)
+        if (scannedContacts.length >= 20) {
+            alert("⚠️ Lead storage full (Limit: 20). Please export your leads as CSV to clear space before scanning more.");
+            return;
+        }
+
         // 1. Save to Cloud (Supabase)
         try {
             const res = await fetch('/api/card/capture', {
@@ -1099,27 +1105,27 @@ export default function CardEngine({ data, slug, ownerId, cardId, remoteLeads = 
     const clearLeads = () => {
         if (!confirm('Are you sure you want to delete all scanned leads from this device?')) return;
         setScannedContacts([]);
-        localStorage.removeItem('tapos_leads');
+        localStorage.removeItem(`tapos_leads_${cardId}`);
     };
 
     const downloadCSV = () => {
         if (scannedContacts.length === 0) return alert('No leads to export.');
         const headers = ["Name", "Email", "Phone", "Notes", "Date"];
-        const rows = scannedContacts.map(c => [c.name, c.email, c.phone, `"${c.notes.replace(/\n/g, ' ')}"`, c.date]);
+        const rows = scannedContacts.map(c => [c.name, (c.email || ''), (c.phone || ''), `"${(c.notes || '').replace(/\n/g, ' ')}"`, c.date]);
         const csvContent = "data:text/csv;charset=utf-8," + headers.join(",") + "\n" + rows.map(e => e.join(",")).join("\n");
         const encodedUri = encodeURI(csvContent);
         const link = document.createElement("a");
         link.setAttribute("href", encodedUri);
-        link.setAttribute("download", "tapos_leads.csv");
+        link.setAttribute("download", `tapos_leads_${slug}.csv`);
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
 
         // Automatically clear after download as requested
-        setTimeout(() => {
+        if (confirm('Leads exported successfully! Would you like to clear the local storage for new scans?')) {
             setScannedContacts([]);
-            localStorage.removeItem('tapos_leads');
-        }, 1000);
+            localStorage.removeItem(`tapos_leads_${cardId}`);
+        }
     };
 
     const handleSaveContact = () => {
@@ -1548,19 +1554,30 @@ END:VCARD`;
                                                     </div>
 
                                                     {/* MODE B: BUSINESS CARD UPLOAD */}
-                                                    <div className="w-full bg-white/5 border border-white/10 rounded-2xl p-6 flex flex-col items-center gap-4 hover:border-[#ffde00]/30 transition shadow-lg group relative" style={{ cursor: 'pointer' }}>
+                                                    <div className="w-full bg-white/5 border border-white/10 rounded-2xl p-6 flex flex-col items-center gap-4 hover:border-[#ffde00]/30 transition shadow-lg group relative overflow-hidden" 
+                                                         style={{ cursor: 'pointer' }}>
+                                                        
+                                                        {/* Hidden File Input (Z-INDEX 10 to ensure it's always on top) */}
                                                         <input type="file" accept="image/*" capture="environment"
                                                             onChange={(e) => e.target.files && processImage(e.target.files[0])}
-                                                            className="absolute inset-0 opacity-0 cursor-pointer" disabled={scanning} />
+                                                            className="absolute inset-0 opacity-0 cursor-pointer z-10 w-full h-full" 
+                                                            disabled={scanning || scannedContacts.length >= 20} />
                                                         
-                                                        <div className="w-16 h-16 rounded-full bg-[#ffde00]/10 border border-[#ffde00]/30 flex items-center justify-center group-hover:scale-110 transition">
+                                                        <div className="w-16 h-16 rounded-full bg-[#ffde00]/10 border border-[#ffde00]/30 flex items-center justify-center group-hover:scale-110 transition pointer-events-none">
                                                             <i className="ph-fill ph-identification-card text-2xl text-[#ffde00]"></i>
                                                         </div>
-                                                        <div className="text-center">
+                                                        <div className="text-center pointer-events-none">
                                                             <p className="text-white font-bold text-sm tracking-wide uppercase">Scan Business Card</p>
                                                             <p className="text-[10px] text-white/40 uppercase tracking-tighter">Physical Card to Digital Lead</p>
                                                         </div>
                                                     </div>
+
+                                                    {scannedContacts.length >= 20 && (
+                                                        <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-xl text-center">
+                                                            <p className="text-[10px] text-red-400 font-bold uppercase tracking-wider">Storage Full (20/20)</p>
+                                                            <p className="text-[9px] text-white/40 mt-1">Export CSV to clear space for new scans.</p>
+                                                        </div>
+                                                    )}
 
                                                     {scanning && (
                                                         <div className="flex items-center gap-3 bg-neon-blue/20 text-neon-blue px-6 py-3 rounded-full border border-neon-blue/30 animate-pulse">
