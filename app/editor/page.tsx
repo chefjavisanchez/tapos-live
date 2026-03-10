@@ -324,6 +324,18 @@ function EditorContent() {
                             </div>
 
                             <div className="space-y-2">
+                                <label className="text-xs font-bold text-neon-blue uppercase">Bio / Professional Summary</label>
+                                <textarea 
+                                    value={content.bio || ''} 
+                                    onChange={e => updateField('bio', e.target.value)}
+                                    rows={4}
+                                    placeholder="Write a brief professional summary..."
+                                    className="w-full bg-white/5 border border-white/10 rounded p-3 text-sm focus:border-neon-blue outline-none resize-none" 
+                                />
+                                <p className="text-[10px] text-white/40 italic">Briefly describe what you do to help others connect with you.</p>
+                            </div>
+
+                            <div className="space-y-2">
                                 <label className="text-xs font-bold text-neon-blue uppercase">Contact Info (Footer)</label>
                                 <div className="grid grid-cols-2 gap-4">
                                     <input type="text" value={content.phone || ''} onChange={e => updateField('phone', e.target.value)}

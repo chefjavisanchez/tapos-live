@@ -293,10 +293,24 @@ export default function Home() {
                                         if (!primary) return <p className="text-white/40 text-sm italic">Create your first card to begin.</p>;
 
                                         const checks = [
-                                            { label: 'Upload Brand Logo', done: !!primary.content?.logo },
+                                            { label: 'Upload Brand Logo', done: !!primary.content?.logoImage },
                                             { label: 'Write Bio / Description', done: !!primary.content?.bio },
-                                            { label: 'Add 2+ Social Links', done: (primary.content?.socials?.length || 0) >= 2 },
-                                            { label: 'Add 1+ Featured Ad', done: (primary.content?.ads?.length || 0) >= 1 },
+                                            { 
+                                                label: 'Add 2+ Social Links', 
+                                                done: [
+                                                    primary.content?.social_instagram,
+                                                    primary.content?.social_facebook,
+                                                    primary.content?.social_linkedin,
+                                                    primary.content?.social_tiktok,
+                                                    primary.content?.social_threads,
+                                                    primary.content?.social_x,
+                                                    primary.content?.social_snapchat
+                                                ].filter(link => !!link).length >= 2 
+                                            },
+                                            { 
+                                                label: 'Add 1+ Featured Ad', 
+                                                done: ['ad2', 'ad3', 'ad4', 'ad5'].some(adKey => !!primary.content?.[adKey]?.title2)
+                                            },
                                         ];
 
                                         return checks.map((c, i) => (

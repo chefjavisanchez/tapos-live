@@ -1274,7 +1274,15 @@ END:VCARD`;
                     <div className="viewport">
 
                         {/* VIEW 1: HOME */}
-                        <div className={`view-pane justify-center items-center ${activeTab === 'v-home' ? 'active' : ''}`}>
+                        <div className={`view-pane flex-col items-center ${activeTab === 'v-home' ? 'active' : ''}`} style={{ overflowY: 'auto', paddingBottom: 40 }}>
+                            {data.bio && (
+                                <div className="w-[92%] mb-6 p-4 rounded-2xl backdrop-blur-md border border-white/10 text-center" style={{ background: isDarkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)' }}>
+                                    <p className="text-sm leading-relaxed" style={{ color: isDarkMode ? 'rgba(255,255,255,0.8)' : 'rgba(0,0,0,0.7)' }}>
+                                        {safeStr(data.bio)}
+                                    </p>
+                                </div>
+                            )}
+
                             <div
                                 className="ad-container"
                                 onMouseEnter={() => setIsAdPaused(true)}
