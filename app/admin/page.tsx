@@ -66,10 +66,12 @@ export default function AdminDashboard() {
                 if (ref) counts[ref] = (counts[ref] || 0) + 1;
             });
 
-            const dataWithStats = data.filter((item: any) => item !== null).map((c: any) => ({
-                ...c,
-                referralCount: counts[c.slug] || 0
-            }));
+            const dataWithStats = data
+                .filter((item: any) => item !== null && item.user_id !== null)
+                .map((c: any) => ({
+                    ...c,
+                    referralCount: counts[c.slug] || 0
+                }));
 
             setCards(dataWithStats);
 

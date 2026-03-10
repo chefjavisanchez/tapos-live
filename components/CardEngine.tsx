@@ -2,7 +2,7 @@
 
 import ExchangeModal from './ExchangeModal';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Script from 'next/script';
 
@@ -728,20 +728,67 @@ export default function CardEngine({ data, slug, ownerId, cardId, remoteLeads = 
     const [isServicesOpen, setIsServicesOpen] = useState(false);
 
     // HANDLERS
+    const saveLead = useCallback(async (leadOverride?: any) => {
+        const leadToSave = leadOverride || scanResult;
+        if (!leadToSave) return;
 
+        // 1. Save to Cloud (Supabase)
+        try {
+            const res = await fetch('/api/card/capture', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    cardId,
+                    ownerId,
+                    name: leadToSave.name,
+                    email: leadToSave.email,
+                    phone: leadToSave.phone,
+                    is_verified: leadToSave.is_verified || false,
+                    eventOwnerId: leadToSave.eventOwnerId || null,
+                    note: leadToSave.notes || `Scanned: ${leadToSave.company || ''}${leadToSave.title ? ` - ${leadToSave.title}` : ''}`
+                })
+            });
+
+            if (!res.ok) throw new Error('Cloud Save Failed');
+        } catch (e) {
+            console.error("Cloud Save Failed (Scanner)", e);
+        }
+
+        // 2. Save locally as backup & update UI
+        const entry = { ...leadToSave, date: new Date().toISOString() };
+        const newLeads = [...scannedContacts, entry];
+        setScannedContacts(newLeads);
+        localStorage.setItem('tapos_leads', JSON.stringify(newLeads));
+
+        if (!leadOverride) {
+            alert("Lead Saved! Synced to your database.");
+            setScanResult(null);
+        } else {
+            // Auto-saved in Expo Mode
+            console.log("🚀 Expo Mode: Lead captured automatically.");
+        }
+    }, [cardId, ownerId, scanResult, scannedContacts]);
+
+    const stopLiveScanner = useCallback(() => {
+        if (videoRef.current && videoRef.current.srcObject) {
+            const stream = videoRef.current.srcObject as MediaStream;
+            stream.getTracks().forEach(track => track.stop());
+            videoRef.current.srcObject = null;
+        }
+        setIsScanningLive(false);
+    }, []);
+
+    const startLiveScanner = useCallback(() => {
+        setIsExpoMode(true); // Auto-enable Expo Mode for best performance during live scan
+        setIsScanningLive(true);
+    }, []);
+
+    // Load Local Storage (Scanning History)
     useEffect(() => {
-        // 1. Load Local Storage (Scanning History)
         const saved = localStorage.getItem('tapos_leads');
         const localLeads = saved ? JSON.parse(saved) : [];
-
-        // 2. Load Cloud SQL Leads
         const cloudLeads = remoteLeads || [];
-
-        // 3. Merge and deduplicate
         const allLeads = [...localLeads, ...cloudLeads];
-
-        // Unique by combining phone and email checks, fallback to date to avoid duplicating identical leads 
-        // that exist in both local storage and cloud database.
         const uniqueLeads = allLeads.filter((v: any, i: number, a: any) =>
             a.findIndex((t: any) =>
                 (t.email && t.email === v.email) ||
@@ -749,7 +796,6 @@ export default function CardEngine({ data, slug, ownerId, cardId, remoteLeads = 
                 (t.date && t.date === v.date)
             ) === i
         );
-
         setScannedContacts(uniqueLeads);
     }, [remoteLeads]);
 
@@ -821,13 +867,22 @@ export default function CardEngine({ data, slug, ownerId, cardId, remoteLeads = 
                                     const res = await fetch(`/api/card/profile-lite?slug=${slugCandidate}`);
                                     if (res.ok) {
                                         const profile = await res.json();
-                                        console.log("✅ Verified Profile Found:", profile.fullName);
-                                        setScanResult({
+                                        console.log("✅ Verified Profile Found:", profile.name);
+                                        
+                                        const leadData = {
                                             ...profile,
                                             is_verified: true,
-                                            notes: "Verified Passport Scan (Live)"
-                                        });
-                                        stopLiveScanner();
+                                            notes: `Verified Passport Scan (Live)${profile.title ? ` - ${profile.title}` : ''}`
+                                        };
+
+                                        if (isExpoMode) {
+                                            // AUTO-CAPTURE IN EXPO MODE
+                                            await saveLead(leadData);
+                                            stopLiveScanner();
+                                        } else {
+                                            setScanResult(leadData);
+                                            stopLiveScanner();
+                                        }
                                     } else {
                                         console.log("ℹ️ QR is not a TapOS profile (or profile not found).");
                                     }
@@ -850,12 +905,11 @@ export default function CardEngine({ data, slug, ownerId, cardId, remoteLeads = 
         }
 
         return () => cancelAnimationFrame(animationFrameId);
-    }, [isScanningLive, activeTab]);
+    }, [isScanningLive, activeTab, isExpoMode, saveLead, stopLiveScanner]);
 
     // Stream attachment effect
     useEffect(() => {
         let stream: MediaStream | null = null;
-
         const attachStream = async () => {
             if (isScanningLive && videoRef.current && !videoRef.current.srcObject) {
                 try {
@@ -872,9 +926,7 @@ export default function CardEngine({ data, slug, ownerId, cardId, remoteLeads = 
                 }
             }
         };
-
         attachStream();
-
         return () => {
             if (stream) {
                 stream.getTracks().forEach(track => track.stop());
@@ -882,24 +934,10 @@ export default function CardEngine({ data, slug, ownerId, cardId, remoteLeads = 
         };
     }, [isScanningLive]);
 
-    const startLiveScanner = () => {
-        setIsExpoMode(true); // Auto-enable Expo Mode for best performance during live scan
-        setIsScanningLive(true);
-    };
-
-    const stopLiveScanner = () => {
-        if (videoRef.current && videoRef.current.srcObject) {
-            const stream = videoRef.current.srcObject as MediaStream;
-            stream.getTracks().forEach(track => track.stop());
-            videoRef.current.srcObject = null;
-        }
-        setIsScanningLive(false);
-    };
-
     // Auto-stop scanner if tab changes
     useEffect(() => {
         if (activeTab !== 'v-scan') stopLiveScanner();
-    }, [activeTab]);
+    }, [activeTab, stopLiveScanner]);
 
     // SCANNER LOGIC
     const processImage = async (file: File) => {
@@ -943,19 +981,25 @@ export default function CardEngine({ data, slug, ownerId, cardId, remoteLeads = 
 
                         // Check if it's a TapOS URL
                         const url = code.data;
-                        if (url.includes('tapos360.com/') || url.includes(window.location.host)) {
-                            const slug = url.split('/').pop();
-                            if (slug) {
-                                console.log("🔍 Fetching Verified TapOS Profile for:", slug);
-                                const res = await fetch(`/api/card/profile-lite?slug=${slug}`);
+                        if (url.includes('tapos360.com/') || url.includes(typeof window !== 'undefined' ? window.location.host : '')) {
+                            const foundSlug = url.split('/').pop();
+                            if (foundSlug) {
+                                console.log("🔍 Fetching Verified TapOS Profile for:", foundSlug);
+                                const res = await fetch(`/api/card/profile-lite?slug=${foundSlug}`);
                                 if (res.ok) {
                                     const profile = await res.json();
-                                    setScanResult({
+                                    const leadData = {
                                         ...profile,
                                         is_verified: true,
                                         eventOwnerId: profile.eventOwnerId || null,
-                                        notes: "Verified Passport Scan"
-                                    });
+                                        notes: `Verified Passport Scan${profile.title ? ` - ${profile.title}` : ''}`
+                                    };
+
+                                    if (isExpoMode) {
+                                        await saveLead(leadData);
+                                    } else {
+                                        setScanResult(leadData);
+                                    }
                                     setScanning(false);
                                     return; // STOP HERE! We have perfect data.
                                 }
@@ -1017,38 +1061,6 @@ export default function CardEngine({ data, slug, ownerId, cardId, remoteLeads = 
         } finally {
             setScanning(false);
         }
-    };
-
-    const saveLead = async () => {
-        if (!scanResult) return;
-
-        // 1. Save to Cloud (Supabase)
-        try {
-            await fetch('/api/card/capture', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    cardId,
-                    ownerId,
-                    name: scanResult.name,
-                    email: scanResult.email,
-                    phone: scanResult.phone,
-                    is_verified: scanResult.is_verified || false,
-                    eventOwnerId: scanResult.eventOwnerId || null,
-                    note: `Scanned: ${scanResult.notes}`
-                })
-            });
-        } catch (e) {
-            console.error("Cloud Save Failed (Scanner)", e);
-        }
-
-        // 2. Save locally as backup & update UI
-        const newLeads = [...scannedContacts, { ...scanResult, date: new Date().toISOString() }];
-        setScannedContacts(newLeads);
-        localStorage.setItem('tapos_leads', JSON.stringify(newLeads));
-
-        alert("Lead Saved! Synced to your database.");
-        setScanResult(null);
     };
 
     const clearLeads = () => {

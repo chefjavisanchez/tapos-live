@@ -2,7 +2,7 @@ import { Suspense } from 'react';
 import { Metadata } from 'next';
 import { supabase } from '@/lib/supabase';
 import CardEngine from '@/components/CardEngine';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 
 // Type for the params
 type Props = {
@@ -51,6 +51,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 // 2. SERVER COMPONENT PAGE
 export default async function Page({ params }: Props) {
+    const slug = params?.slug || '';
+
+    // PASSPORT REDIRECT: If scanned by a regular browser, redirect to main site.
+    // The Expo Mode scanner will process this via the API directly.
+    if (slug.startsWith('p-')) {
+        redirect('https://www.tapos360.com');
+    }
+
     const { data, error } = await supabase
         .from('cards')
         // We select ID to pass to Stripe for activation, and USER_ID for ownership check
