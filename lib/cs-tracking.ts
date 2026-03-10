@@ -14,16 +14,22 @@ export interface OnboardingMetrics {
  */
 export function calculateOnboardingScore(cardContent: any): OnboardingMetrics {
     let score = 0;
-    const hasLogo = !!cardContent?.logo_url;
-    const hasBio = !!cardContent?.description || !!cardContent?.bio;
+    const hasLogo = !!cardContent?.logoImage;
+    const hasBio = !!cardContent?.bio;
 
-    // Check social links (expecting an array or object keys)
-    const socialLinks = cardContent?.socialLinks || {};
-    const socialCount = Object.keys(socialLinks).filter(key => socialLinks[key]).length;
+    // Check social links
+    const socialCount = [
+        cardContent?.social_instagram,
+        cardContent?.social_facebook,
+        cardContent?.social_linkedin,
+        cardContent?.social_tiktok,
+        cardContent?.social_threads,
+        cardContent?.social_x,
+        cardContent?.social_snapchat
+    ].filter(link => !!link).length;
 
-    // Check ads (expecting customAds array)
-    const ads = cardContent?.customAds || [];
-    const adCount = ads.length;
+    // Check ads (ad2-ad5)
+    const adCount = ['ad2', 'ad3', 'ad4', 'ad5'].filter(adKey => !!cardContent?.[adKey]?.title2).length;
 
     const isActivated = !!cardContent?.activated_at || cardContent?.subscription === 'active';
 

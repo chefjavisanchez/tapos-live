@@ -6,10 +6,11 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Script from 'next/script';
 
-import { Loader2, Edit, Briefcase } from 'lucide-react';
+import { Loader2, Edit, Briefcase, Ticket } from 'lucide-react';
 // import { createWorker } from 'tesseract.js'; // Dynamic Import now
 import { supabase } from '@/lib/supabase';
 import { motion, AnimatePresence } from 'framer-motion';
+import { isAdmin } from '@/lib/admin-config';
 
 // CRITICAL FIX: React Error 31 Protection
 // This function ensures we never render an object as a React Child
@@ -718,6 +719,8 @@ export default function CardEngine({ data, slug, ownerId, cardId, remoteLeads = 
     const [scanning, setScanning] = useState(false);
     const [scanResult, setScanResult] = useState<any>(null);
     const [isOwner, setIsOwner] = useState(false);
+    const [isUserAdmin, setIsUserAdmin] = useState(false);
+    const [isSponsor, setIsSponsor] = useState(false);
     const [isExpoMode, setIsExpoMode] = useState(false);
     const [isScanningLive, setIsScanningLive] = useState(false);
     const videoRef = useRef<HTMLVideoElement>(null);
@@ -779,9 +782,27 @@ export default function CardEngine({ data, slug, ownerId, cardId, remoteLeads = 
     }, []);
 
     const startLiveScanner = useCallback(() => {
-        setIsExpoMode(true); // Auto-enable Expo Mode for best performance during live scan
+        if (isUserAdmin) {
+            setIsExpoMode(true); // Auto-enable Expo Mode ONLY for admins
+        }
         setIsScanningLive(true);
-    }, []);
+    }, [isUserAdmin]);
+
+    // Load user role and ownership
+    useEffect(() => {
+        const checkStatus = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                const isAdminUser = isAdmin(user.email);
+                const isPaidSponsor = user.user_metadata?.is_sponsor || false;
+                
+                setIsUserAdmin(isAdminUser);
+                setIsSponsor(isPaidSponsor);
+                setIsOwner(user.id === ownerId);
+            }
+        };
+        checkStatus();
+    }, [ownerId]);
 
     // Load Local Storage (Scanning History)
     useEffect(() => {
@@ -1465,19 +1486,21 @@ END:VCARD`;
                                     <h2 className="font-syncopate text-neon-blue text-xl font-bold">LEAD SCANNER</h2>
                                     <p className="text-xs text-white/50">AI OPTICAL RECOGNITION ONLINE</p>
 
-                                    {/* EXPO MODE TOGGLE */}
-                                    <div className="flex items-center justify-center gap-3 mt-4">
-                                        <button
-                                            onClick={() => setIsExpoMode(!isExpoMode)}
-                                            className={`px-3 py-1.5 rounded-full text-[10px] font-bold uppercase transition-all flex items-center gap-2 ${isExpoMode ? 'bg-[#ffde00] text-black shadow-[0_0_15px_rgba(255,222,0,0.5)]' : 'bg-white/10 text-white/40'}`}
-                                        >
-                                            <i className={`ph-fill ${isExpoMode ? 'ph-ticket' : 'ph-scan'}`}></i>
-                                            {isExpoMode ? 'Expo Mode: ON' : 'Expo Mode: OFF'}
-                                        </button>
-                                        <div className="text-[9px] text-white/30 italic">
-                                            {isExpoMode ? 'Instant QR Capture + Raffle' : 'Scan Physical Cards (AI)'}
+                                    {/* EXPO MODE TOGGLE (ADMIN ONLY) */}
+                                    {isUserAdmin && (
+                                        <div className="flex items-center justify-center gap-3 mt-4">
+                                            <button
+                                                onClick={() => setIsExpoMode(!isExpoMode)}
+                                                className={`px-3 py-1.5 rounded-full text-[10px] font-bold uppercase transition-all flex items-center gap-2 ${isExpoMode ? 'bg-[#ffde00] text-black shadow-[0_0_15px_rgba(255,222,0,0.5)]' : 'bg-white/10 text-white/40'}`}
+                                            >
+                                                <i className={`ph-fill ${isExpoMode ? 'ph-ticket' : 'ph-scan'}`}></i>
+                                                {isExpoMode ? 'Expo Mode: ON' : 'Expo Mode: OFF'}
+                                            </button>
+                                            <div className="text-[9px] text-white/30 italic">
+                                                {isExpoMode ? 'Instant QR Capture + Raffle' : 'Scan Physical Cards (AI)'}
+                                            </div>
                                         </div>
-                                    </div>
+                                    )}
                                 </div>
 
                                 {!scanResult ? (
@@ -1712,6 +1735,32 @@ END:VCARD`;
                                                 </div>
                                             </motion.div>
                                         ))}
+                                    </div>
+                                )}
+                                {(isUserAdmin || isSponsor) && (
+                                    <div className="mt-8 pt-8 border-t border-white/10">
+                                        <div className="flex flex-col gap-4">
+                                            <div className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/10">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="p-2.5 bg-yellow-500/10 rounded-xl">
+                                                        <Ticket className="text-yellow-500 w-5 h-5" />
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-sm font-bold text-white uppercase tracking-wider">Expo Mode</p>
+                                                        <p className="text-[10px] text-white/40 uppercase font-medium">Lead Capturer Active</p>
+                                                    </div>
+                                                </div>
+                                                <label className="relative inline-flex items-center cursor-pointer">
+                                                    <input
+                                                        type="checkbox"
+                                                        className="sr-only peer"
+                                                        checked={isExpoMode}
+                                                        onChange={(e) => setIsExpoMode(e.target.checked)}
+                                                    />
+                                                    <div className="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-yellow-500"></div>
+                                                </label>
+                                            </div>
+                                        </div>
                                     </div>
                                 )}
                             </div>
