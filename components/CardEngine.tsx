@@ -721,7 +721,7 @@ export default function CardEngine({ data, slug, ownerId, cardId, remoteLeads = 
     const [isOwner, setIsOwner] = useState(false);
     const [isUserAdmin, setIsUserAdmin] = useState(false);
     const [isSponsor, setIsSponsor] = useState(false);
-    const [isExpoMode, setIsExpoMode] = useState(false);
+    const [isEventMode, setIsEventMode] = useState(false);
     const [isScanningLive, setIsScanningLive] = useState(false);
     const videoRef = useRef<HTMLVideoElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -761,14 +761,13 @@ export default function CardEngine({ data, slug, ownerId, cardId, remoteLeads = 
         const entry = { ...leadToSave, date: new Date().toISOString() };
         const newLeads = [...scannedContacts, entry];
         setScannedContacts(newLeads);
-        localStorage.setItem('tapos_leads', JSON.stringify(newLeads));
+        localStorage.setItem(`tapos_leads_${cardId}`, JSON.stringify(newLeads));
 
         if (!leadOverride) {
             alert("Lead Saved! Synced to your database.");
             setScanResult(null);
         } else {
-            // Auto-saved in Expo Mode
-            console.log("🚀 Expo Mode: Lead captured automatically.");
+            console.log("🚀 Event Mode: Lead captured automatically.");
         }
     }, [cardId, ownerId, scanResult, scannedContacts]);
 
@@ -783,7 +782,7 @@ export default function CardEngine({ data, slug, ownerId, cardId, remoteLeads = 
 
     const startLiveScanner = useCallback(() => {
         if (isUserAdmin) {
-            setIsExpoMode(true); // Auto-enable Expo Mode ONLY for admins
+            setIsEventMode(true); // Auto-enable Event Mode ONLY for admins
         }
         setIsScanningLive(true);
     }, [isUserAdmin]);
@@ -806,7 +805,8 @@ export default function CardEngine({ data, slug, ownerId, cardId, remoteLeads = 
 
     // Load Local Storage (Scanning History)
     useEffect(() => {
-        const saved = localStorage.getItem('tapos_leads');
+        if (!cardId) return;
+        const saved = localStorage.getItem(`tapos_leads_${cardId}`);
         const localLeads = saved ? JSON.parse(saved) : [];
         const cloudLeads = remoteLeads || [];
         const allLeads = [...localLeads, ...cloudLeads];
@@ -818,7 +818,7 @@ export default function CardEngine({ data, slug, ownerId, cardId, remoteLeads = 
             ) === i
         );
         setScannedContacts(uniqueLeads);
-    }, [remoteLeads]);
+    }, [remoteLeads, cardId]);
 
     // Calculate valid ads
     const allAds = ['ad1', 'ad2', 'ad3', 'ad4', 'ad5'];
@@ -896,8 +896,8 @@ export default function CardEngine({ data, slug, ownerId, cardId, remoteLeads = 
                                             notes: `Verified Passport Scan (Live)${profile.title ? ` - ${profile.title}` : ''}`
                                         };
 
-                                        if (isExpoMode) {
-                                            // AUTO-CAPTURE IN EXPO MODE
+                                        if (isEventMode) {
+                                            // AUTO-CAPTURE IN EVENT MODE
                                             await saveLead(leadData);
                                             stopLiveScanner();
                                         } else {
@@ -926,7 +926,7 @@ export default function CardEngine({ data, slug, ownerId, cardId, remoteLeads = 
         }
 
         return () => cancelAnimationFrame(animationFrameId);
-    }, [isScanningLive, activeTab, isExpoMode, saveLead, stopLiveScanner]);
+    }, [isScanningLive, activeTab, isEventMode, saveLead, stopLiveScanner]);
 
     // Stream attachment effect
     useEffect(() => {
@@ -1016,7 +1016,7 @@ export default function CardEngine({ data, slug, ownerId, cardId, remoteLeads = 
                                         notes: `Verified Passport Scan${profile.title ? ` - ${profile.title}` : ''}`
                                     };
 
-                                    if (isExpoMode) {
+                                    if (isEventMode) {
                                         await saveLead(leadData);
                                     } else {
                                         setScanResult(leadData);
@@ -1044,12 +1044,18 @@ export default function CardEngine({ data, slug, ownerId, cardId, remoteLeads = 
                 if (!res.ok) throw new Error('AI Scan Failed');
 
                 const aiData = await res.json();
-                setScanResult({
+                const leadData = {
                     name: aiData.name || '',
                     email: aiData.email || '',
                     phone: aiData.phone || '',
                     notes: aiData.notes || 'Scanned with GPT-4 Vision'
-                });
+                };
+
+                if (isEventMode) {
+                    await saveLead(leadData);
+                } else {
+                    setScanResult(leadData);
+                }
 
             } else {
                 // 3. Fallback to Local Tesseract (Dynamic Import)
@@ -1068,12 +1074,18 @@ export default function CardEngine({ data, slug, ownerId, cardId, remoteLeads = 
                 const lines = text.split('\n').filter(l => l.trim().length > 2);
                 const potentialName = lines.find(l => !l.match(emailRegex) && !l.match(phoneRegex)) || "Unknown Name";
 
-                setScanResult({
+                const leadData = {
                     name: potentialName.substring(0, 30),
                     email: emails[0] || '',
                     phone: phones[0] || '',
                     notes: text.substring(0, 100) + '...'
-                });
+                };
+
+                if (isEventMode) {
+                    await saveLead(leadData);
+                } else {
+                    setScanResult(leadData);
+                }
             }
 
         } catch (err) {
@@ -1143,8 +1155,8 @@ export default function CardEngine({ data, slug, ownerId, cardId, remoteLeads = 
 
         // 2. Save locally as backup
         const newLead = { ...formData, date: new Date().toISOString(), notes: 'Exchanged via TapOS' };
-        const saved = JSON.parse(localStorage.getItem('tapos_leads') || '[]');
-        localStorage.setItem('tapos_leads', JSON.stringify([...saved, newLead]));
+        const saved = JSON.parse(localStorage.getItem(`tapos_leads_${cardId}`) || '[]');
+        localStorage.setItem(`tapos_leads_${cardId}`, JSON.stringify([...saved, newLead]));
 
         // 3. Download our VCF and Track
         downloadVcf();
@@ -1483,21 +1495,21 @@ END:VCARD`;
                         <div className={`view-pane items-center ${activeTab === 'v-scan' ? 'active' : ''}`} style={{ overflowY: 'auto' }}>
                             <div className="w-full h-full p-4 flex flex-col gap-4">
                                 <div className="text-center mb-2">
-                                    <h2 className="font-syncopate text-neon-blue text-xl font-bold">LEAD SCANNER</h2>
-                                    <p className="text-xs text-white/50">AI OPTICAL RECOGNITION ONLINE</p>
+                                    <h2 className="font-syncopate text-neon-blue text-xl font-bold">SMART SCANNER</h2>
+                                    <p className="text-[10px] text-white/50 tracking-[0.2em] font-bold">AI OPTICAL RECOGNITION ONLINE</p>
 
-                                    {/* EXPO MODE TOGGLE (ADMIN ONLY) */}
-                                    {isUserAdmin && (
+                                    {/* EVENT MODE TOGGLE (ADMIN/SPONSOR ONLY) */}
+                                    {(isUserAdmin || isSponsor) && (
                                         <div className="flex items-center justify-center gap-3 mt-4">
                                             <button
-                                                onClick={() => setIsExpoMode(!isExpoMode)}
-                                                className={`px-3 py-1.5 rounded-full text-[10px] font-bold uppercase transition-all flex items-center gap-2 ${isExpoMode ? 'bg-[#ffde00] text-black shadow-[0_0_15px_rgba(255,222,0,0.5)]' : 'bg-white/10 text-white/40'}`}
+                                                onClick={() => setIsEventMode(!isEventMode)}
+                                                className={`px-3 py-1.5 rounded-full text-[10px] font-bold uppercase transition-all flex items-center gap-2 ${isEventMode ? 'bg-[#ffde00] text-black shadow-[0_0_15px_rgba(255,222,0,0.5)]' : 'bg-white/10 text-white/40'}`}
                                             >
-                                                <i className={`ph-fill ${isExpoMode ? 'ph-ticket' : 'ph-scan'}`}></i>
-                                                {isExpoMode ? 'Expo Mode: ON' : 'Expo Mode: OFF'}
+                                                <i className={`ph-fill ${isEventMode ? 'ph-ticket' : 'ph-scan'}`}></i>
+                                                {isEventMode ? 'Event Mode: ON' : 'Event Mode: OFF'}
                                             </button>
                                             <div className="text-[9px] text-white/30 italic">
-                                                {isExpoMode ? 'Instant QR Capture + Raffle' : 'Scan Physical Cards (AI)'}
+                                                {isEventMode ? 'Instant QR Capture' : 'Scan Physical Cards (AI)'}
                                             </div>
                                         </div>
                                     )}
@@ -1523,54 +1535,82 @@ END:VCARD`;
                                                     </button>
                                                 </div>
                                             ) : (
-                                                <div className="flex flex-col items-center gap-6">
-                                                    <button onClick={startLiveScanner} className="scan-btn relative group !bg-[#ffde00] !border-none shadow-[0_0_20px_rgba(255,222,0,0.4)]">
-                                                        <i className="ph-fill ph-scan text-2xl text-black"></i>
-                                                    </button>
-                                                    <div className="flex flex-col items-center">
-                                                        <p className="text-white font-bold text-sm tracking-wide">START LIVE SCANNER</p>
-                                                        <p className="text-[10px] text-white/40 uppercase tracking-tighter">Recommended for Passport QR</p>
+                                                <div className="flex flex-col items-center gap-8 w-full">
+                                                    {/* MODE A: LIVE QR SCANNER */}
+                                                    <div className="w-full bg-white/5 border border-white/10 rounded-2xl p-6 flex flex-col items-center gap-4 hover:border-neon-blue/30 transition shadow-lg group" onClick={startLiveScanner} style={{ cursor: 'pointer' }}>
+                                                        <div className="w-16 h-16 rounded-full bg-neon-blue/10 border border-neon-blue/30 flex items-center justify-center group-hover:scale-110 transition">
+                                                            <i className="ph-fill ph-qr-code text-2xl text-neon-blue"></i>
+                                                        </div>
+                                                        <div className="text-center">
+                                                            <p className="text-white font-bold text-sm tracking-wide uppercase">Scan Visitor Passport</p>
+                                                            <p className="text-[10px] text-white/40 uppercase tracking-tighter">Fastest QR Verification</p>
+                                                        </div>
                                                     </div>
 
-                                                    <div className="w-full h-[1px] bg-white/5 flex items-center justify-center">
-                                                        <span className="bg-black px-2 text-[9px] text-white/20 font-bold">OR UPLOAD PHOTO</span>
-                                                    </div>
-
-                                                    <label className="flex items-center gap-2 text-white/60 hover:text-white transition cursor-pointer">
-                                                        <i className="ph-bold ph-image text-lg"></i>
-                                                        <span className="text-[10px] font-bold uppercase tracking-widest">Select From Gallery</span>
+                                                    {/* MODE B: BUSINESS CARD UPLOAD */}
+                                                    <div className="w-full bg-white/5 border border-white/10 rounded-2xl p-6 flex flex-col items-center gap-4 hover:border-[#ffde00]/30 transition shadow-lg group relative" style={{ cursor: 'pointer' }}>
                                                         <input type="file" accept="image/*" capture="environment"
                                                             onChange={(e) => e.target.files && processImage(e.target.files[0])}
-                                                            className="hidden" disabled={scanning} />
-                                                    </label>
+                                                            className="absolute inset-0 opacity-0 cursor-pointer" disabled={scanning} />
+                                                        
+                                                        <div className="w-16 h-16 rounded-full bg-[#ffde00]/10 border border-[#ffde00]/30 flex items-center justify-center group-hover:scale-110 transition">
+                                                            <i className="ph-fill ph-identification-card text-2xl text-[#ffde00]"></i>
+                                                        </div>
+                                                        <div className="text-center">
+                                                            <p className="text-white font-bold text-sm tracking-wide uppercase">Scan Business Card</p>
+                                                            <p className="text-[10px] text-white/40 uppercase tracking-tighter">Physical Card to Digital Lead</p>
+                                                        </div>
+                                                    </div>
+
+                                                    {scanning && (
+                                                        <div className="flex items-center gap-3 bg-neon-blue/20 text-neon-blue px-6 py-3 rounded-full border border-neon-blue/30 animate-pulse">
+                                                            <Loader2 size={16} className="animate-spin" />
+                                                            <span className="text-[10px] font-bold uppercase tracking-widest">Processing Digital Intel...</span>
+                                                        </div>
+                                                    )}
                                                 </div>
                                             )}
                                         </div>
 
-                                        {/* LIST */}
-                                        <div className="flex-1 overflow-auto space-y-2">
-                                            <div className="flex justify-between items-center mb-2">
-                                                <span className="text-xs font-bold uppercase" style={{ color: 'var(--text-main)' }}>Saved Leads ({scannedContacts.length})</span>
-                                                <div className="flex gap-2">
-                                                    {scannedContacts.length > 0 && (
-                                                        <button onClick={clearLeads} className="text-[10px] bg-red-500/10 text-red-400 px-2 py-1 rounded border border-red-500/30 hover:bg-red-500 hover:text-white transition">
-                                                            CLEAR
+                                        {/* LIST (OWNER ONLY) */}
+                                        {isOwner ? (
+                                            <div className="flex-1 overflow-auto space-y-2 mt-4">
+                                                <div className="flex justify-between items-center mb-2">
+                                                    <span className="text-xs font-bold uppercase" style={{ color: 'var(--text-main)' }}>Your Active Leads ({scannedContacts.length})</span>
+                                                    <div className="flex gap-2">
+                                                        {scannedContacts.length > 0 && (
+                                                            <button onClick={clearLeads} className="text-[10px] bg-red-500/10 text-red-400 px-2 py-1 rounded border border-red-500/30 hover:bg-red-500 hover:text-white transition uppercase font-bold">
+                                                                Reset
+                                                            </button>
+                                                        )}
+                                                        <button onClick={downloadCSV} className="text-[10px] bg-green-500/20 text-green-400 px-2 py-1 rounded border border-green-500/30 hover:bg-green-500 hover:text-black transition uppercase font-bold">
+                                                            CSV
                                                         </button>
-                                                    )}
-                                                    <button onClick={downloadCSV} className="text-[10px] bg-green-500/20 text-green-400 px-2 py-1 rounded border border-green-500/30 hover:bg-green-500 hover:text-black transition">
-                                                        EXPORT CSV
-                                                    </button>
+                                                    </div>
+                                                </div>
+                                                <div className="space-y-2">
+                                                    {scannedContacts.map((lead, i) => (
+                                                        <div key={i} className="scan-list-item flex items-center justify-between">
+                                                            <div>
+                                                                <div className="font-bold text-sm" style={{ color: 'var(--text-main)' }}>{lead.name}</div>
+                                                                <div className="text-[10px]" style={{ color: 'var(--text-muted)' }}>{lead.email || lead.phone || 'No contact info'}</div>
+                                                            </div>
+                                                            {lead.is_verified && (
+                                                                <div className="bg-neon-blue/20 text-neon-blue rounded-full px-2 py-1 text-[8px] font-bold uppercase">Verified</div>
+                                                            )}
+                                                        </div>
+                                                    ))}
+                                                    {scannedContacts.length === 0 && <div className="text-center text-xs py-8 border border-dashed border-white/10 rounded-2xl" style={{ color: 'var(--text-muted)', opacity: 0.5 }}>No leads in local buffer. Scan above to begin.</div>}
                                                 </div>
                                             </div>
-                                            {scannedContacts.map((lead, i) => (
-                                                <div key={i} className="scan-list-item">
-                                                    <div className="font-bold text-sm" style={{ color: 'var(--text-main)' }}>{lead.name}</div>
-                                                    <div className="text-xs" style={{ color: 'var(--text-muted)' }}>{lead.email}</div>
-                                                    <div className="text-xs" style={{ color: 'var(--text-muted)' }}>{lead.phone} {lead.company ? `• ${lead.company}` : ''}</div>
-                                                </div>
-                                            ))}
-                                            {scannedContacts.length === 0 && <div className="text-center text-xs py-4" style={{ color: 'var(--text-muted)', opacity: 0.5 }}>No leads saved yet.</div>}
-                                        </div>
+                                        ) : (
+                                            /* PUBLIC VIEW ENHANCEMENT */
+                                            <div className="mt-auto p-6 text-center border-t border-white/5">
+                                                <p className="text-[10px] text-white/30 uppercase tracking-[0.2em] leading-relaxed">
+                                                    Leads captured here are transmitted directly to {safeStr(data.fullName)}&apos;s secure lead manager.
+                                                </p>
+                                            </div>
+                                        )}
                                     </>
                                 ) : (
                                     /* EDIT RESULT FORM */
@@ -1746,7 +1786,7 @@ END:VCARD`;
                                                         <Ticket className="text-yellow-500 w-5 h-5" />
                                                     </div>
                                                     <div>
-                                                        <p className="text-sm font-bold text-white uppercase tracking-wider">Expo Mode</p>
+                                                        <p className="text-sm font-bold text-white uppercase tracking-wider">Event Mode</p>
                                                         <p className="text-[10px] text-white/40 uppercase font-medium">Lead Capturer Active</p>
                                                     </div>
                                                 </div>
@@ -1754,8 +1794,8 @@ END:VCARD`;
                                                     <input
                                                         type="checkbox"
                                                         className="sr-only peer"
-                                                        checked={isExpoMode}
-                                                        onChange={(e) => setIsExpoMode(e.target.checked)}
+                                                        checked={isEventMode}
+                                                        onChange={(e) => setIsEventMode(e.target.checked)}
                                                     />
                                                     <div className="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-yellow-500"></div>
                                                 </label>

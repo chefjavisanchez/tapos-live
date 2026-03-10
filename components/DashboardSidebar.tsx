@@ -109,7 +109,7 @@ export default function DashboardSidebar({
                 {(isAdmin || isSponsor) && (
                     <NavItem
                         icon={<Ticket size={20} className="text-[#ffde00]" />}
-                        label="Expo Mode"
+                        label="Event Mode"
                         active={isDashboard && activeTab === 'expo'}
                         onClick={isDashboard ? () => setActiveTab?.('expo') : () => router.push('/?tab=expo')}
                         router={router}

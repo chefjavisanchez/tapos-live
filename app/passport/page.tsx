@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Sparkles, ArrowRight, User, Mail, Phone, Ticket, Loader2, Calendar, Download } from 'lucide-react';
 import { generateCalendarLinks } from '@/lib/calendar';
+import { EVENT_CONFIG } from '@/lib/event-config';
 
 export default function PassportPage() {
     const [loading, setLoading] = useState(false);
@@ -81,6 +82,10 @@ export default function PassportPage() {
 
                     <div className="text-left space-y-4 mb-8">
                         <div>
+                            <p className="text-[10px] text-white/30 uppercase font-black tracking-widest">Event Location</p>
+                            <p className="text-white font-rajdhani font-bold text-sm leading-tight">{EVENT_CONFIG.address}</p>
+                        </div>
+                        <div>
                             <p className="text-[10px] text-white/30 uppercase font-black tracking-widest">Guest Name</p>
                             <p className="text-white font-rajdhani font-bold text-lg">{form.fullName}</p>
                         </div>
@@ -106,7 +111,7 @@ export default function PassportPage() {
                                 <p className="text-[#ffde00] font-bold">READY TO SCAN</p>
                             </div>
                             <div className="text-right">
-                                <p className="text-[10px] text-white/30 uppercase font-black tracking-widest">Access ID</p>
+                                <p className="text-[10px] text-white/30 uppercase font-black tracking-widest">Raffle Number</p>
                                 <p className="text-white/50 font-mono text-xs tracking-tighter uppercase">{generatedSlug.split('-')[1]}</p>
                             </div>
                         </div>
@@ -117,11 +122,11 @@ export default function PassportPage() {
                         <div className="flex gap-2">
                             <a
                                 href={generateCalendarLinks({
-                                    title: "Konecta con Crema Spring Expo",
-                                    description: "Official event for business networking and raffle. Show your TapOS Passport QR to participate!",
-                                    location: "TBD",
-                                    start: new Date('2026-04-30T17:00:00'),
-                                    end: new Date('2026-04-30T21:00:00')
+                                    title: EVENT_CONFIG.title,
+                                    description: EVENT_CONFIG.description,
+                                    location: EVENT_CONFIG.address,
+                                    start: EVENT_CONFIG.startDate,
+                                    end: EVENT_CONFIG.endDate
                                 }).googleUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
@@ -131,11 +136,11 @@ export default function PassportPage() {
                             </a>
                             <a
                                 href={generateCalendarLinks({
-                                    title: "Konecta con Crema Spring Expo",
-                                    description: "Official event for business networking and raffle. Show your TapOS Passport QR to participate!",
-                                    location: "TBD",
-                                    start: new Date('2026-04-30T17:00:00'),
-                                    end: new Date('2026-04-30T21:00:00')
+                                    title: EVENT_CONFIG.title,
+                                    description: EVENT_CONFIG.description,
+                                    location: EVENT_CONFIG.address,
+                                    start: EVENT_CONFIG.startDate,
+                                    end: EVENT_CONFIG.endDate
                                 }).icsDataUri}
                                 download="event-passport.ics"
                                 className="flex-1 bg-white/10 hover:bg-white/20 border border-white/10 py-3 rounded-xl flex items-center justify-center gap-2 text-[10px] uppercase font-bold transition"
@@ -172,9 +177,10 @@ export default function PassportPage() {
                     <div className="p-2 bg-[#ffde00]/20 rounded-lg text-[#ffde00]">
                         <Ticket size={24} />
                     </div>
-                    <h1 className="font-syncopate text-2xl font-bold tracking-tighter uppercase">TAP<span className="text-[#ffde00]">O</span>S LITE</h1>
+                    <h1 className="font-syncopate text-2xl font-bold tracking-tighter uppercase">TAP<span className="text-[#ffde00]">O</span>S PASS</h1>
                 </div>
-                <p className="text-white/40 text-xs font-bold uppercase tracking-[0.2em]">Claim Your Personal Event Passport</p>
+                <p className="text-white/40 text-[10px] font-bold uppercase tracking-[0.2em]">{EVENT_CONFIG.title}</p>
+                <p className="text-[#ffde00] text-[10px] font-bold uppercase tracking-[0.2em] mt-1">{EVENT_CONFIG.date} • {EVENT_CONFIG.time}</p>
             </div>
 
             <div className="w-full max-w-md glass-panel border border-white/10 rounded-[2rem] p-8 shadow-2xl relative overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-700">

@@ -45,11 +45,11 @@ export default function ExpoDashboard({ leads, cards }: { leads: any[], cards: a
                         </div>
 
                         <h2 className="text-3xl font-black font-syncopate uppercase mb-4 leading-tight">
-                            UNLOCK <span className="text-[#ffde00]">EXPO MODE</span>
+                            UNLOCK <span className="text-[#ffde00]">EVENT MODE</span>
                         </h2>
 
                         <p className="text-white/70 text-sm mb-8 leading-relaxed font-medium">
-                            Transform your TapOS <span className="text-[#ffde00] font-bold">"Impulso"</span> into a lead-generation machine. Unlock real-time verified capture,
+                            Transform your TapOS <span className="text-[#ffde00] font-bold">&quot;Impulso&quot;</span> into a lead-generation machine. Unlock real-time verified capture,
                             instant raffle entry, and the high-speed Global Passport registration system.
                         </p>
 
@@ -93,7 +93,7 @@ export default function ExpoDashboard({ leads, cards }: { leads: any[], cards: a
                                 </div>
                                 <div className="flex gap-3">
                                     <div className="text-[#ffde00] font-bold text-xs">02</div>
-                                    <p className="text-[11px] text-white">Vendors use the TapOS scanner in <strong>Expo Mode</strong> to scan visitor QRs.</p>
+                                    <p className="text-[11px] text-white">Vendors use the TapOS scanner in <strong>Event Mode</strong> to scan visitor QRs.</p>
                                 </div>
                                 <div className="flex gap-3">
                                     <div className="text-[#ffde00] font-bold text-xs">03</div>
@@ -119,7 +119,7 @@ export default function ExpoDashboard({ leads, cards }: { leads: any[], cards: a
                     <div className="p-2 bg-[#ffde00]/20 rounded-lg text-[#ffde00]">
                         <Ticket size={24} />
                     </div>
-                    <h1 className="text-4xl font-black font-syncopate uppercase">EXPO <span className="text-[#ffde00]">DASHBOARD</span></h1>
+                    <h1 className="text-4xl font-black font-syncopate uppercase">EVENT <span className="text-[#ffde00]">DASHBOARD</span></h1>
                 </div>
                 <p className="text-white/50 font-medium">Real-time interaction matrix and ROI verification.</p>
             </header>
@@ -228,7 +228,7 @@ export default function ExpoDashboard({ leads, cards }: { leads: any[], cards: a
                             <div className="p-4 bg-[#ffde00]/10 rounded-xl border border-[#ffde00]/20">
                                 <p className="text-[10px] text-[#ffde00] font-black uppercase mb-1">PRO TIP</p>
                                 <p className="text-xs text-white/60 leading-relaxed italic">
-                                    Turn on <strong>Expo Mode</strong> in your scanner to instantly capture guest info and award raffle entries!
+                                    Turn on <strong>Event Mode</strong> in your scanner to instantly capture guest info and award raffle entries!
                                 </p>
                             </div>
                         </div>

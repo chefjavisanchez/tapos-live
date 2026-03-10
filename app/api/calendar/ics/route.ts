@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { EVENT_CONFIG } from '@/lib/event-config';
 
 export async function GET() {
     const icsContent = [
@@ -8,11 +9,11 @@ export async function GET() {
         'BEGIN:VEVENT',
         'UID:konecta-spring-expo-2026',
         'DTSTAMP:20260302T000000Z',
-        'DTSTART:20260430T210000Z', // UTC for 5pm EST (assuming EDT is -4)
-        'DTEND:20260501T010000Z',   // UTC for 9pm EST
-        'SUMMARY:Konecta con Crema Spring Expo',
-        'DESCRIPTION:Official event for business networking and raffle. Show your TapOS Passport QR to participate!',
-        'LOCATION:TBD',
+        'DTSTART:20260430T210000Z', 
+        'DTEND:20260501T010000Z',   
+        `SUMMARY:${EVENT_CONFIG.title}`,
+        `DESCRIPTION:${EVENT_CONFIG.description}`,
+        `LOCATION:${EVENT_CONFIG.address}`,
         'END:VEVENT',
         'END:VCALENDAR'
     ].join('\r\n');

@@ -291,7 +291,7 @@ export default function AdminDashboard() {
 
     const handleToggleSponsor = async (userId: string, currentStatus: boolean) => {
         const msg = currentStatus ? "REVOKE SPONSOR STATUS?" : "GRANT SPONSOR STATUS?";
-        if (!confirm(`${msg}\n\nSponsors get access to Expo Mode and real-time Raffle Dashboard.`)) return;
+        if (!confirm(`${msg}\n\nSponsors get access to Event Mode and real-time Raffle Dashboard.`)) return;
 
         try {
             setLoading(true);

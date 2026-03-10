@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { Resend } from 'resend';
 import { getPassportEmailHtml } from '@/components/emails/PassportEmail';
+import { EVENT_CONFIG } from '@/lib/event-config';
 
 export async function POST(req: Request) {
     console.log('--- Passport Registration Start ---');
@@ -29,7 +30,7 @@ export async function POST(req: Request) {
             eventOwnerId: eventOwnerId || null,
             theme: 'gold',
             is_lite: true,
-            event: 'Konecta con Crema Spring Expo',
+            event: EVENT_CONFIG.title,
             profileImage: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=400&h=400&fit=crop",
             bio: "Official Event Guest"
         };
@@ -83,7 +84,7 @@ export async function POST(req: Request) {
                     replyTo: 'javi@tapygo.com',
                     subject: 'Your Event Passport is Activated! 🎫',
                     html: html,
-                    text: `Hello ${fullName}! Your Event Passport for Konecta Expo 2026 is activated. Your Access ID is ${slug.slice(-5).toUpperCase()}. You can view your digital badge at: https://tapos360.com/${slug}`,
+                    text: `Hello ${fullName}! Your Event Passport for ${EVENT_CONFIG.title} is activated. Your Access ID is ${slug.slice(-5).toUpperCase()}. You can view your digital badge at: https://tapos360.com/${slug}`,
                     headers: {
                         'X-Entity-Ref-ID': slug,
                     },

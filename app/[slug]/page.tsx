@@ -54,7 +54,7 @@ export default async function Page({ params }: Props) {
     const slug = params?.slug || '';
 
     // PASSPORT REDIRECT: If scanned by a regular browser, redirect to main site.
-    // The Expo Mode scanner will process this via the API directly.
+    // The Event Mode scanner will process this via the API directly.
     if (slug.startsWith('p-')) {
         redirect('https://www.tapos360.com');
     }
@@ -105,7 +105,7 @@ export default async function Page({ params }: Props) {
 
                     <h1 className="text-3xl font-black font-syncopate uppercase mb-3 leading-tight">Identity <span className="text-[#ffde00]">Locked</span></h1>
                     <p className="text-white/50 text-xs mb-10 leading-relaxed font-medium">
-                        This TapOS profile hasn't been activated by the owner. If this is your profile, activation is required to go live.
+                        This TapOS profile hasn&apos;t been activated by the owner. If this is your profile, activation is required to go live.
                     </p>
 
                     <a href="https://www.tapos360.com/pricing" className="block w-full bg-[#ffde00] hover:bg-white text-black font-black py-5 rounded-[1.2rem] transition transform hover:scale-[1.02] shadow-[0_10px_30px_rgba(255,222,0,0.2)] mb-4 text-xs tracking-widest uppercase">
@@ -120,14 +120,9 @@ export default async function Page({ params }: Props) {
         );
     }
 
-    // 4. FETCH LEADS FOR SYNC
-    const { data: leadsData } = await supabase
-        .from('leads')
-        .select('*')
-        .eq('card_id', card.id)
-        .order('created_at', { ascending: false });
-
-    const remoteLeads = leadsData || [];
+    // 4. FETCH LEADS FOR SYNC - DISABLED FOR PRIVACY (LEADS ARE PERSONAL)
+    // We no longer fetch or pass remote leads to the public profile page.
+    const remoteLeads: any[] = [];
 
     // Pass data to Client Component
     return (

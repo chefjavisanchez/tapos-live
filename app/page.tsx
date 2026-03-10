@@ -131,7 +131,7 @@ export default function Home() {
 
                     <nav className="flex flex-col gap-4 text-lg">
                         <NavItem icon={<LayoutGrid size={24} />} label="Dashboard" active={activeTab === 'dashboard'} onClick={() => { setActiveTab('dashboard'); setMobileMenuOpen(false); }} />
-                        <NavItem icon={<Ticket size={24} />} label="Expo Mode" active={activeTab === 'expo'} onClick={() => { setActiveTab('expo'); setMobileMenuOpen(false); }} />
+                        <NavItem icon={<Ticket size={24} />} label="Event Mode" active={activeTab === 'expo'} onClick={() => { setActiveTab('expo'); setMobileMenuOpen(false); }} />
                         {planType === 'corporate' && (
                             <NavItem icon={<UserPlus size={24} />} label="Team Control" active={activeTab === 'team'} onClick={() => { setActiveTab('team'); setMobileMenuOpen(false); }} />
                         )}

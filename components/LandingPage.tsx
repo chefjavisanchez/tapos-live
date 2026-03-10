@@ -362,7 +362,7 @@ export default function LandingPage() {
                         </h2>
 
                         <p className="text-xl text-white/50 mb-12 max-w-2xl mx-auto leading-relaxed">
-                            Stop handing out trash. Start building your digital empire with the world's most advanced networking operating system.
+                            Stop handing out trash. Start building your digital empire with the world&apos;s most advanced networking operating system.
                         </p>
 
                         <div className="flex flex-col md:flex-row items-center justify-center gap-6">
@@ -394,7 +394,7 @@ export default function LandingPage() {
                             <img src="/logo.png" alt="TapOS" className="h-10 w-auto opacity-50 hover:opacity-100 transition" />
                         </div>
                         <p className="text-white/30 text-sm max-w-xs text-center md:text-left">
-                            The world's first AI-powered networking operating system.
+                            The world&apos;s first AI-powered networking operating system.
                             Beyond business cards. Beyond expectations.
                         </p>
 

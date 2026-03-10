@@ -194,7 +194,7 @@ export default function SettingsPage() {
                                         </button>
                                     </div>
                                     <p className="text-[10px] text-white/30">
-                                        Don't have one? <a href="https://platform.openai.com/api-keys" target="_blank" className="text-purple-400 hover:underline">Get an API Key here</a>.
+                                        Don&apos;t have one? <a href="https://platform.openai.com/api-keys" target="_blank" className="text-purple-400 hover:underline">Get an API Key here</a>.
                                         Key is stored securely and only used for your scans.
                                     </p>
                                 </div>

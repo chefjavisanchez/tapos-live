@@ -1,3 +1,5 @@
+import { EVENT_CONFIG } from '@/lib/event-config';
+
 export interface PassportEmailTemplateProps {
     fullName: string;
     slug: string;
@@ -56,11 +58,11 @@ export const getPassportEmailHtml = ({
                     <div style="display: table; width: 100%; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 25px;">
                         <div style="display: table-cell; width: 50%;">
                             <p style="font-size: 11px; color: #666666; text-transform: uppercase; font-weight: 900; letter-spacing: 2px; margin: 0 0 5px 0;">EVENT</p>
-                            <p style="font-size: 14px; color: #ffde00; font-weight: bold; margin: 0;">KONECTA SPRING EXPO</p>
+                            <p style="font-size: 14px; color: #ffde00; font-weight: bold; margin: 0;">${EVENT_CONFIG.title.toUpperCase()}</p>
                         </div>
                         <div style="display: table-cell; width: 50%;">
                             <p style="font-size: 11px; color: #666666; text-transform: uppercase; font-weight: 900; letter-spacing: 2px; margin: 0 0 5px 0;">DATE</p>
-                            <p style="font-size: 14px; color: #ffffff; font-weight: bold; margin: 0;">APRIL 30, 2026</p>
+                            <p style="font-size: 14px; color: #ffffff; font-weight: bold; margin: 0;">${EVENT_CONFIG.date.toUpperCase()}</p>
                         </div>
                     </div>
                 </div>
@@ -70,7 +72,7 @@ export const getPassportEmailHtml = ({
                         Save your pass to your calendar to stay updated on raffle alerts and exclusive networking sessions.
                     </p>
                     <div style="text-align: center;">
-                        <a href="https://www.google.com/calendar/render?action=TEMPLATE&text=Konecta%20con%20Crema%20Spring%20Expo&dates=20260430T210000Z/20260501T010000Z&details=Official%20event%20for%20business%20networking%20and%20raffle.%20Show%20your%20TapOS%20Passport%20QR%20to%20participate!&location=TBD&sf=true&output=xml" style="display: inline-block; background-color: #222222; color: #ffffff; padding: 12px 20px; border-radius: 15px; text-decoration: none; font-size: 11px; font-weight: bold; border: 1px solid rgba(255,255,255,0.1); margin: 5px;">GOOGLE CALENDAR</a>
+                        <a href="${EVENT_CONFIG.googleCalendarUrl}" style="display: inline-block; background-color: #222222; color: #ffffff; padding: 12px 20px; border-radius: 15px; text-decoration: none; font-size: 11px; font-weight: bold; border: 1px solid rgba(255,255,255,0.1); margin: 5px;">GOOGLE CALENDAR</a>
                         <a href="https://tapos360.com/api/calendar/ics" style="display: inline-block; background-color: #222222; color: #ffffff; padding: 12px 20px; border-radius: 15px; text-decoration: none; font-size: 11px; font-weight: bold; border: 1px solid rgba(255,255,255,0.1); margin: 5px;">OUTLOOK / APPLE</a>
                     </div>
                 </div>
