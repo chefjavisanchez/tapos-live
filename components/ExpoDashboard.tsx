@@ -214,7 +214,7 @@ export default function ExpoDashboard({ leads, cards }: { leads: any[], cards: a
                                             <CheckCircle2 size={16} />
                                         </div>
                                         <div>
-                                            <p className="text-sm font-bold text-white">{lead.full_name}</p>
+                                            <p className="text-sm font-bold text-white">{lead.full_name || lead.name}</p>
                                             <p className="text-[10px] text-white/40 font-mono italic">{new Date(lead.created_at).toLocaleTimeString()}</p>
                                         </div>
                                     </div>

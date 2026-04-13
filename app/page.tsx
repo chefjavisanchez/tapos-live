@@ -87,7 +87,7 @@ export default function Home() {
             const { data: leadsData } = await supabase
                 .from('leads')
                 .select('*')
-                .or(`owner_id.eq.${user.id},event_owner_id.eq.${user.id}`)
+                .or(`owner_id.eq.${user.id}`)
                 .order('created_at', { ascending: false });
 
             if (leadsData) setLeads(leadsData);
