@@ -57,6 +57,28 @@ export async function POST(req: Request) {
         }
         console.log('Supabase Insert Success:', data.id);
 
+        // 2b. Insert lead into Supabase
+        console.log('Inserting Lead into Supabase...');
+        const { error: leadError } = await supabaseAdmin
+            .from('leads')
+            .insert([
+                {
+                    name: fullName,
+                    email: email,
+                    phone: phone,
+                    owner_id: eventOwnerId || null,
+                    card_id: data.id,
+                    event_id: eventId || null,
+                    is_verified: true,
+                    note: `Registered via Event Passport. Company: ${company || 'N/A'}`
+                }
+            ]);
+
+        if (leadError) {
+            console.error('Supabase Lead Insert Error:', leadError);
+            // We don't throw here to ensure the email still sends, but the error is logged.
+        }
+
         // 3. Send Email via Resend
         let emailStatus = 'pending';
         let resendResponse: any = null;
