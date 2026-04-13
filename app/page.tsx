@@ -11,6 +11,7 @@ import DashboardSidebar from '@/components/DashboardSidebar'; // Import Sidebar
 import LeadViewer from '@/components/LeadViewer'; // Import LeadViewer
 import LeadsManager from '@/components/LeadsManager'; // Import LeadsManager
 import ExpoDashboard from '@/components/ExpoDashboard'; // Import ExpoDashboard
+import EventManager from '@/components/EventManager'; // Import EventManager
 
 export default function Home() {
     const [cards, setCards] = useState<any[]>([]);
@@ -24,7 +25,7 @@ export default function Home() {
     // NEW CORPORATE STATES
     const [appUser, setAppUser] = useState<any>(null);
     const [planType, setPlanType] = useState('independent');
-    const [activeTab, setActiveTab] = useState<'dashboard' | 'team' | 'leads' | 'expo'>('dashboard');
+    const [activeTab, setActiveTab] = useState<'dashboard' | 'team' | 'leads' | 'expo' | 'events'>('dashboard');
     const [teamMembers, setTeamMembers] = useState<any[]>([]);
 
     // LEAD VIEWER STATE
@@ -51,6 +52,7 @@ export default function Home() {
         if (tab === 'team') setActiveTab('team');
         if (tab === 'leads') setActiveTab('leads');
         if (tab === 'expo') setActiveTab('expo');
+        if (tab === 'events') setActiveTab('events');
 
         const fetchCards = async () => {
             const { data: { user } } = await supabase.auth.getUser();
@@ -389,6 +391,8 @@ export default function Home() {
                     <LeadsManager cards={cards} leads={leads} /> // Pass leads directly
                 ) : activeTab === 'expo' ? (
                     <ExpoDashboard leads={leads} cards={cards} />
+                ) : activeTab === 'events' ? (
+                    <EventManager />
                 ) : (
                     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                         <header className="mb-10">

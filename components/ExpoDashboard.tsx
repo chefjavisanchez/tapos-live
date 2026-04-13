@@ -1,7 +1,7 @@
 'use client';
 
-import { Trophy, Users, Zap, ExternalLink, Ticket, ArrowUpRight, CheckCircle2, Lock, Sparkles } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Trophy, Users, Zap, ExternalLink, Ticket, ArrowUpRight, CheckCircle2, Lock, Sparkles, Filter, ChevronDown } from "lucide-react";
+import { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/lib/supabase";
 import { isAdmin } from "@/lib/admin-config";
 
@@ -9,24 +9,40 @@ export default function ExpoDashboard({ leads, cards }: { leads: any[], cards: a
     const [isSponsor, setIsSponsor] = useState(false);
     const [userId, setUserId] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
+    const [events, setEvents] = useState<any[]>([]);
+    const [selectedEventId, setSelectedEventId] = useState<string>('all');
 
     useEffect(() => {
-        const checkSponsorStatus = async () => {
+        const initialize = async () => {
             const { data: { user } } = await supabase.auth.getUser();
             if (user) {
                 setUserId(user.id);
                 // Unlock for registered sponsors OR administrators
                 if (user.user_metadata?.is_sponsor || isAdmin(user.email)) {
                     setIsSponsor(true);
+                    
+                    // Fetch events owned by this user
+                    const { data: eventData } = await supabase
+                        .from('events')
+                        .select('*')
+                        .eq('owner_id', user.id);
+                    
+                    if (eventData) setEvents(eventData);
                 }
             }
             setLoading(false);
         };
-        checkSponsorStatus();
+        initialize();
     }, []);
 
-    const verifiedLeads = leads.filter(l => l.is_verified);
-    const totalLeads = leads.length;
+    // Filter leads based on selected event
+    const filteredLeads = useMemo(() => {
+        if (selectedEventId === 'all') return leads;
+        return leads.filter(l => l.event_id === selectedEventId || l.content?.eventId === selectedEventId);
+    }, [leads, selectedEventId]);
+
+    const verifiedLeads = filteredLeads.filter(l => l.is_verified);
+    const totalLeads = filteredLeads.length;
     const totalViews = cards.reduce((acc, c) => acc + (c.content?.analytics?.views || 0), 0);
     const estimatedROI = (totalViews * 0.45).toFixed(2);
 
@@ -114,14 +130,36 @@ export default function ExpoDashboard({ leads, cards }: { leads: any[], cards: a
                 </div>
             )}
 
-            <header className="mb-10">
-                <div className="flex items-center gap-3 mb-2">
-                    <div className="p-2 bg-[#ffde00]/20 rounded-lg text-[#ffde00]">
-                        <Ticket size={24} />
+            <header className="mb-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+                <div>
+                    <div className="flex items-center gap-3 mb-2">
+                        <div className="p-2 bg-[#ffde00]/20 rounded-lg text-[#ffde00]">
+                            <Ticket size={24} />
+                        </div>
+                        <h1 className="text-4xl font-black font-syncopate uppercase">EVENT <span className="text-[#ffde00]">DASHBOARD</span></h1>
                     </div>
-                    <h1 className="text-4xl font-black font-syncopate uppercase">EVENT <span className="text-[#ffde00]">DASHBOARD</span></h1>
+                    <p className="text-white/50 font-medium">Real-time interaction matrix and ROI verification.</p>
                 </div>
-                <p className="text-white/50 font-medium">Real-time interaction matrix and ROI verification.</p>
+
+                {isSponsor && events.length > 0 && (
+                    <div className="relative group min-w-[250px]">
+                        <div className="absolute -inset-0.5 bg-gradient-to-r from-[#ffde00] to-purple-600 rounded-xl blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
+                        <div className="relative flex items-center bg-black rounded-xl border border-white/10 px-4 py-3">
+                            <Filter size={16} className="text-[#ffde00] mr-3" />
+                            <select 
+                                value={selectedEventId}
+                                onChange={(e) => setSelectedEventId(e.target.value)}
+                                className="bg-transparent text-white text-xs font-black uppercase tracking-widest outline-none cursor-pointer flex-1 appearance-none"
+                            >
+                                <option value="all" className="bg-black">All Events History</option>
+                                {events.map(event => (
+                                    <option key={event.id} value={event.id} className="bg-black">{event.title}</option>
+                                ))}
+                            </select>
+                            <ChevronDown size={14} className="text-white/30 ml-2 pointer-events-none" />
+                        </div>
+                    </div>
+                )}
             </header>
 
             {/* HIGH-IMPACT STATS */}
@@ -202,20 +240,25 @@ export default function ExpoDashboard({ leads, cards }: { leads: any[], cards: a
                         <div className="space-y-4">
                             <button
                                 onClick={() => {
-                                    const link = `${window.location.origin}/passport?host=${userId}`;
+                                    const eventSlug = events.find(e => e.id === selectedEventId)?.slug || '';
+                                    const link = `${window.location.origin}/passport?host=${userId}${eventSlug ? `&event=${eventSlug}` : ''}`;
                                     navigator.clipboard.writeText(link);
-                                    alert("Personalized registration link copied!");
+                                    alert("Registration link copied!");
                                 }}
                                 className="w-full flex items-center justify-between p-4 bg-white/5 rounded-xl border border-white/10 hover:border-white/30 transition group"
                             >
                                 <div>
-                                    <p className="text-sm font-bold text-white uppercase">Personalized registration</p>
-                                    <p className="text-[10px] text-white/40">Guests register via your unique host link</p>
+                                    <p className="text-sm font-bold text-white uppercase">Copy Registration link</p>
+                                    <p className="text-[10px] text-white/40">
+                                        {selectedEventId === 'all' 
+                                            ? 'Guests register via your general host link' 
+                                            : `Link for: ${events.find(e => e.id === selectedEventId)?.title}`}
+                                    </p>
                                 </div>
                                 <ArrowUpRight size={16} className="text-[#ffde00] group-hover:scale-110 transition" />
                             </button>
                             <a
-                                href={`/passport?host=${userId}`}
+                                href={`/passport?host=${userId}${selectedEventId !== 'all' ? `&event=${events.find(e => e.id === selectedEventId)?.slug}` : ''}`}
                                 target="_blank"
                                 className="flex items-center justify-between p-4 bg-white/5 rounded-xl border border-white/10 hover:border-white/30 transition group"
                             >

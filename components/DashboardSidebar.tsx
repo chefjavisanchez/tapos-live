@@ -37,8 +37,8 @@ export default function DashboardSidebar({
 }: {
     isAdmin: boolean,
     planType: string,
-    activeTab?: 'dashboard' | 'team' | 'leads' | 'expo',
-    setActiveTab?: (tab: 'dashboard' | 'team' | 'leads' | 'expo') => void,
+    activeTab?: 'dashboard' | 'team' | 'leads' | 'expo' | 'events',
+    setActiveTab?: (tab: 'dashboard' | 'team' | 'leads' | 'expo' | 'events') => void,
     userCard?: any
 }) {
     const router = useRouter();
@@ -107,13 +107,22 @@ export default function DashboardSidebar({
                     router={router}
                 />
                 {(isAdmin || isSponsor) && (
-                    <NavItem
-                        icon={<Ticket size={20} className="text-[#ffde00]" />}
-                        label="Event Mode"
-                        active={isDashboard && activeTab === 'expo'}
-                        onClick={isDashboard ? () => setActiveTab?.('expo') : () => router.push('/?tab=expo')}
-                        router={router}
-                    />
+                    <>
+                        <NavItem
+                            icon={<Ticket size={20} className="text-[#ffde00]" />}
+                            label="Event Mode"
+                            active={isDashboard && activeTab === 'expo'}
+                            onClick={isDashboard ? () => setActiveTab?.('expo') : () => router.push('/?tab=expo')}
+                            router={router}
+                        />
+                        <NavItem
+                            icon={<Calendar size={20} className="text-white" />}
+                            label="Manage Events"
+                            active={isDashboard && activeTab === 'events'}
+                            onClick={isDashboard ? () => setActiveTab?.('events') : () => router.push('/?tab=events')}
+                            router={router}
+                        />
+                    </>
                 )}
 
                 {planType === 'corporate' && (

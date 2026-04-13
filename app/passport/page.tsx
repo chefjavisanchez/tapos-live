@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Sparkles, ArrowRight, User, Mail, Phone, Ticket, Loader2, Calendar, Download } from 'lucide-react';
+import { Sparkles, ArrowRight, User, Mail, Phone, Ticket, Loader2, Calendar, Download, MapPin, AlertTriangle } from 'lucide-react';
 import { generateCalendarLinks } from '@/lib/calendar';
 import { EVENT_CONFIG } from '@/lib/event-config';
 
 export default function PassportPage() {
     const [loading, setLoading] = useState(false);
+    const [pageLoading, setPageLoading] = useState(true);
     const [success, setSuccess] = useState(false);
     const [error, setError] = useState('');
     const [form, setForm] = useState({
@@ -19,11 +20,54 @@ export default function PassportPage() {
     const [eventOwnerId, setEventOwnerId] = useState<string | null>(null);
     const [generatedSlug, setGeneratedSlug] = useState('');
     const [emailStatus, setEmailStatus] = useState('');
+    const [currentEvent, setCurrentEvent] = useState<any>(null);
 
     useEffect(() => {
-        const searchParams = new URLSearchParams(window.location.search);
-        const host = searchParams.get('host');
-        if (host) setEventOwnerId(host);
+        const fetchEventAndHost = async () => {
+            const searchParams = new URLSearchParams(window.location.search);
+            const host = searchParams.get('host');
+            const eventSlug = searchParams.get('event');
+
+            if (host) setEventOwnerId(host);
+
+            if (eventSlug) {
+                try {
+                    const { data, error: eventError } = await supabase
+                        .from('events')
+                        .select('*')
+                        .eq('slug', eventSlug)
+                        .single();
+
+                    if (!eventError && data) {
+                        setCurrentEvent(data);
+                    } else {
+                        console.warn('Event not found, falling back to default config.');
+                        // If slug provided but not found, we use fallback
+                        setCurrentEvent({
+                            title: EVENT_CONFIG.title,
+                            date_text: EVENT_CONFIG.date,
+                            time_text: EVENT_CONFIG.time,
+                            address: EVENT_CONFIG.address,
+                            description: EVENT_CONFIG.description
+                        });
+                    }
+                } catch (err) {
+                    console.error('Error fetching event:', err);
+                }
+            } else {
+                // No slug provided, use default
+                setCurrentEvent({
+                    title: EVENT_CONFIG.title,
+                    date_text: EVENT_CONFIG.date,
+                    time_text: EVENT_CONFIG.time,
+                    address: EVENT_CONFIG.address,
+                    description: EVENT_CONFIG.description
+                });
+            }
+            setPageLoading(false);
+        };
+
+        fetchEventAndHost();
     }, []);
 
     const handleRegister = async (e: React.FormEvent) => {
@@ -35,7 +79,13 @@ export default function PassportPage() {
             const response = await fetch('/api/passport/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ...form, eventOwnerId })
+                body: JSON.stringify({ 
+                    ...form, 
+                    eventOwnerId, 
+                    eventId: currentEvent?.id || null,
+                    eventTitle: currentEvent?.title || EVENT_CONFIG.title,
+                    eventDate: currentEvent?.date_text || EVENT_CONFIG.date
+                })
             });
 
             const result = await response.json();
@@ -57,6 +107,14 @@ export default function PassportPage() {
             setLoading(false);
         }
     };
+
+    if (pageLoading) {
+        return (
+            <div className="min-h-screen bg-black flex items-center justify-center">
+                <Loader2 className="animate-spin text-[#ffde00]" size={40} />
+            </div>
+        );
+    }
 
     if (success) {
         return (
@@ -83,7 +141,7 @@ export default function PassportPage() {
                     <div className="text-left space-y-4 mb-8">
                         <div>
                             <p className="text-[10px] text-white/30 uppercase font-black tracking-widest">Event Location</p>
-                            <p className="text-white font-rajdhani font-bold text-sm leading-tight">{EVENT_CONFIG.address}</p>
+                            <p className="text-white font-rajdhani font-bold text-sm leading-tight">{currentEvent?.address}</p>
                         </div>
                         <div>
                             <p className="text-[10px] text-white/30 uppercase font-black tracking-widest">Guest Name</p>
@@ -122,11 +180,11 @@ export default function PassportPage() {
                         <div className="flex gap-2">
                             <a
                                 href={generateCalendarLinks({
-                                    title: EVENT_CONFIG.title,
-                                    description: EVENT_CONFIG.description,
-                                    location: EVENT_CONFIG.address,
-                                    start: EVENT_CONFIG.startDate,
-                                    end: EVENT_CONFIG.endDate
+                                    title: currentEvent?.title,
+                                    description: currentEvent?.description,
+                                    location: currentEvent?.address,
+                                    start: currentEvent?.id ? new Date() : EVENT_CONFIG.startDate, // Need better date handling for custom events
+                                    end: currentEvent?.id ? new Date() : EVENT_CONFIG.endDate
                                 }).googleUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
@@ -136,11 +194,11 @@ export default function PassportPage() {
                             </a>
                             <a
                                 href={generateCalendarLinks({
-                                    title: EVENT_CONFIG.title,
-                                    description: EVENT_CONFIG.description,
-                                    location: EVENT_CONFIG.address,
-                                    start: EVENT_CONFIG.startDate,
-                                    end: EVENT_CONFIG.endDate
+                                    title: currentEvent?.title,
+                                    description: currentEvent?.description,
+                                    location: currentEvent?.address,
+                                    start: currentEvent?.id ? new Date() : EVENT_CONFIG.startDate,
+                                    end: currentEvent?.id ? new Date() : EVENT_CONFIG.endDate
                                 }).icsDataUri}
                                 download="event-passport.ics"
                                 className="flex-1 bg-white/10 hover:bg-white/20 border border-white/10 py-3 rounded-xl flex items-center justify-center gap-2 text-[10px] uppercase font-bold transition"
@@ -179,8 +237,8 @@ export default function PassportPage() {
                     </div>
                     <h1 className="font-syncopate text-2xl font-bold tracking-tighter uppercase">TAP<span className="text-[#ffde00]">O</span>S PASS</h1>
                 </div>
-                <p className="text-white/40 text-[10px] font-bold uppercase tracking-[0.2em]">{EVENT_CONFIG.title}</p>
-                <p className="text-[#ffde00] text-[10px] font-bold uppercase tracking-[0.2em] mt-1">{EVENT_CONFIG.date} • {EVENT_CONFIG.time}</p>
+                <p className="text-white/40 text-[10px] font-bold uppercase tracking-[0.2em]">{currentEvent?.title}</p>
+                <p className="text-[#ffde00] text-[10px] font-bold uppercase tracking-[0.2em] mt-1">{currentEvent?.date_text} • {currentEvent?.time_text}</p>
             </div>
 
             <div className="w-full max-w-md glass-panel border border-white/10 rounded-[2rem] p-8 shadow-2xl relative overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-700">

@@ -4,14 +4,20 @@ export interface PassportEmailTemplateProps {
     fullName: string;
     slug: string;
     qrUrl: string;
+    eventTitle?: string;
+    eventDate?: string;
 }
 
 export const getPassportEmailHtml = ({
     fullName,
     slug,
     qrUrl,
+    eventTitle,
+    eventDate
 }: PassportEmailTemplateProps) => {
     const accessId = slug.split('-')[1]?.toUpperCase() || 'GUEST';
+    const displayTitle = eventTitle || EVENT_CONFIG.title;
+    const displayDate = eventDate || EVENT_CONFIG.date;
 
     return `
 <!DOCTYPE html>
@@ -58,11 +64,11 @@ export const getPassportEmailHtml = ({
                     <div style="display: table; width: 100%; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 25px;">
                         <div style="display: table-cell; width: 50%;">
                             <p style="font-size: 11px; color: #666666; text-transform: uppercase; font-weight: 900; letter-spacing: 2px; margin: 0 0 5px 0;">EVENT</p>
-                            <p style="font-size: 14px; color: #ffde00; font-weight: bold; margin: 0;">${EVENT_CONFIG.title.toUpperCase()}</p>
+                            <p style="font-size: 14px; color: #ffde00; font-weight: bold; margin: 0;">${displayTitle.toUpperCase()}</p>
                         </div>
                         <div style="display: table-cell; width: 50%;">
                             <p style="font-size: 11px; color: #666666; text-transform: uppercase; font-weight: 900; letter-spacing: 2px; margin: 0 0 5px 0;">DATE</p>
-                            <p style="font-size: 14px; color: #ffffff; font-weight: bold; margin: 0;">${EVENT_CONFIG.date.toUpperCase()}</p>
+                            <p style="font-size: 14px; color: #ffffff; font-weight: bold; margin: 0;">${displayDate.toUpperCase()}</p>
                         </div>
                     </div>
                 </div>

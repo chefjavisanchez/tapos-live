@@ -9,7 +9,7 @@ export async function POST(req: Request) {
     try {
         const body = await req.json();
         console.log('Registration Payload:', body);
-        const { fullName, email, phone, company, eventOwnerId } = body;
+        const { fullName, email, phone, company, eventOwnerId, eventId, eventTitle } = body;
 
         if (!fullName || !email || !phone || !company) {
             console.warn('Missing required fields:', { fullName, email, phone, company });
@@ -28,9 +28,10 @@ export async function POST(req: Request) {
             phone,
             company,
             eventOwnerId: eventOwnerId || null,
+            eventId: eventId || null,
             theme: 'gold',
             is_lite: true,
-            event: EVENT_CONFIG.title,
+            event: eventTitle || EVENT_CONFIG.title,
             profileImage: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=400&h=400&fit=crop",
             bio: "Official Event Guest"
         };
@@ -75,16 +76,18 @@ export async function POST(req: Request) {
                 const html = getPassportEmailHtml({
                     fullName,
                     slug,
-                    qrUrl
+                    qrUrl,
+                    eventTitle: eventTitle || EVENT_CONFIG.title,
+                    eventDate: body.eventDate || EVENT_CONFIG.date
                 });
 
                 const { data: emailData, error: emailError } = await resend.emails.send({
                     from: 'TapOS <javi@tapygo.com>',
                     to: [email],
                     replyTo: 'javi@tapygo.com',
-                    subject: 'Your Event Passport is Activated! 🎫',
+                    subject: `${eventTitle || EVENT_CONFIG.title} Passport Activated! 🎫`,
                     html: html,
-                    text: `Hello ${fullName}! Your Event Passport for ${EVENT_CONFIG.title} is activated. Your Access ID is ${slug.slice(-5).toUpperCase()}. You can view your digital badge at: https://tapos360.com/${slug}`,
+                    text: `Hello ${fullName}! Your Event Passport for ${eventTitle || EVENT_CONFIG.title} is activated. Your Access ID is ${slug.slice(-5).toUpperCase()}. You can view your digital badge at: https://tapos360.com/${slug}`,
                     headers: {
                         'X-Entity-Ref-ID': slug,
                     },
