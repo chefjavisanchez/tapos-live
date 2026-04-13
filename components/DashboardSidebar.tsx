@@ -1,6 +1,6 @@
 'use client';
 
-import { Terminal, LayoutGrid, User, Users, Gift, ShoppingBag, Shield, Settings, CreditCard, LogOut, Eye, Share2, Ticket, ArrowUpRight } from "lucide-react";
+import { Terminal, LayoutGrid, User, Users, Gift, ShoppingBag, Shield, Settings, CreditCard, LogOut, Eye, Share2, Ticket, ArrowUpRight, Calendar } from "lucide-react";
 import { useRouter, usePathname } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { useState, useEffect } from 'react';
