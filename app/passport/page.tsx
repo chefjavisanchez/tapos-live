@@ -40,6 +40,10 @@ export default function PassportPage() {
 
                     if (!eventError && data) {
                         setCurrentEvent(data);
+                        // Assign the lead to the event creator if no explicit host was passed
+                        if (!host && data.owner_id) {
+                            setEventOwnerId(data.owner_id);
+                        }
                     } else {
                         console.warn('Event not found, falling back to default config.');
                         // If slug provided but not found, we use fallback
